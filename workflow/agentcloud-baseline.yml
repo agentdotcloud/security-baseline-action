@@ -1,0 +1,26 @@
+name: agent.cloud dependency baseline
+on:
+  push:
+    branches: [main] # your default branch
+    paths:
+      - '**/package-lock.json'
+      - '**/package.json'
+      - .github/workflows/agentcloud-baseline.yml
+  schedule:
+    - cron: '23 7 * * 1' # weekly, Mondays 07:23 UTC
+  workflow_dispatch:
+permissions: {}
+jobs:
+  baseline:
+    runs-on: ${{ fromJSON(vars.AGENTCLOUD_RUNS_ON || '"ubuntu-latest"') }}
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: agentdotcloud/security-baseline-action@7b21077fdc97b2065f2d18dc582bcef8fb71a255 # v0.1.0
+        env:
+          AGENTCLOUD_SEND_REPORT: ${{ vars.AGENTCLOUD_SEND_REPORT }}
