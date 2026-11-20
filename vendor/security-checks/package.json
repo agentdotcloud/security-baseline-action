@@ -1,0 +1,20 @@
+{
+  "name": "@summationai/security-checks",
+  "version": "0.3.2",
+  "private": true,
+  "type": "module",
+  "description": "Defensive Factory's shared security checks (DFBASE-3): pure, and importing nothing from packages/control",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "semver": "7.8.6",
+    "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "@types/semver": "7.8.0",
+    "oxc-parser": "0.127.0"
+  }
+}
