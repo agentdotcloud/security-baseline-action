@@ -33,9 +33,38 @@ The summary and the artifact are stored by GitHub with the run, like any other w
 The action runs one file, `dist/index.mjs`, bundled from the source in this repository. At run time it refuses to load
 any module other than Node's built-ins, even if a `node_modules` folder is on the runner.
 
-## Use it
+## Set it up
 
-Add `.github/workflows/agentcloud-baseline.yml`:
+The baseline is one file in each repository, `.github/workflows/agentcloud-baseline.yml`, the workflow shown
+[below](#the-workflow). agent.cloud's GitHub App only reads your repositories and never writes to them, so you add the
+file yourself, in either of two ways.
+
+**One repository at a time.** agent.cloud's setup page gives you a GitHub link for each repository that opens a new
+file with the workflow already filled in. Review it on GitHub and commit it, or propose it as a pull request.
+
+**Many repositories at once.** Run `setup.sh` from a clone of this repository, signed in to the
+[GitHub CLI](https://cli.github.com) as yourself. It's short: read it before you run it.
+
+```sh
+git clone --branch v0.1.1 https://github.com/agentdotcloud/security-baseline-action
+cd security-baseline-action
+./setup.sh --dry-run --org your-org      # what it would do, changing nothing
+./setup.sh --org your-org                # every repository in your-org you can push to, except archived ones
+./setup.sh your-org/web your-org/api     # or the repositories you name
+```
+
+`setup.sh` uses only your own `gh` login, never a token from agent.cloud, and talks only to GitHub. In each repository
+it writes only that one file: `workflow/agentcloud-baseline.yml` from this repository, with the push trigger set to the
+repository's default branch. It commits the file to the default branch. Where branch protection refuses a direct
+commit, it puts the file on a new branch, `agentcloud-baseline`, and opens a pull request for you to merge. GitHub
+decides which: if your login may bypass a branch's protection, as admins often can, the commit goes straight in. A
+repository that already has the file is skipped, and the file is never overwritten. It prints one line per repository,
+`committed`, `PR <url>`, `skipped (exists)` or `failed:` with GitHub's reason, and exits non-zero if any failed.
+GitHub accepts a workflow file only from a login with the `workflow` scope; `gh auth refresh -s workflow` adds it.
+
+## The workflow
+
+This is `workflow/agentcloud-baseline.yml`, the file to add as `.github/workflows/agentcloud-baseline.yml`:
 
 ```yaml
 name: agent.cloud dependency baseline
@@ -61,17 +90,20 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: agentdotcloud/security-baseline-action@<full commit SHA> # v0.1.0
+      - uses: agentdotcloud/security-baseline-action@7b21077fdc97b2065f2d18dc582bcef8fb71a255 # v0.1.0
         env:
           AGENTCLOUD_SEND_REPORT: ${{ vars.AGENTCLOUD_SEND_REPORT }}
 ```
 
-Pin the action to the full commit SHA of the release you reviewed, not to its tag: a tag can be moved, a commit can't.
-To get the commit for v0.1.0:
+Both actions are pinned to a full commit SHA, not to a tag: a tag can be moved, a commit can't. To check that the
+action's commit is v0.1.0's:
 
 ```sh
 git ls-remote https://github.com/agentdotcloud/security-baseline-action 'refs/tags/v0.1.0^{}'
 ```
+
+**Default branch.** If your default branch isn't `main`, put its name in `branches: [main]`. `setup.sh` does that
+for you.
 
 **Runners.** The job runs on `ubuntu-latest` unless you set the repository or organization variable
 `AGENTCLOUD_RUNS_ON` to a JSON label or list of labels, for example `["self-hosted","linux"]`. No change to the file.

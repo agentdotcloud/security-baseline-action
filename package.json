@@ -1,6 +1,6 @@
 {
   "name": "@agentdotcloud/security-baseline-action",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "GitHub Action that runs agent.cloud's dependency baseline (static.deps) on package-lock.json files, on your own runner",
   "exports": {
