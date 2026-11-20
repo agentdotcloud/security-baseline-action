@@ -1,0 +1,27 @@
+name: 'agent.cloud Dependency Baseline'
+description: 'Run static.deps locally on package-lock.json files in the checkout and report findings in GitHub Actions.'
+inputs:
+  fail-on:
+    description: 'Fail the job when a finding meets or exceeds this severity (critical, high, moderate, or low). Unset never fails on findings.'
+    required: false
+    default: ''
+  send-report:
+    description: 'Send the report body to agent.cloud (off by default; also enabled by the AGENTCLOUD_SEND_REPORT variable).'
+    required: false
+    default: 'false'
+  working-directory:
+    description: 'Checkout directory to scan (defaults to GITHUB_WORKSPACE or the current working directory).'
+    required: false
+    default: ''
+outputs:
+  coverage:
+    description: 'Overall baseline coverage (complete, partial, incomplete, or none).'
+  findings-count:
+    description: 'Total findings across analyzed lockfiles.'
+  artifact-name:
+    description: 'Name of the uploaded report artifact (agentcloud-baseline).'
+  send-report:
+    description: 'Whether sending the report to agent.cloud is enabled (true or false).'
+runs:
+  using: 'node24'
+  main: 'dist/index.mjs'

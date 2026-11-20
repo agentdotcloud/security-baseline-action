@@ -1,0 +1,22 @@
+{
+  "name": "@agentdotcloud/security-baseline-action",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "GitHub Action that runs agent.cloud's dependency baseline (static.deps) on package-lock.json files, on your own runner",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "node scripts/bundle.ts",
+    "test": "node --test test/*.test.ts vendor/security-checks/test/*.test.ts"
+  },
+  "dependencies": {
+    "@actions/artifact": "6.3.1",
+    "@actions/core": "3.0.1",
+    "@summationai/security-checks": "file:vendor/security-checks"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1",
+    "oxc-parser": "0.127.0"
+  }
+}
