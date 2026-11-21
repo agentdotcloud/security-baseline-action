@@ -1,12 +1,10 @@
 // DFGHR-8, DFGHR-10, DFGHR-20: local static.deps execution, network boundaries, unreachable sources,
-// job summary, 30-day artifact upload, fail-on threshold, and opt-in sending switch.
+// job summary, 30-day artifact upload, fail-on threshold, and the opt-in sending switch.
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
 import { test } from 'node:test';
 import { canonicalJson, type DepsReportBody } from '@summationai/security-checks';
 import {
+  ARTIFACT_FILE,
   ARTIFACT_NAME,
   ARTIFACT_RETENTION_DAYS,
   createRunnerHttp,
@@ -17,144 +15,9 @@ import {
   SETUP_PAGE_URL,
   shouldSendReport,
   validatePublicRequest,
-  type ActionRuntime,
-  type ArtifactUploadRequest,
   type BaselineRunResult,
 } from '../src/index.ts';
-
-const NOW = Date.parse('2026-11-20T12:00:00Z');
-const INTEGRITY = 'sha512-Zml4dHVyZQ==';
-const tarball = (name: string, version: string) =>
-  `https://registry.npmjs.org/${name}/-/${name.split('/').at(-1)}-${version}.tgz`;
-const regEntry = (name: string, version: string, extra: Record<string, unknown> = {}) => ({
-  version,
-  resolved: tarball(name, version),
-  integrity: INTEGRITY,
-  ...extra,
-});
-const osvAdvisory = (id: string, name: string, severity: string, fixedVersion?: string) => ({
-  id,
-  modified: '2026-11-01T00:00:00Z',
-  summary: `${id} in ${name}`,
-  aliases: [id],
-  affected: [
-    {
-      package: { ecosystem: 'npm', name },
-      ranges: [
-        {
-          type: 'SEMVER',
-          events: fixedVersion ? [{ introduced: '0' }, { fixed: fixedVersion }] : [{ introduced: '0' }],
-        },
-      ],
-    },
-  ],
-  database_specific: { severity },
-});
-
-function makeCheckout(files: Record<string, unknown>): { dir: string; cleanup: () => void } {
-  const dir = mkdtempSync(join(tmpdir(), 'dfghr-action-'));
-  for (const [rel, content] of Object.entries(files)) {
-    const abs = join(dir, rel);
-    mkdirSync(join(abs, '..'), { recursive: true });
-    writeFileSync(abs, typeof content === 'string' ? content : JSON.stringify(content, null, 2), 'utf8');
-  }
-  return { dir, cleanup: () => rmSync(dir, { recursive: true, force: true }) };
-}
-
-interface FakeNetworkOptions {
-  records?: Record<string, unknown>[];
-  privatePackages?: string[];
-  registryDown?: boolean;
-  osvDown?: boolean;
-  manifests?: Record<string, Record<string, unknown>>;
-}
-
-function makeFakeFetch(opts: FakeNetworkOptions = {}) {
-  const calls: { url: string; host: string; method: string; body?: string }[] = [];
-  const records = opts.records ?? [];
-  const fetcher = (async (raw: string | URL | Request, init?: RequestInit) => {
-    const url = new URL(typeof raw === 'string' ? raw : raw instanceof URL ? raw.href : raw.url);
-    const body = typeof init?.body === 'string' ? init.body : undefined;
-    calls.push({ url: url.href, host: url.hostname, method: init?.method ?? 'GET', body });
-    assert.equal(init?.redirect, 'manual', 'redirects must stay manual');
-
-    if (url.hostname === 'registry.npmjs.org') {
-      if (opts.registryDown) throw new TypeError('connect ECONNREFUSED registry.npmjs.org');
-      const segs = url.pathname.slice(1).split('/').map(decodeURIComponent);
-      const [name, version] = segs.length === 3 ? [`${segs[0]}/${segs[1]}`, segs[2]!] : [segs[0]!, segs[1]!];
-      if (opts.privatePackages?.includes(name)) return new Response(null, { status: 404 });
-      return Response.json({
-        name,
-        version,
-        dist: { tarball: tarball(name, version), integrity: INTEGRITY },
-        ...opts.manifests?.[`${name}@${version}`],
-      });
-    }
-    if (url.hostname === 'api.osv.dev') {
-      if (opts.osvDown) throw new TypeError('connect ECONNREFUSED api.osv.dev');
-      if (url.pathname === '/v1/querybatch') {
-        const parsed = JSON.parse(body ?? '{}') as { queries: { package: { name: string }; version: string }[] };
-        return Response.json({
-          results: parsed.queries.map((q) => ({
-            vulns: records
-              .filter((r) =>
-                (r.affected as { package: { name: string } }[]).some((a) => a.package.name === q.package.name),
-              )
-              .map((r) => ({ id: r.id, modified: r.modified })),
-          })),
-        });
-      }
-      const id = decodeURIComponent(url.pathname.slice('/v1/vulns/'.length));
-      const record = records.find((r) => r.id === id);
-      return record ? Response.json(record) : new Response(null, { status: 404 });
-    }
-    throw new Error(`Unexpected host contacted: ${url.hostname}`);
-  }) as typeof fetch;
-
-  return { fetcher, calls };
-}
-
-function makeRuntime(
-  cwd: string,
-  fetcher: typeof fetch,
-  overrides: {
-    inputs?: Record<string, string>;
-    env?: Record<string, string | undefined>;
-    onSendReport?: ActionRuntime['onSendReport'];
-  } = {},
-) {
-  const outputs: Record<string, string> = {};
-  const summaries: string[] = [];
-  const artifacts: ArtifactUploadRequest[] = [];
-  const failures: string[] = [];
-  const infos: string[] = [];
-  const inputs = overrides.inputs ?? {};
-
-  const runtime: ActionRuntime = {
-    getInput: (name) => inputs[name] ?? '',
-    setOutput: (name, value) => {
-      outputs[name] = value;
-    },
-    setFailed: (message) => {
-      failures.push(message);
-    },
-    info: (message) => {
-      infos.push(message);
-    },
-    writeSummary: async (md) => {
-      summaries.push(md);
-    },
-    uploadArtifact: async (req) => {
-      artifacts.push(req);
-    },
-    env: overrides.env ?? {},
-    cwd,
-    now: () => NOW,
-    httpOptions: { fetch: fetcher, retries: 0, baseBackoffMs: 0 },
-    onSendReport: overrides.onSendReport,
-  };
-  return { runtime, outputs, summaries, artifacts, failures, infos };
-}
+import { INTEGRITY, makeCheckout, makeFakeFetch, makeRuntime, NOW, osvAdvisory, regEntry } from './helpers.ts';
 
 test('DFGHR-8: contacts only registry.npmjs.org and api.osv.dev, sending only DFBASE-9 gated pairs', async () => {
   const checkout = makeCheckout({
@@ -320,7 +183,7 @@ test('DFGHR-10: job summary, 30-day agentcloud-baseline artifact, setup link, an
     assert.equal(rtDefault.artifacts.length, 1);
     assert.equal(rtDefault.artifacts[0]!.name, 'agentcloud-baseline');
     assert.equal(rtDefault.artifacts[0]!.retentionDays, 30);
-    const uploaded = JSON.parse(rtDefault.artifacts[0]!.content);
+    const uploaded = JSON.parse(rtDefault.artifacts[0]!.contents[ARTIFACT_FILE]!);
     assert.equal(uploaded.schema, 'summation.runner/baseline/1');
     assert.equal(uploaded.reports.length, 1);
     assert.equal(uploaded.reports[0].findings.length, 3);
@@ -421,7 +284,7 @@ test('DFGHR-10: serializeArtifact matches canonicalJson for small runs and handl
   }
 });
 
-test('DFGHR-20: sending is off by default and contacts no agent.cloud host; input or AGENTCLOUD_SEND_REPORT turns it on', async () => {
+test('DFGHR-20: only the send-report input or the AGENTCLOUD_SEND_REPORT variable set to true turns sending on', () => {
   assert.equal(shouldSendReport(undefined, {}), false);
   assert.equal(shouldSendReport('', {}), false);
   assert.equal(shouldSendReport('false', { AGENTCLOUD_SEND_REPORT: 'false' }), false);
@@ -430,64 +293,5 @@ test('DFGHR-20: sending is off by default and contacts no agent.cloud host; inpu
   assert.equal(shouldSendReport('TRUE', {}), true);
   assert.equal(shouldSendReport('false', { AGENTCLOUD_SEND_REPORT: 'true' }), true);
   assert.equal(shouldSendReport(undefined, { AGENTCLOUD_SEND_REPORT: 'true' }), true);
-
-  const checkout = makeCheckout({
-    'package-lock.json': {
-      lockfileVersion: 3,
-      packages: {
-        '': { name: 'demo', dependencies: { 'pub-pkg': '^1.0.0' } },
-        'node_modules/pub-pkg': regEntry('pub-pkg', '1.0.0'),
-      },
-    },
-  });
-  try {
-    // Off by default: no agent.cloud host contacted and onSendReport never called.
-    let sendCalls = 0;
-    const netOff = makeFakeFetch();
-    const rtOff = makeRuntime(checkout.dir, netOff.fetcher, {
-      onSendReport: async () => {
-        sendCalls++;
-      },
-    });
-    const execOff = await runAction(rtOff.runtime);
-    assert.equal(execOff.sendingEnabled, false);
-    assert.equal(rtOff.outputs['send-report'], 'false');
-    assert.equal(sendCalls, 0);
-    assert.ok(
-      netOff.calls.every((c) => c.host === 'registry.npmjs.org' || c.host === 'api.osv.dev'),
-      'no agent.cloud or other host contacted when sending is off',
-    );
-    assert.ok(
-      netOff.calls.every((c) => !c.host.includes('agent.cloud') && !c.host.includes('ac0.app')),
-      'no agent.cloud host contacted',
-    );
-
-    // On via send-report input.
-    let sendViaInput = 0;
-    const rtInput = makeRuntime(checkout.dir, makeFakeFetch().fetcher, {
-      inputs: { 'send-report': 'true' },
-      onSendReport: async () => {
-        sendViaInput++;
-      },
-    });
-    const execInput = await runAction(rtInput.runtime);
-    assert.equal(execInput.sendingEnabled, true);
-    assert.equal(rtInput.outputs['send-report'], 'true');
-    assert.equal(sendViaInput, 1);
-
-    // On via AGENTCLOUD_SEND_REPORT variable.
-    let sendViaVar = 0;
-    const rtVar = makeRuntime(checkout.dir, makeFakeFetch().fetcher, {
-      env: { AGENTCLOUD_SEND_REPORT: 'true' },
-      onSendReport: async () => {
-        sendViaVar++;
-      },
-    });
-    const execVar = await runAction(rtVar.runtime);
-    assert.equal(execVar.sendingEnabled, true);
-    assert.equal(rtVar.outputs['send-report'], 'true');
-    assert.equal(sendViaVar, 1);
-  } finally {
-    checkout.cleanup();
-  }
+  // send.test.ts proves that with sending off nothing reaches agent.cloud, and what turning it on sends.
 });

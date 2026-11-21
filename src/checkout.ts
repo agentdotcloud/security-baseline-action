@@ -1,4 +1,4 @@
-// DFBASE-8, DFBASE-10, DFGHR-9, DFGHR-18: read only regular package-lock.json files and their sibling package.json
+// DFBASE-8, DFBASE-10, DFGHR-9, DFGHR-15, DFGHR-18: read only regular package-lock.json files and their sibling package.json
 // files strictly inside the checkout, in DFBASE-8's exact order and bounds, without following symlinks.
 import { createHash } from 'node:crypto';
 import { closeSync, fstatSync, lstatSync, openSync, readdirSync, readSync, realpathSync } from 'node:fs';
@@ -24,11 +24,24 @@ export interface CheckoutSkip {
   reason: string;
 }
 
+/** DFGHR-15: a selected lockfile's bytes and its sibling package.json, as read, for agent.cloud mode to send. */
+export interface SelectedLockfile {
+  path: string;
+  bytes: Buffer;
+  packageJson: { path: string; bytes: Buffer } | null;
+  /** A sibling package.json exists but isn't a regular file within DFBASE-8's bound. */
+  packageJsonUnreadable: boolean;
+}
+
 export interface CheckoutAcquisition {
   locks: CheckoutLock[];
   selectedPaths: string[];
   skipped: CheckoutSkip[];
   other: Record<string, number>;
+  /** Every selected lockfile, parsed or not, in DFBASE-8's order. */
+  selected: SelectedLockfile[];
+  /** The lockfiles DFBASE-8's selection passed over, before any was read. */
+  selectionSkipped: CheckoutSkip[];
 }
 
 interface TreeEntry {
@@ -134,6 +147,7 @@ export function acquireCheckout(checkoutDir: string): CheckoutAcquisition {
   const locks: CheckoutLock[] = [];
   const skipped: CheckoutSkip[] = [];
   const selectedPaths: string[] = [];
+  const selected: SelectedLockfile[] = [];
   const workspaces = new Set<string>();
   let totalSize = 0;
 
@@ -181,17 +195,25 @@ export function acquireCheckout(checkoutDir: string): CheckoutAcquisition {
     selectedPaths.push(path);
     totalSize += bytes.byteLength;
 
+    const siblingPath = keyAt(dir, 'package.json');
+    const peer = visible.get(siblingPath);
+    const readablePeer = peer && peer.kind === 'file' && peer.size <= P.lock.package_bytes ? peer : null;
+    const siblingBytes = readablePeer ? readCheckoutFileBounded(root, readablePeer.absPath, P.lock.package_bytes) : null;
+    const siblingUnreadable = Boolean(peer && !siblingBytes);
+    selected.push({
+      path,
+      bytes,
+      packageJson: siblingBytes ? { path: siblingPath, bytes: siblingBytes } : null,
+      packageJsonUnreadable: siblingUnreadable,
+    });
+
     const parsed = parseDepsLock(bytes);
     if (parsed.state !== 'parsed') {
       skip(parsed.reason ?? 'unsupported_lockfile');
       continue;
     }
 
-    const siblingPath = keyAt(dir, 'package.json');
-    const peer = visible.get(siblingPath);
-    const readablePeer = peer && peer.kind === 'file' && peer.size <= P.lock.package_bytes ? peer : null;
-    const siblingBytes = readablePeer ? readCheckoutFileBounded(root, readablePeer.absPath, P.lock.package_bytes) : null;
-    const { overrides, siblingSafe } = parseOverrides(siblingBytes, Boolean(peer && !siblingBytes));
+    const { overrides, siblingSafe } = parseOverrides(siblingBytes, siblingUnreadable);
     const pairs = [...new Set(parsed.entries.filter((e) => e.kind === 'registry').map((e) => JSON.stringify([e.name, e.version])))];
     for (const e of parsed.entries) {
       if (e.kind === 'first_party' && !e.path.split('/').includes('node_modules') && exactPath.safeParse(e.path).success) {
@@ -233,5 +255,7 @@ export function acquireCheckout(checkoutDir: string): CheckoutAcquisition {
     }
   }
 
-  return { locks, selectedPaths, skipped, other };
+  const chosen = new Set(selectedPaths);
+  const selectionSkipped = skipped.filter((s) => !chosen.has(s.path));
+  return { locks, selectedPaths, skipped, other, selected, selectionSkipped };
 }

@@ -2,7 +2,7 @@
 
 A GitHub Action that checks the npm dependencies in your repository's `package-lock.json` files for known
 vulnerabilities. It runs on your own runner, GitHub-hosted or self-hosted, and shows what it found on the run's page.
-Your code stays on your runner.
+Your code stays on your runner, and nothing goes to agent.cloud unless you turn sending on.
 
 ## What it does
 
@@ -14,19 +14,54 @@ Your code stays on your runner.
 3. Asks [OSV](https://osv.dev) for known advisories on the dependencies that passed that check.
 4. Writes a table to the run's summary: lockfile, package, version, advisory, severity and the version that fixes it,
    plus a coverage line saying what it could and couldn't check.
-5. Uploads the full report as a JSON artifact named `agentcloud-baseline`, kept for 30 days.
+5. Uploads an artifact named `agentcloud-baseline`, kept for 30 days, with two JSON files: `agentcloud-baseline.json`,
+   the whole result, which names the dependencies it couldn't check; and `agentcloud-report.json`, exactly what sending
+   sends in runner mode (see below), which names them only as counts. An administrator of your organization on
+   agent.cloud can upload `agentcloud-report.json` there later, for a run at most 30 days old.
+6. With sending on, sends to agent.cloud: see below.
 
 The job doesn't fail on findings unless you set `fail-on`. If the runner can't reach npm or OSV, the report says which
 source was unavailable and marks coverage incomplete, and the job still passes.
 
 ## What leaves your runner
 
+With sending off, the default:
+
 - **To `registry.npmjs.org`:** for each public dependency, a request for its `name/version`. A dependency installed
   from any other registry, such as your private one, is never looked up anywhere.
 - **To `api.osv.dev`:** the `name@version` pairs the registry confirmed, then each matching advisory by its ID.
-- **Nothing else.** No file, no source code, no repository name, no token.
-- **Nothing to agent.cloud** unless you turn sending on with the `send-report` input or the `AGENTCLOUD_SEND_REPORT`
-  variable. In this version (v0.1.0) turning it on only logs a line: no version yet sends anything to agent.cloud.
+- **Nothing else.** No file, no source code, no repository name, no token. The action contacts no agent.cloud host,
+  asks GitHub for no identity token and reads no other run.
+
+Sending is on when the `send-report` input or the `AGENTCLOUD_SEND_REPORT` repository or organization variable is
+`true`. Then, as well:
+
+1. **To GitHub,** before each request to agent.cloud: a request for a fresh OIDC identity token whose audience is the
+   agent.cloud origin (`agentcloud-url`, `https://agent.cloud` unless you set it). The token names the repository, its
+   owner, the branch and the commit, and expires within minutes. It is how agent.cloud knows which repository is
+   sending, so there's no secret to set up.
+2. **To agent.cloud, before the scan:** `GET /security/github/runner/mode` with that token, asking whether agent.cloud
+   has the repository in runner mode, the default, or agent.cloud mode, which an administrator turns on there.
+3. **In runner mode, after the scan:** `POST /security/github/runner/reports` with `agentcloud-report.json`. It holds
+   the run's identity (repository ID, owner ID, commit SHA, workflow run ID, this action's version and when it
+   started) and, for each analyzed lockfile, its report: the lockfile's path, Git blob hash and SHA-256; the package
+   names, versions and paths with advisories, severities and fix versions; and coverage. A dependency the action
+   couldn't check, usually a package from your private registry, is sent only as a count per reason, never by name.
+   No file is sent: no lockfile, no `package.json`. A report over 1 MiB isn't sent.
+4. **In agent.cloud mode, instead of a report:** `POST /security/github/runner/lockfiles` with the run's identity
+   (without the start time) and the bytes of each `package-lock.json` the action selected, at most 25, with the
+   `package.json` next to it, plus the paths of the lockfiles it passed over and its counts of other lockfile types.
+   agent.cloud runs the same check on those files itself. A file that looks like it holds a credential (a private
+   key, a database password, or a GitHub, AWS, Slack, agent.cloud or API token) is never sent: such a lockfile is skipped
+   and such a `package.json` as unreadable. The action still scans locally, so the summary and artifact are as above.
+5. **With `send-history: true` on a `workflow_dispatch` run:** the action lists the repository's `agentcloud-baseline`
+   artifacts through GitHub's API with the job's token, and sends each earlier run's `agentcloud-report.json` as it
+   is, oldest first, before this run's own. agent.cloud takes a report only for the commit this run's identity token
+   names, so only earlier runs at the same commit are sent, and at most 10 reports per repository an hour, so the
+   action leaves room for this run's. Runs from before v0.2.0 kept no `agentcloud-report.json` and are left out.
+
+If agent.cloud refuses something or can't be reached, the run's log has a warning with agent.cloud's reason and what to
+do about it, and the job still passes with its summary and artifact.
 
 The summary and the artifact are stored by GitHub with the run, like any other workflow output.
 
@@ -108,17 +143,20 @@ for you.
 **Runners.** The job runs on `ubuntu-latest` unless you set the repository or organization variable
 `AGENTCLOUD_RUNS_ON` to a JSON label or list of labels, for example `["self-hosted","linux"]`. No change to the file.
 
-**Permissions.** `contents: read` lets the checkout step read the repository. The action itself uses neither of the
-other two in this version. `id-token: write` is for sending the report later: GitHub's identity token proves to
-agent.cloud which repository a report came from, so there's no secret to set up, and it is requested only when sending
-is on. `actions: read` is for sending the reports of earlier runs once sending is on.
+**Permissions.** `contents: read` lets the checkout step read the repository. `id-token: write` lets the action ask
+GitHub for the identity token that proves to agent.cloud which repository is sending, so there's no secret to set up;
+it is asked for only when sending is on. `actions: read` lets `send-history` read earlier runs' artifacts. With sending
+off, the action uses neither.
 
 ## Inputs
 
 | Input | Default | What it does |
 | --- | --- | --- |
 | `fail-on` | empty | Fail the job when a finding is at or above this severity: `critical`, `high`, `moderate` or `low`. Empty never fails on findings. |
-| `send-report` | `false` | Send the report to agent.cloud. The `AGENTCLOUD_SEND_REPORT` variable set to `true` also turns it on. Not yet active: see above. |
+| `send-report` | `false` | Send to agent.cloud, as [above](#what-leaves-your-runner). The `AGENTCLOUD_SEND_REPORT` variable set to `true` also turns it on. |
+| `agentcloud-url` | `https://agent.cloud` | The agent.cloud to send to, as an `https://` origin. |
+| `send-history` | `false` | On a `workflow_dispatch` run with sending on, also send the reports earlier runs still keep. |
+| `github-token` | the job's token | What `send-history` reads earlier runs' artifacts with. |
 | `working-directory` | the checkout | The directory to scan. |
 
 ## Outputs
@@ -128,7 +166,7 @@ is on. `actions: read` is for sending the reports of earlier runs once sending i
 | `coverage` | `complete`, `partial`, `incomplete` or `none` |
 | `findings-count` | Findings across all analyzed lockfiles |
 | `artifact-name` | `agentcloud-baseline` |
-| `send-report` | `true` or `false` |
+| `send-report` | `true` or `false`: whether sending is on |
 
 ## Build it yourself
 

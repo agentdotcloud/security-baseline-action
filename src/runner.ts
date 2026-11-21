@@ -8,7 +8,7 @@ import {
   type PublicHTTP,
 } from '@summationai/security-checks';
 import { BASELINE as P, BASELINE_DIGEST } from '../vendor/security-checks/src/baseline-profile.ts';
-import { acquireCheckout, type CheckoutSkip } from './checkout.ts';
+import { acquireCheckout, type CheckoutAcquisition, type CheckoutSkip } from './checkout.ts';
 import { createRunnerHttp, type RunnerHttpOptions } from './http.ts';
 
 export type SourceName = 'npm-registry' | 'osv';
@@ -57,6 +57,8 @@ export interface RunBaselineOptions {
   signal?: AbortSignal;
   http?: PublicHTTP;
   httpOptions?: RunnerHttpOptions;
+  /** The checkout as acquireCheckout read it, when the caller needs the same selection (DFGHR-15). */
+  acquired?: CheckoutAcquisition;
 }
 
 const SOURCE_HOST: Record<SourceName, 'registry.npmjs.org' | 'api.osv.dev'> = {
@@ -91,7 +93,7 @@ function createMemoryIdentityCache(): DepsIdentityCache {
 export async function runBaseline(options: RunBaselineOptions): Promise<BaselineRunResult> {
   const now = options.now ?? Date.now;
   const http = options.http ?? createRunnerHttp({ ...options.httpOptions, now, signal: options.signal });
-  const acquired = acquireCheckout(options.checkoutDir);
+  const acquired = options.acquired ?? acquireCheckout(options.checkoutDir);
   const cache = createMemoryIdentityCache();
 
   const admittedInRun = new Set<string>();
