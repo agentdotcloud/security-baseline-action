@@ -81,7 +81,7 @@ file with the workflow already filled in. Review it on GitHub and commit it, or 
 [GitHub CLI](https://cli.github.com) as yourself. It's short: read it before you run it.
 
 ```sh
-git clone --branch v0.1.1 https://github.com/agentdotcloud/security-baseline-action
+git clone --branch v0.2.1 https://github.com/agentdotcloud/security-baseline-action
 cd security-baseline-action
 ./setup.sh --dry-run --org your-org      # what it would do, changing nothing
 ./setup.sh --org your-org                # every repository in your-org you can push to, except archived ones
@@ -113,6 +113,11 @@ on:
   schedule:
     - cron: '23 7 * * 1' # weekly, Mondays 07:23 UTC
   workflow_dispatch:
+    inputs:
+      send-history:
+        description: 'With sending on, also send the reports earlier runs still keep'
+        type: boolean
+        default: false
 permissions: {}
 jobs:
   baseline:
@@ -125,16 +130,18 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: agentdotcloud/security-baseline-action@7b21077fdc97b2065f2d18dc582bcef8fb71a255 # v0.1.0
+      - uses: agentdotcloud/security-baseline-action@e10b71c1aad2179278c91100aa77e18f793373f2 # v0.2.0
+        with:
+          send-history: ${{ inputs.send-history }}
         env:
           AGENTCLOUD_SEND_REPORT: ${{ vars.AGENTCLOUD_SEND_REPORT }}
 ```
 
 Both actions are pinned to a full commit SHA, not to a tag: a tag can be moved, a commit can't. To check that the
-action's commit is v0.1.0's:
+action's commit is v0.2.0's:
 
 ```sh
-git ls-remote https://github.com/agentdotcloud/security-baseline-action 'refs/tags/v0.1.0^{}'
+git ls-remote https://github.com/agentdotcloud/security-baseline-action 'refs/tags/v0.2.0^{}'
 ```
 
 **Default branch.** If your default branch isn't `main`, put its name in `branches: [main]`. `setup.sh` does that
@@ -142,6 +149,10 @@ for you.
 
 **Runners.** The job runs on `ubuntu-latest` unless you set the repository or organization variable
 `AGENTCLOUD_RUNS_ON` to a JSON label or list of labels, for example `["self-hosted","linux"]`. No change to the file.
+
+**Sending earlier reports.** With sending on, run the workflow by hand (the repository's Actions tab, agent.cloud
+dependency baseline, Run workflow) with `send-history` ticked, and it also sends the reports earlier runs still keep,
+as [above](#what-leaves-your-runner). Runs on a push or the schedule never do.
 
 **Permissions.** `contents: read` lets the checkout step read the repository. `id-token: write` lets the action ask
 GitHub for the identity token that proves to agent.cloud which repository is sending, so there's no secret to set up;

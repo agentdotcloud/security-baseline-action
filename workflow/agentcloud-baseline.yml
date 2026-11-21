@@ -9,6 +9,11 @@ on:
   schedule:
     - cron: '23 7 * * 1' # weekly, Mondays 07:23 UTC
   workflow_dispatch:
+    inputs:
+      send-history:
+        description: 'With sending on, also send the reports earlier runs still keep'
+        type: boolean
+        default: false
 permissions: {}
 jobs:
   baseline:
@@ -21,6 +26,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: agentdotcloud/security-baseline-action@7b21077fdc97b2065f2d18dc582bcef8fb71a255 # v0.1.0
+      - uses: agentdotcloud/security-baseline-action@e10b71c1aad2179278c91100aa77e18f793373f2 # v0.2.0
+        with:
+          send-history: ${{ inputs.send-history }}
         env:
           AGENTCLOUD_SEND_REPORT: ${{ vars.AGENTCLOUD_SEND_REPORT }}

@@ -12,11 +12,19 @@ test("the README's workflow is workflow/agentcloud-baseline.yml exactly", () => 
   assert.equal(blocks[0], WORKFLOW);
 });
 
-test('the workflow pins checkout and the v0.1.0 action by full commit SHA', () => {
+test('the workflow pins checkout and the v0.2.0 action by full commit SHA', () => {
   const uses = [...WORKFLOW.matchAll(/uses: (\S+)/g)].map((m) => m[1]);
   assert.deepEqual(uses, [
     'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
-    'agentdotcloud/security-baseline-action@7b21077fdc97b2065f2d18dc582bcef8fb71a255',
+    'agentdotcloud/security-baseline-action@e10b71c1aad2179278c91100aa77e18f793373f2',
   ]);
-  assert.match(WORKFLOW, /@7b21077fdc97b2065f2d18dc582bcef8fb71a255 # v0\.1\.0\n/);
+  assert.match(WORKFLOW, /@e10b71c1aad2179278c91100aa77e18f793373f2 # v0\.2\.0\n/);
+});
+
+test('DFGHR-22: a workflow_dispatch run offers send-history, off by default, and passes it to the action', () => {
+  assert.match(
+    WORKFLOW,
+    /\n  workflow_dispatch:\n    inputs:\n      send-history:\n        description: [^\n]+\n        type: boolean\n        default: false\n/,
+  );
+  assert.match(WORKFLOW, /\n        with:\n          send-history: \$\{\{ inputs\.send-history \}\}\n        env:\n          AGENTCLOUD_SEND_REPORT: \$\{\{ vars\.AGENTCLOUD_SEND_REPORT \}\}\n$/);
 });
