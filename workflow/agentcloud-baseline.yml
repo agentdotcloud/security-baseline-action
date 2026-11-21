@@ -26,7 +26,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: agentdotcloud/security-baseline-action@e10b71c1aad2179278c91100aa77e18f793373f2 # v0.2.0
+      - uses: agentdotcloud/security-baseline-action@e955024ca11e7dec29fcbb898fdc702eafef9fbb # v0.2.2
         with:
           send-history: ${{ inputs.send-history }}
         env:

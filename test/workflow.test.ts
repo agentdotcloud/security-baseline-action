@@ -12,13 +12,13 @@ test("the README's workflow is workflow/agentcloud-baseline.yml exactly", () => 
   assert.equal(blocks[0], WORKFLOW);
 });
 
-test('the workflow pins checkout and the v0.2.0 action by full commit SHA', () => {
+test('the workflow pins checkout and the v0.2.2 action by full commit SHA', () => {
   const uses = [...WORKFLOW.matchAll(/uses: (\S+)/g)].map((m) => m[1]);
   assert.deepEqual(uses, [
     'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1',
-    'agentdotcloud/security-baseline-action@e10b71c1aad2179278c91100aa77e18f793373f2',
+    'agentdotcloud/security-baseline-action@e955024ca11e7dec29fcbb898fdc702eafef9fbb',
   ]);
-  assert.match(WORKFLOW, /@e10b71c1aad2179278c91100aa77e18f793373f2 # v0\.2\.0\n/);
+  assert.match(WORKFLOW, /@e955024ca11e7dec29fcbb898fdc702eafef9fbb # v0\.2\.2\n/);
 });
 
 test('DFGHR-22: a workflow_dispatch run offers send-history, off by default, and passes it to the action', () => {
