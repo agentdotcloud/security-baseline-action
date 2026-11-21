@@ -1,5 +1,6 @@
 // DFGHR-18: the bundle is one file bundling security-checks; it reaches only zod, semver, node:crypto,
-// the action toolkit (@actions/core, @actions/artifact), fetch to the allowed hosts, and file reads under the checkout.
+// the action toolkit (@actions/core, @actions/artifact, @actions/github), fetch to the allowed hosts (registry.npmjs.org,
+// api.osv.dev and, only when sending is on, the configured agent.cloud origin), and file reads under the checkout.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -18,6 +19,7 @@ const NODE_BUILTINS = new Set([...builtinModules, ...builtinModules.map((b) => `
 const ALLOWED_SOURCE_PACKAGES = new Set([
   '@actions/artifact',
   '@actions/core',
+  '@actions/github',
   '@summationai/security-checks',
   'node:crypto',
   'node:fs',
@@ -27,7 +29,7 @@ const ALLOWED_SOURCE_PACKAGES = new Set([
   'zod',
 ]);
 
-test('DFGHR-18: source import graph reaches only security-checks, zod, semver, node:crypto, action toolkit, and checkout file reads', () => {
+test('DFGHR-18: source import graph reaches only security-checks, zod, semver, node:crypto, the action toolkit, and checkout file reads', () => {
   for (const entry of ['main.ts', 'index.ts']) {
     const graph = importGraph(join(ACTION_SRC, entry));
     assert.deepEqual(graph.unresolved, [], `${entry} has no unresolved imports`);
@@ -44,14 +46,18 @@ test('DFGHR-18: source import graph reaches only security-checks, zod, semver, n
   }
 });
 
-test('DFGHR-18: source files reference no host other than registry.npmjs.org, api.osv.dev, and the setup page link in summary output', () => {
+test('DFGHR-18: source files reference no host other than registry.npmjs.org, api.osv.dev, and agent.cloud as the default control origin and setup link', () => {
   const urlPattern = /https?:\/\/([a-zA-Z0-9.-]+)/g;
+  // output.ts links the setup page; agentcloud.ts holds the default control origin, the only one sending ever reaches.
+  const AGENTCLOUD_FILES = new Set(['output.ts', 'agentcloud.ts']);
+  const seenAgentCloud = new Set<string>();
   for (const file of readdirSync(ACTION_SRC).filter((f) => f.endsWith('.ts'))) {
     const text = readFileSync(join(ACTION_SRC, file), 'utf8');
     const hosts = [...text.matchAll(urlPattern)].map((m) => m[1]!);
     for (const host of hosts) {
-      if (file === 'output.ts') {
-        assert.equal(host, 'agent.cloud', `unexpected host in output.ts: ${host}`);
+      if (AGENTCLOUD_FILES.has(file)) {
+        assert.equal(host, 'agent.cloud', `unexpected host in ${file}: ${host}`);
+        seenAgentCloud.add(file);
       } else {
         assert.ok(
           host === 'registry.npmjs.org' || host === 'api.osv.dev',
@@ -60,6 +66,7 @@ test('DFGHR-18: source files reference no host other than registry.npmjs.org, ap
       }
     }
   }
+  assert.deepEqual([...seenAgentCloud].sort(), ['agentcloud.ts', 'output.ts']);
 });
 
 test('DFGHR-18: bundle produces one deterministic self-contained file with only allowed packages and runs standalone', async () => {
@@ -97,7 +104,7 @@ test('DFGHR-18: bundle produces one deterministic self-contained file with only 
     }
     assert.deepEqual(
       [...directThirdParty].sort(),
-      ['@actions/artifact', '@actions/core', 'semver', 'zod'],
+      ['@actions/artifact', '@actions/core', '@actions/github', 'semver', 'zod'],
       'direct third-party dependencies bundled from workspace',
     );
 

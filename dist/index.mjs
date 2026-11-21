@@ -3672,8 +3672,8 @@ var require_webidl = __commonJS({
       return new TypeError(`${message.header}: ${message.message}`);
     };
     webidl.errors.conversionFailed = function(context5) {
-      const plural2 = context5.types.length === 1 ? "" : " one of";
-      const message = `${context5.argument} could not be converted to${plural2}: ${context5.types.join(", ")}.`;
+      const plural3 = context5.types.length === 1 ? "" : " one of";
+      const message = `${context5.argument} could not be converted to${plural3}: ${context5.types.join(", ")}.`;
       return webidl.errors.exception({
         header: context5.prefix,
         message
@@ -11236,9 +11236,9 @@ var require_pluralizer = __commonJS({
       this: "these"
     };
     module.exports = class Pluralizer {
-      constructor(singular, plural2) {
+      constructor(singular, plural3) {
         this.singular = singular;
-        this.plural = plural2;
+        this.plural = plural3;
       }
       pluralize(count2) {
         const one = count2 === 1;
@@ -22625,7 +22625,7 @@ var require_rpc_output_stream = __commonJS({
 var require_unary_call = __commonJS({
   "node_modules/@protobuf-ts/runtime-rpc/build/commonjs/unary-call.js"(exports2) {
     "use strict";
-    var __awaiter15 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    var __awaiter17 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
         return value instanceof P ? value : new P(function(resolve2) {
           resolve2(value);
@@ -22672,7 +22672,7 @@ var require_unary_call = __commonJS({
         return this.promiseFinished().then((value) => onfulfilled ? Promise.resolve(onfulfilled(value)) : value, (reason) => onrejected ? Promise.resolve(onrejected(reason)) : Promise.reject(reason));
       }
       promiseFinished() {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           let [headers, response, status, trailers] = yield Promise.all([this.headers, this.response, this.status, this.trailers]);
           return {
             method: this.method,
@@ -22694,7 +22694,7 @@ var require_unary_call = __commonJS({
 var require_server_streaming_call = __commonJS({
   "node_modules/@protobuf-ts/runtime-rpc/build/commonjs/server-streaming-call.js"(exports2) {
     "use strict";
-    var __awaiter15 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    var __awaiter17 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
         return value instanceof P ? value : new P(function(resolve2) {
           resolve2(value);
@@ -22743,7 +22743,7 @@ var require_server_streaming_call = __commonJS({
         return this.promiseFinished().then((value) => onfulfilled ? Promise.resolve(onfulfilled(value)) : value, (reason) => onrejected ? Promise.resolve(onrejected(reason)) : Promise.reject(reason));
       }
       promiseFinished() {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           let [headers, status, trailers] = yield Promise.all([this.headers, this.status, this.trailers]);
           return {
             method: this.method,
@@ -22764,7 +22764,7 @@ var require_server_streaming_call = __commonJS({
 var require_client_streaming_call = __commonJS({
   "node_modules/@protobuf-ts/runtime-rpc/build/commonjs/client-streaming-call.js"(exports2) {
     "use strict";
-    var __awaiter15 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    var __awaiter17 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
         return value instanceof P ? value : new P(function(resolve2) {
           resolve2(value);
@@ -22812,7 +22812,7 @@ var require_client_streaming_call = __commonJS({
         return this.promiseFinished().then((value) => onfulfilled ? Promise.resolve(onfulfilled(value)) : value, (reason) => onrejected ? Promise.resolve(onrejected(reason)) : Promise.reject(reason));
       }
       promiseFinished() {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           let [headers, response, status, trailers] = yield Promise.all([this.headers, this.response, this.status, this.trailers]);
           return {
             method: this.method,
@@ -22833,7 +22833,7 @@ var require_client_streaming_call = __commonJS({
 var require_duplex_streaming_call = __commonJS({
   "node_modules/@protobuf-ts/runtime-rpc/build/commonjs/duplex-streaming-call.js"(exports2) {
     "use strict";
-    var __awaiter15 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    var __awaiter17 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
         return value instanceof P ? value : new P(function(resolve2) {
           resolve2(value);
@@ -22881,7 +22881,7 @@ var require_duplex_streaming_call = __commonJS({
         return this.promiseFinished().then((value) => onfulfilled ? Promise.resolve(onfulfilled(value)) : value, (reason) => onrejected ? Promise.resolve(onrejected(reason)) : Promise.reject(reason));
       }
       promiseFinished() {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           let [headers, status, trailers] = yield Promise.all([this.headers, this.status, this.trailers]);
           return {
             method: this.method,
@@ -22901,7 +22901,7 @@ var require_duplex_streaming_call = __commonJS({
 var require_test_transport = __commonJS({
   "node_modules/@protobuf-ts/runtime-rpc/build/commonjs/test-transport.js"(exports2) {
     "use strict";
-    var __awaiter15 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    var __awaiter17 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
         return value instanceof P ? value : new P(function(resolve2) {
           resolve2(value);
@@ -23005,7 +23005,7 @@ var require_test_transport = __commonJS({
        * not reject. If it does, code is broken.
        */
       streamResponses(method, stream4, abort) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           const messages = [];
           if (this.data.response === void 0) {
             messages.push(method.O.create());
@@ -23566,20 +23566,20 @@ var require_ms = __commonJS({
     function fmtLong(ms) {
       var msAbs = Math.abs(ms);
       if (msAbs >= d) {
-        return plural2(ms, msAbs, d, "day");
+        return plural3(ms, msAbs, d, "day");
       }
       if (msAbs >= h) {
-        return plural2(ms, msAbs, h, "hour");
+        return plural3(ms, msAbs, h, "hour");
       }
       if (msAbs >= m) {
-        return plural2(ms, msAbs, m, "minute");
+        return plural3(ms, msAbs, m, "minute");
       }
       if (msAbs >= s) {
-        return plural2(ms, msAbs, s, "second");
+        return plural3(ms, msAbs, s, "second");
       }
       return ms + " ms";
     }
-    function plural2(ms, msAbs, n, name) {
+    function plural3(ms, msAbs, n, name) {
       var isPlural = msAbs >= n * 1.5;
       return Math.round(ms / n) + " " + name + (isPlural ? "s" : "");
     }
@@ -50653,7 +50653,7 @@ var require_lib2 = __commonJS({
         return result;
       };
     })();
-    var __awaiter15 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
+    var __awaiter17 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
         return value instanceof P ? value : new P(function(resolve2) {
           resolve2(value);
@@ -50761,8 +50761,8 @@ var require_lib2 = __commonJS({
         this.message = message;
       }
       readBody() {
-        return __awaiter15(this, void 0, void 0, function* () {
-          return new Promise((resolve2) => __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
+          return new Promise((resolve2) => __awaiter17(this, void 0, void 0, function* () {
             let output2 = Buffer.alloc(0);
             this.message.on("data", (chunk) => {
               output2 = Buffer.concat([output2, chunk]);
@@ -50774,8 +50774,8 @@ var require_lib2 = __commonJS({
         });
       }
       readBodyBuffer() {
-        return __awaiter15(this, void 0, void 0, function* () {
-          return new Promise((resolve2) => __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
+          return new Promise((resolve2) => __awaiter17(this, void 0, void 0, function* () {
             const chunks = [];
             this.message.on("data", (chunk) => {
               chunks.push(chunk);
@@ -50831,42 +50831,42 @@ var require_lib2 = __commonJS({
         }
       }
       options(requestUrl, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request("OPTIONS", requestUrl, null, additionalHeaders || {});
         });
       }
       get(requestUrl, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request("GET", requestUrl, null, additionalHeaders || {});
         });
       }
       del(requestUrl, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request("DELETE", requestUrl, null, additionalHeaders || {});
         });
       }
       post(requestUrl, data, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request("POST", requestUrl, data, additionalHeaders || {});
         });
       }
       patch(requestUrl, data, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request("PATCH", requestUrl, data, additionalHeaders || {});
         });
       }
       put(requestUrl, data, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request("PUT", requestUrl, data, additionalHeaders || {});
         });
       }
       head(requestUrl, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request("HEAD", requestUrl, null, additionalHeaders || {});
         });
       }
       sendStream(verb, requestUrl, stream4, additionalHeaders) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return this.request(verb, requestUrl, stream4, additionalHeaders);
         });
       }
@@ -50875,14 +50875,14 @@ var require_lib2 = __commonJS({
        * Be aware that not found returns a null.  Other errors (4xx, 5xx) reject the promise
        */
       getJson(requestUrl_1) {
-        return __awaiter15(this, arguments, void 0, function* (requestUrl, additionalHeaders = {}) {
+        return __awaiter17(this, arguments, void 0, function* (requestUrl, additionalHeaders = {}) {
           additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes2.ApplicationJson);
           const res = yield this.get(requestUrl, additionalHeaders);
           return this._processResponse(res, this.requestOptions);
         });
       }
       postJson(requestUrl_1, obj_1) {
-        return __awaiter15(this, arguments, void 0, function* (requestUrl, obj, additionalHeaders = {}) {
+        return __awaiter17(this, arguments, void 0, function* (requestUrl, obj, additionalHeaders = {}) {
           const data = JSON.stringify(obj, null, 2);
           additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes2.ApplicationJson);
           additionalHeaders[Headers2.ContentType] = this._getExistingOrDefaultContentTypeHeader(additionalHeaders, MediaTypes2.ApplicationJson);
@@ -50891,7 +50891,7 @@ var require_lib2 = __commonJS({
         });
       }
       putJson(requestUrl_1, obj_1) {
-        return __awaiter15(this, arguments, void 0, function* (requestUrl, obj, additionalHeaders = {}) {
+        return __awaiter17(this, arguments, void 0, function* (requestUrl, obj, additionalHeaders = {}) {
           const data = JSON.stringify(obj, null, 2);
           additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes2.ApplicationJson);
           additionalHeaders[Headers2.ContentType] = this._getExistingOrDefaultContentTypeHeader(additionalHeaders, MediaTypes2.ApplicationJson);
@@ -50900,7 +50900,7 @@ var require_lib2 = __commonJS({
         });
       }
       patchJson(requestUrl_1, obj_1) {
-        return __awaiter15(this, arguments, void 0, function* (requestUrl, obj, additionalHeaders = {}) {
+        return __awaiter17(this, arguments, void 0, function* (requestUrl, obj, additionalHeaders = {}) {
           const data = JSON.stringify(obj, null, 2);
           additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes2.ApplicationJson);
           additionalHeaders[Headers2.ContentType] = this._getExistingOrDefaultContentTypeHeader(additionalHeaders, MediaTypes2.ApplicationJson);
@@ -50914,7 +50914,7 @@ var require_lib2 = __commonJS({
        * Prefer get, del, post and patch
        */
       request(verb, requestUrl, data, headers) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           if (this._disposed) {
             throw new Error("Client has already been disposed.");
           }
@@ -50988,7 +50988,7 @@ var require_lib2 = __commonJS({
        * @param data
        */
       requestRaw(info2, data) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           return new Promise((resolve2, reject) => {
             function callbackForResult(err, res) {
               if (err) {
@@ -51237,15 +51237,15 @@ var require_lib2 = __commonJS({
         return baseUserAgent;
       }
       _performExponentialBackoff(retryNumber) {
-        return __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
           retryNumber = Math.min(ExponentialBackoffCeiling2, retryNumber);
           const ms = ExponentialBackoffTimeSlice2 * Math.pow(2, retryNumber);
           return new Promise((resolve2) => setTimeout(() => resolve2(), ms));
         });
       }
       _processResponse(res, options) {
-        return __awaiter15(this, void 0, void 0, function* () {
-          return new Promise((resolve2, reject) => __awaiter15(this, void 0, void 0, function* () {
+        return __awaiter17(this, void 0, void 0, function* () {
+          return new Promise((resolve2, reject) => __awaiter17(this, void 0, void 0, function* () {
             const statusCode = res.message.statusCode || 0;
             const response = {
               statusCode,
@@ -64111,10 +64111,97 @@ var BearerCredentialHandler = class {
   }
 };
 
+// node_modules/@actions/core/lib/oidc-utils.js
+var __awaiter3 = function(thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function(resolve2) {
+      resolve2(value);
+    });
+  }
+  return new (P || (P = Promise))(function(resolve2, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+var OidcClient = class _OidcClient {
+  static createHttpClient(allowRetry = true, maxRetry = 10) {
+    const requestOptions = {
+      allowRetries: allowRetry,
+      maxRetries: maxRetry
+    };
+    return new HttpClient("actions/oidc-client", [new BearerCredentialHandler(_OidcClient.getRequestToken())], requestOptions);
+  }
+  static getRequestToken() {
+    const token = process.env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"];
+    if (!token) {
+      throw new Error("Unable to get ACTIONS_ID_TOKEN_REQUEST_TOKEN env variable");
+    }
+    return token;
+  }
+  static getIDTokenUrl() {
+    const runtimeUrl = process.env["ACTIONS_ID_TOKEN_REQUEST_URL"];
+    if (!runtimeUrl) {
+      throw new Error("Unable to get ACTIONS_ID_TOKEN_REQUEST_URL env variable");
+    }
+    return runtimeUrl;
+  }
+  static getCall(id_token_url) {
+    return __awaiter3(this, void 0, void 0, function* () {
+      var _a3;
+      const httpclient = _OidcClient.createHttpClient();
+      const res = yield httpclient.getJson(id_token_url).catch((error63) => {
+        throw new Error(`Failed to get ID Token. 
+ 
+        Error Code : ${error63.statusCode}
+ 
+        Error Message: ${error63.message}`);
+      });
+      const id_token = (_a3 = res.result) === null || _a3 === void 0 ? void 0 : _a3.value;
+      if (!id_token) {
+        throw new Error("Response json body do not have ID Token field");
+      }
+      return id_token;
+    });
+  }
+  static getIDToken(audience) {
+    return __awaiter3(this, void 0, void 0, function* () {
+      try {
+        let id_token_url = _OidcClient.getIDTokenUrl();
+        if (audience) {
+          const encodedAudience = encodeURIComponent(audience);
+          id_token_url = `${id_token_url}&audience=${encodedAudience}`;
+        }
+        debug(`ID token url is ${id_token_url}`);
+        const id_token = yield _OidcClient.getCall(id_token_url);
+        setSecret(id_token);
+        return id_token;
+      } catch (error63) {
+        throw new Error(`Error message: ${error63.message}`);
+      }
+    });
+  }
+};
+
 // node_modules/@actions/core/lib/summary.js
 import { EOL as EOL3 } from "os";
 import { constants, promises } from "fs";
-var __awaiter3 = function(thisArg, _arguments, P, generator) {
+var __awaiter4 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -64154,7 +64241,7 @@ var Summary = class {
    * @returns step summary file path
    */
   filePath() {
-    return __awaiter3(this, void 0, void 0, function* () {
+    return __awaiter4(this, void 0, void 0, function* () {
       if (this._filePath) {
         return this._filePath;
       }
@@ -64195,7 +64282,7 @@ var Summary = class {
    * @returns {Promise<Summary>} summary instance
    */
   write(options) {
-    return __awaiter3(this, void 0, void 0, function* () {
+    return __awaiter4(this, void 0, void 0, function* () {
       const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
       const filePath = yield this.filePath();
       const writeFunc = overwrite ? writeFile : appendFile;
@@ -64209,7 +64296,7 @@ var Summary = class {
    * @returns {Summary} summary instance
    */
   clear() {
-    return __awaiter3(this, void 0, void 0, function* () {
+    return __awaiter4(this, void 0, void 0, function* () {
       return this.emptyBuffer().write({ overwrite: true });
     });
   }
@@ -64413,6 +64500,33 @@ var platform = os3.platform();
 var arch = os3.arch();
 
 // node_modules/@actions/core/lib/core.js
+var __awaiter5 = function(thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function(resolve2) {
+      resolve2(value);
+    });
+  }
+  return new (P || (P = Promise))(function(resolve2, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
 var ExitCode;
 (function(ExitCode2) {
   ExitCode2[ExitCode2["Success"] = 0] = "Success";
@@ -64455,9 +64569,14 @@ function warning(message, properties = {}) {
 function info(message) {
   process.stdout.write(message + os4.EOL);
 }
+function getIDToken(aud) {
+  return __awaiter5(this, void 0, void 0, function* () {
+    return yield OidcClient.getIDToken(aud);
+  });
+}
 
 // src/action.ts
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { lstatSync as lstatSync3, mkdtempSync, readFileSync as readFileSync2, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join as join3 } from "node:path";
 
@@ -66417,7 +66536,7 @@ function maskSecretUrls(body2) {
 }
 
 // node_modules/@actions/artifact/lib/internal/shared/artifact-twirp-client.js
-var __awaiter4 = function(thisArg, _arguments, P, generator) {
+var __awaiter6 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -66468,14 +66587,14 @@ var ArtifactHttpClient = class {
   // This function satisfies the Rpc interface. It is compatible with the JSON
   // JSON generated client.
   request(service, method, contentType2, data) {
-    return __awaiter4(this, void 0, void 0, function* () {
+    return __awaiter6(this, void 0, void 0, function* () {
       const url3 = new URL(`/twirp/${service}/${method}`, this.baseUrl).href;
       debug(`[Request] ${method} ${url3}`);
       const headers = {
         "Content-Type": contentType2
       };
       try {
-        const { body: body2 } = yield this.retryableRequest(() => __awaiter4(this, void 0, void 0, function* () {
+        const { body: body2 } = yield this.retryableRequest(() => __awaiter6(this, void 0, void 0, function* () {
           return this.httpClient.post(url3, JSON.stringify(data), headers);
         }));
         return body2;
@@ -66485,7 +66604,7 @@ var ArtifactHttpClient = class {
     });
   }
   retryableRequest(operation) {
-    return __awaiter4(this, void 0, void 0, function* () {
+    return __awaiter6(this, void 0, void 0, function* () {
       let attempt = 0;
       let errorMessage = "";
       let rawBody = "";
@@ -66576,7 +66695,7 @@ var ArtifactHttpClient = class {
     return !isNaN(parsed) && parsed > 0 ? parsed : void 0;
   }
   sleep(milliseconds) {
-    return __awaiter4(this, void 0, void 0, function* () {
+    return __awaiter6(this, void 0, void 0, function* () {
       return new Promise((resolve2) => setTimeout(resolve2, milliseconds));
     });
   }
@@ -102983,7 +103102,7 @@ var KnownEncryptionAlgorithmType2;
 // node_modules/@actions/artifact/lib/internal/upload/blob-upload.js
 import * as crypto2 from "crypto";
 import * as stream from "stream";
-var __awaiter5 = function(thisArg, _arguments, P, generator) {
+var __awaiter7 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -103011,11 +103130,11 @@ var __awaiter5 = function(thisArg, _arguments, P, generator) {
   });
 };
 function uploadToBlobStorage(authenticatedUploadURL, uploadStream, contentType2) {
-  return __awaiter5(this, void 0, void 0, function* () {
+  return __awaiter7(this, void 0, void 0, function* () {
     let uploadByteCount = 0;
     let lastProgressTime = Date.now();
     const abortController = new AbortController();
-    const chunkTimer = (interval) => __awaiter5(this, void 0, void 0, function* () {
+    const chunkTimer = (interval) => __awaiter7(this, void 0, void 0, function* () {
       return new Promise((resolve2, reject) => {
         const timer = setInterval(() => {
           if (Date.now() - lastProgressTime > interval) {
@@ -103084,7 +103203,7 @@ import { realpath as realpath2 } from "fs/promises";
 import * as stream2 from "stream";
 import * as fs5 from "fs";
 import { realpath } from "fs/promises";
-var __awaiter6 = function(thisArg, _arguments, P, generator) {
+var __awaiter8 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -103123,7 +103242,7 @@ var WaterMarkedUploadStream = class extends stream2.Transform {
   }
 };
 function createRawFileUploadStream(filePath) {
-  return __awaiter6(this, void 0, void 0, function* () {
+  return __awaiter8(this, void 0, void 0, function* () {
     debug(`Creating raw file upload stream for: ${filePath}`);
     const bufferSize = getUploadChunkSize();
     const uploadStream = new WaterMarkedUploadStream(bufferSize);
@@ -103146,7 +103265,7 @@ function createRawFileUploadStream(filePath) {
 }
 
 // node_modules/@actions/artifact/lib/internal/upload/zip.js
-var __awaiter7 = function(thisArg, _arguments, P, generator) {
+var __awaiter9 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -103175,7 +103294,7 @@ var __awaiter7 = function(thisArg, _arguments, P, generator) {
 };
 var DEFAULT_COMPRESSION_LEVEL = 6;
 function createZipUploadStream(uploadSpecification_1) {
-  return __awaiter7(this, arguments, void 0, function* (uploadSpecification, compressionLevel = DEFAULT_COMPRESSION_LEVEL) {
+  return __awaiter9(this, arguments, void 0, function* (uploadSpecification, compressionLevel = DEFAULT_COMPRESSION_LEVEL) {
     debug(`Creating Artifact archive with compressionLevel: ${compressionLevel}`);
     const zip = import_archiver.default.create("zip", {
       highWaterMark: getUploadChunkSize(),
@@ -103295,7 +103414,7 @@ function getMimeType(filePath) {
 }
 
 // node_modules/@actions/artifact/lib/internal/upload/upload-artifact.js
-var __awaiter8 = function(thisArg, _arguments, P, generator) {
+var __awaiter10 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -103323,7 +103442,7 @@ var __awaiter8 = function(thisArg, _arguments, P, generator) {
   });
 };
 function uploadArtifact(name, files, rootDirectory, options) {
-  return __awaiter8(this, void 0, void 0, function* () {
+  return __awaiter10(this, void 0, void 0, function* () {
     let artifactFileName = `${name}.zip`;
     if (options === null || options === void 0 ? void 0 : options.skipArchive) {
       if (files.length === 0) {
@@ -103460,7 +103579,7 @@ var Context = class {
 // node_modules/@actions/github/lib/internal/utils.js
 var httpClient = __toESM(require_lib2(), 1);
 var import_undici2 = __toESM(require_undici(), 1);
-var __awaiter9 = function(thisArg, _arguments, P, generator) {
+var __awaiter11 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -103505,7 +103624,7 @@ function getProxyAgentDispatcher(destinationUrl) {
 }
 function getProxyFetch(destinationUrl) {
   const httpDispatcher = getProxyAgentDispatcher(destinationUrl);
-  const proxyFetch = (url3, opts) => __awaiter9(this, void 0, void 0, function* () {
+  const proxyFetch = (url3, opts) => __awaiter11(this, void 0, void 0, function* () {
     return (0, import_undici2.fetch)(url3, Object.assign(Object.assign({}, opts), { dispatcher: httpDispatcher }));
   });
   return proxyFetch;
@@ -107573,7 +107692,7 @@ function getOctokit(token, options, ...additionalPlugins) {
 
 // node_modules/@actions/artifact/lib/internal/download/download-artifact.js
 var import_unzip_stream = __toESM(require_unzip(), 1);
-var __awaiter10 = function(thisArg, _arguments, P, generator) {
+var __awaiter12 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -107606,7 +107725,7 @@ var scrubQueryParameters = (url3) => {
   return parsed.toString();
 };
 function exists2(path4) {
-  return __awaiter10(this, void 0, void 0, function* () {
+  return __awaiter12(this, void 0, void 0, function* () {
     try {
       yield fs7.access(path4);
       return true;
@@ -107620,7 +107739,7 @@ function exists2(path4) {
   });
 }
 function streamExtract(url3, directory2, skipDecompress) {
-  return __awaiter10(this, void 0, void 0, function* () {
+  return __awaiter12(this, void 0, void 0, function* () {
     let retryCount = 0;
     while (retryCount < 5) {
       try {
@@ -107635,7 +107754,7 @@ function streamExtract(url3, directory2, skipDecompress) {
   });
 }
 function streamExtractExternal(url_1, directory_1) {
-  return __awaiter10(this, arguments, void 0, function* (url3, directory2, opts = {}) {
+  return __awaiter12(this, arguments, void 0, function* (url3, directory2, opts = {}) {
     const { timeout = 30 * 1e3, skipDecompress = false } = opts;
     const client2 = new HttpClient(getUserAgentString());
     const response = yield client2.get(url3);
@@ -107697,7 +107816,7 @@ function streamExtractExternal(url_1, directory_1) {
   });
 }
 function downloadArtifactPublic(artifactId2, repositoryOwner, repositoryName2, token, options) {
-  return __awaiter10(this, void 0, void 0, function* () {
+  return __awaiter12(this, void 0, void 0, function* () {
     const downloadPath = yield resolveOrCreateDirectory(options === null || options === void 0 ? void 0 : options.path);
     const api = getOctokit(token);
     let digestMismatch = false;
@@ -107737,7 +107856,7 @@ function downloadArtifactPublic(artifactId2, repositoryOwner, repositoryName2, t
   });
 }
 function downloadArtifactInternal(artifactId2, options) {
-  return __awaiter10(this, void 0, void 0, function* () {
+  return __awaiter12(this, void 0, void 0, function* () {
     const downloadPath = yield resolveOrCreateDirectory(options === null || options === void 0 ? void 0 : options.path);
     const artifactClient = internalArtifactTwirpClient();
     let digestMismatch = false;
@@ -107780,7 +107899,7 @@ Are you trying to download from a different run? Try specifying a github-token w
   });
 }
 function resolveOrCreateDirectory() {
-  return __awaiter10(this, arguments, void 0, function* (downloadPath = getGitHubWorkspaceDir()) {
+  return __awaiter12(this, arguments, void 0, function* (downloadPath = getGitHubWorkspaceDir()) {
     if (!(yield exists2(downloadPath))) {
       debug(`Artifact destination folder does not exist, creating: ${downloadPath}`);
       yield fs7.mkdir(downloadPath, { recursive: true });
@@ -107912,7 +108031,7 @@ function retry(octokit, octokitOptions) {
 retry.VERSION = VERSION8;
 
 // node_modules/@actions/artifact/lib/internal/find/get-artifact.js
-var __awaiter11 = function(thisArg, _arguments, P, generator) {
+var __awaiter13 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -107940,7 +108059,7 @@ var __awaiter11 = function(thisArg, _arguments, P, generator) {
   });
 };
 function getArtifactPublic(artifactName, workflowRunId, repositoryOwner, repositoryName2, token) {
-  return __awaiter11(this, void 0, void 0, function* () {
+  return __awaiter13(this, void 0, void 0, function* () {
     var _a3;
     const [retryOpts, requestOpts] = getRetryOptions(defaults);
     const opts = {
@@ -107982,7 +108101,7 @@ function getArtifactPublic(artifactName, workflowRunId, repositoryOwner, reposit
   });
 }
 function getArtifactInternal(artifactName) {
-  return __awaiter11(this, void 0, void 0, function* () {
+  return __awaiter13(this, void 0, void 0, function* () {
     var _a3;
     const artifactClient = internalArtifactTwirpClient();
     const { workflowRunBackendId, workflowJobRunBackendId } = getBackendIdsFromToken();
@@ -108015,7 +108134,7 @@ function getArtifactInternal(artifactName) {
 }
 
 // node_modules/@actions/artifact/lib/internal/delete/delete-artifact.js
-var __awaiter12 = function(thisArg, _arguments, P, generator) {
+var __awaiter14 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -108043,7 +108162,7 @@ var __awaiter12 = function(thisArg, _arguments, P, generator) {
   });
 };
 function deleteArtifactPublic(artifactName, workflowRunId, repositoryOwner, repositoryName2, token) {
-  return __awaiter12(this, void 0, void 0, function* () {
+  return __awaiter14(this, void 0, void 0, function* () {
     var _a3;
     const [retryOpts, requestOpts] = getRetryOptions(defaults);
     const opts = {
@@ -108069,7 +108188,7 @@ function deleteArtifactPublic(artifactName, workflowRunId, repositoryOwner, repo
   });
 }
 function deleteArtifactInternal(artifactName) {
-  return __awaiter12(this, void 0, void 0, function* () {
+  return __awaiter14(this, void 0, void 0, function* () {
     const artifactClient = internalArtifactTwirpClient();
     const { workflowRunBackendId, workflowJobRunBackendId } = getBackendIdsFromToken();
     const listReq = {
@@ -108100,7 +108219,7 @@ function deleteArtifactInternal(artifactName) {
 }
 
 // node_modules/@actions/artifact/lib/internal/find/list-artifacts.js
-var __awaiter13 = function(thisArg, _arguments, P, generator) {
+var __awaiter15 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -108131,7 +108250,7 @@ var maximumArtifactCount = getMaxArtifactListCount();
 var paginationCount = 100;
 var maxNumberOfPages = Math.ceil(maximumArtifactCount / paginationCount);
 function listArtifactsPublic(workflowRunId_1, repositoryOwner_1, repositoryName_1, token_1) {
-  return __awaiter13(this, arguments, void 0, function* (workflowRunId, repositoryOwner, repositoryName2, token, latest = false) {
+  return __awaiter15(this, arguments, void 0, function* (workflowRunId, repositoryOwner, repositoryName2, token, latest = false) {
     info(`Fetching artifact list for workflow run ${workflowRunId} in repository ${repositoryOwner}/${repositoryName2}`);
     let artifacts = [];
     const [retryOpts, requestOpts] = getRetryOptions(defaults);
@@ -108196,7 +108315,7 @@ function listArtifactsPublic(workflowRunId_1, repositoryOwner_1, repositoryName_
   });
 }
 function listArtifactsInternal() {
-  return __awaiter13(this, arguments, void 0, function* (latest = false) {
+  return __awaiter15(this, arguments, void 0, function* (latest = false) {
     const artifactClient = internalArtifactTwirpClient();
     const { workflowRunBackendId, workflowJobRunBackendId } = getBackendIdsFromToken();
     const req = {
@@ -108237,7 +108356,7 @@ function filterLatest(artifacts) {
 }
 
 // node_modules/@actions/artifact/lib/internal/client.js
-var __awaiter14 = function(thisArg, _arguments, P, generator) {
+var __awaiter16 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -108277,7 +108396,7 @@ var __rest = function(s, e) {
 };
 var DefaultArtifactClient = class {
   uploadArtifact(name, files, rootDirectory, options) {
-    return __awaiter14(this, void 0, void 0, function* () {
+    return __awaiter16(this, void 0, void 0, function* () {
       try {
         if (isGhes()) {
           throw new GHESNotSupportedError();
@@ -108294,7 +108413,7 @@ If the error persists, please check whether Actions is operating normally at [ht
     });
   }
   downloadArtifact(artifactId2, options) {
-    return __awaiter14(this, void 0, void 0, function* () {
+    return __awaiter16(this, void 0, void 0, function* () {
       try {
         if (isGhes()) {
           throw new GHESNotSupportedError();
@@ -108315,7 +108434,7 @@ If the error persists, please check whether Actions and API requests are operati
     });
   }
   listArtifacts(options) {
-    return __awaiter14(this, void 0, void 0, function* () {
+    return __awaiter16(this, void 0, void 0, function* () {
       try {
         if (isGhes()) {
           throw new GHESNotSupportedError();
@@ -108336,7 +108455,7 @@ If the error persists, please check whether Actions and API requests are operati
     });
   }
   getArtifact(artifactName, options) {
-    return __awaiter14(this, void 0, void 0, function* () {
+    return __awaiter16(this, void 0, void 0, function* () {
       try {
         if (isGhes()) {
           throw new GHESNotSupportedError();
@@ -108357,7 +108476,7 @@ If the error persists, please check whether Actions and API requests are operati
     });
   }
   deleteArtifact(artifactName, options) {
-    return __awaiter14(this, void 0, void 0, function* () {
+    return __awaiter16(this, void 0, void 0, function* () {
       try {
         if (isGhes()) {
           throw new GHESNotSupportedError();
@@ -119125,8 +119244,8 @@ var error44 = () => {
       case "not_multiple_of":
         return `N\xFAmero inv\xE1lido: deve ser m\xFAltiplo de ${issue3.divisor}`;
       case "unrecognized_keys": {
-        const plural2 = issue3.keys.length > 1 ? "s" : "";
-        return `Chave${plural2} inv\xE1lida${plural2}: ${joinValues(issue3.keys, ", ")}`;
+        const plural3 = issue3.keys.length > 1 ? "s" : "";
+        return `Chave${plural3} inv\xE1lida${plural3}: ${joinValues(issue3.keys, ", ")}`;
       }
       case "invalid_key":
         return `Entrada inv\xE1lida n${translateOriginWithArticle(issue3.origin, "definite")}`;
@@ -119270,8 +119389,8 @@ var error45 = () => {
       case "not_multiple_of":
         return `N\xFAmero inv\xE1lido: deve ser m\xFAltiplo de ${issue3.divisor}`;
       case "unrecognized_keys": {
-        const plural2 = issue3.keys.length > 1 ? "s" : "";
-        return `Chave${plural2} inv\xE1lida${plural2}: ${joinValues(issue3.keys, ", ")}`;
+        const plural3 = issue3.keys.length > 1 ? "s" : "";
+        return `Chave${plural3} inv\xE1lida${plural3}: ${joinValues(issue3.keys, ", ")}`;
       }
       case "invalid_key":
         return `Entrada inv\xE1lida n${translateOriginWithArticle(issue3.origin, "definite")}`;
@@ -128142,6 +128261,25 @@ var SecurityWorkError = class extends Error {
 var sha256 = (bytes) => createHash3("sha256").update(bytes).digest("hex");
 var securityTestIdentity = external_exports.string().min(1).max(500).refine((s) => !/[\u0000\uD800-\uDFFF]/u.test(s));
 var snapshotFileMode = external_exports.enum(["100644", "100755"]);
+var ESCAPE = /\\(?:u([\da-fA-F]{4})|x([\da-fA-F]{2})|(["\\/nrtbf]))/g;
+var SIMPLE = { '"': '"', "\\": "\\", "/": "/", n: "\n", r: "\r", t: "	", b: "\b", f: "\f" };
+var unescapeText = (text3) => text3.replace(ESCAPE, (_match, unicode, hex3, simple) => (
+  // Adjacent UTF-16 surrogate code units form a pair before the decoded text is converted back to bytes.
+  unicode || hex3 ? String.fromCharCode(parseInt(unicode ?? hex3, 16)) : SIMPLE[simple]
+));
+var proofSecret = (bytes) => secretIn(bytes, true);
+function secretInFile(bytes, scan = proofSecret) {
+  if (scan(bytes)) return true;
+  if (!bytes.includes(92)) return false;
+  let text3 = bytes.toString("utf8");
+  for (let pass = 0; pass < 2; pass++) {
+    const decoded = unescapeText(text3);
+    if (decoded === text3) break;
+    if (scan(Buffer.from(decoded))) return true;
+    text3 = decoded;
+  }
+  return false;
+}
 var gitSha = external_exports.string().regex(/^[a-f0-9]{40}$/);
 var evidenceHash = external_exports.string().regex(/^[a-f0-9]{64}$/);
 var reportPath = external_exports.string().min(1).max(500).refine((s) => !/[\\\u0000-\u001f\u007f]/.test(s) && !s.split("/").some((x) => ["", ".", ".."].includes(x)), "literal repository-relative path required");
@@ -128475,6 +128613,88 @@ function classify(lock, overrides, input2, plan, evidence) {
 import { createHash as createHash4 } from "node:crypto";
 var REPORT_BYTES = 10 * 1024 * 1024;
 var validString = (s) => !/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/u.test(s);
+function parseReportJson(input2) {
+  const bytes = typeof input2 === "string" ? Buffer.from(input2) : input2;
+  if (bytes.length > REPORT_BYTES) throw Error("report_size");
+  const text3 = typeof input2 === "string" ? input2 : new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
+  let at = 0, nodes = 0;
+  const ws = () => {
+    while (/[\x20\t\r\n]/.test(text3[at] ?? "") && at < text3.length) at++;
+  };
+  const string4 = () => {
+    const start = at++;
+    while (at < text3.length) {
+      const c = text3[at++];
+      if (c === "\\") {
+        at++;
+        continue;
+      }
+      if (c === '"') {
+        const value2 = JSON.parse(text3.slice(start, at));
+        if (!validString(value2)) throw Error("report_unicode");
+        if (Buffer.byteLength(value2) > 4096) throw Error("report_field_bytes");
+        return value2;
+      }
+    }
+    throw Error("report_json");
+  };
+  const value = (depth) => {
+    if (depth > 48 || ++nodes > 3e5) throw Error("report_complexity");
+    ws();
+    const c = text3[at];
+    if (c === '"') return string4();
+    if (c === "{") {
+      at++;
+      ws();
+      const object2 = /* @__PURE__ */ Object.create(null), keys = /* @__PURE__ */ new Set();
+      if (text3[at] === "}") {
+        at++;
+        return object2;
+      }
+      for (; ; ) {
+        ws();
+        if (text3[at] !== '"') throw Error("report_json");
+        const key = string4();
+        if (["__proto__", "constructor", "prototype"].includes(key)) throw Error("report_unsafe_key");
+        if (keys.has(key)) throw Error("report_duplicate_key");
+        keys.add(key);
+        ws();
+        if (text3[at++] !== ":") throw Error("report_json");
+        object2[key] = value(depth + 1);
+        ws();
+        const end = text3[at++];
+        if (end === "}") return object2;
+        if (end !== ",") throw Error("report_json");
+      }
+    }
+    if (c === "[") {
+      at++;
+      ws();
+      const array2 = [];
+      if (text3[at] === "]") {
+        at++;
+        return array2;
+      }
+      for (; ; ) {
+        array2.push(value(depth + 1));
+        ws();
+        const end = text3[at++];
+        if (end === "]") return array2;
+        if (end !== ",") throw Error("report_json");
+      }
+    }
+    const token = /^(?:true|false|null|-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)/.exec(text3.slice(at))?.[0];
+    if (!token) throw Error("report_json");
+    at += token.length;
+    const result2 = JSON.parse(token);
+    if (typeof result2 === "number" && (!Number.isFinite(result2) || Number.isInteger(result2) && !Number.isSafeInteger(result2))) throw Error("report_number");
+    return result2;
+  };
+  const result = value(0);
+  ws();
+  if (at !== text3.length) throw Error("report_json");
+  return result;
+}
 function canonicalJson(input2) {
   let nodes = 0;
   const encode3 = (v, depth) => {
@@ -129409,6 +129629,576 @@ var IDENTITY_KEYS = ["version", "resolved", "integrity"];
 var COPIED_KEYS = ["license", "engines", "os", "cpu", "libc", "bin", "funding", "hasInstallScript", "dependencies", "optionalDependencies", "peerDependencies", "peerDependenciesMeta", "acceptDependencies", "bundleDependencies"];
 var DERIVED_KEYS = [...IDENTITY_KEYS, ...COPIED_KEYS];
 
+// src/version.ts
+var ACTION_VERSION = "0.2.0";
+
+// src/agentcloud.ts
+var DEFAULT_AGENTCLOUD_URL = "https://agent.cloud";
+var RUNNER_MODE_PATH = "/security/github/runner/mode";
+var RUNNER_REPORTS_PATH = "/security/github/runner/reports";
+var RUNNER_LOCKFILES_PATH = "/security/github/runner/lockfiles";
+var REPORT_MAX_BYTES = 1024 * 1024;
+var LOCKFILES_MAX_BYTES = 38 * 1024 * 1024;
+var REPORTS_PER_HOUR = 10;
+var RESPONSE_MAX_BYTES = 64 * 1024;
+var TIMEOUT_MS = 12e4;
+var NUMERIC_ID = /^[1-9][0-9]{0,18}$/;
+var GIT_SHA = /^[a-f0-9]{40}$/;
+var MAX_SKIPPED = 500;
+function controlOrigin(raw) {
+  const value = (raw ?? "").trim() || DEFAULT_AGENTCLOUD_URL;
+  const invalid = new Error(`Invalid agentcloud-url: expected an https:// origin with no path, such as ${DEFAULT_AGENTCLOUD_URL}.`);
+  let url3;
+  try {
+    url3 = new URL(value);
+  } catch {
+    throw invalid;
+  }
+  if (url3.protocol !== "https:" || url3.username || url3.password || url3.search || url3.hash || url3.pathname !== "/") {
+    throw invalid;
+  }
+  return url3.origin;
+}
+function envelopeFromEnv(env, startedAt) {
+  const read = (name, pattern) => {
+    const value = env[name]?.trim() ?? "";
+    return pattern.test(value) ? value : null;
+  };
+  const fields = {
+    GITHUB_REPOSITORY_ID: read("GITHUB_REPOSITORY_ID", NUMERIC_ID),
+    GITHUB_REPOSITORY_OWNER_ID: read("GITHUB_REPOSITORY_OWNER_ID", NUMERIC_ID),
+    GITHUB_SHA: read("GITHUB_SHA", GIT_SHA),
+    GITHUB_RUN_ID: read("GITHUB_RUN_ID", NUMERIC_ID)
+  };
+  const missing = Object.entries(fields).filter(([, v]) => v === null).map(([k]) => k);
+  if (missing.length) return { ok: false, missing };
+  return {
+    ok: true,
+    envelope: {
+      repository_id: fields.GITHUB_REPOSITORY_ID,
+      repository_owner_id: fields.GITHUB_REPOSITORY_OWNER_ID,
+      head_sha: fields.GITHUB_SHA,
+      workflow_run_id: fields.GITHUB_RUN_ID,
+      action_version: ACTION_VERSION,
+      run_started_at: new Date(startedAt).toISOString()
+    }
+  };
+}
+function sendableReport(body2) {
+  const nc = body2.extension.not_checked;
+  return {
+    ...body2,
+    extension: { ...body2.extension, not_checked: { total: nc.total, by_reason: { ...nc.by_reason }, entries: [] } }
+  };
+}
+function serializeReportPayload(envelope2, reports) {
+  return `{"envelope":${canonicalJson(envelope2)},"reports":[${reports.map((b) => canonicalJson(sendableReport(b))).join(",")}]}`;
+}
+function buildLockfilesPayload(acquired, envelope2) {
+  const skipped = [...acquired.selectionSkipped];
+  const withheld = [];
+  const lockfiles = [];
+  for (const lock of acquired.selected) {
+    if (secretInFile(lock.bytes)) {
+      withheld.push(lock.path);
+      skipped.push({ path: lock.path, reason: "credential_shaped_content" });
+      continue;
+    }
+    let unreadable = lock.packageJsonUnreadable;
+    let packageJson = null;
+    if (lock.packageJson) {
+      if (secretInFile(lock.packageJson.bytes)) unreadable = true;
+      else packageJson = { path: lock.packageJson.path, content_base64: lock.packageJson.bytes.toString("base64") };
+    }
+    lockfiles.push({
+      path: lock.path,
+      content_base64: lock.bytes.toString("base64"),
+      package_json: packageJson,
+      ...unreadable ? { package_json_unreadable: true } : {}
+    });
+  }
+  const inputs = {};
+  for (const [name, count2] of Object.entries(acquired.other)) if (name.length <= 100) inputs[name] = count2;
+  const { run_started_at: _started, ...lockEnvelope } = envelope2;
+  const json2 = JSON.stringify({
+    envelope: lockEnvelope,
+    lockfiles,
+    skipped: skipped.filter((s) => s.path.length >= 1 && s.path.length <= 500 && s.reason.length >= 1 && s.reason.length <= 100).slice(0, MAX_SKIPPED),
+    inputs_not_analyzed: inputs
+  });
+  return { json: json2, lockfiles: lockfiles.length, withheld };
+}
+function fixFor(code, status, origin) {
+  switch (code) {
+    case "runner.oidc_unavailable":
+      return "Give the job `permissions: id-token: write`, as workflow/agentcloud-baseline.yml does.";
+    case "runner.unauthenticated":
+      return `Check that agentcloud-url is the agent.cloud this repository uses (${origin}), that the job has \`id-token: write\`, and that the run is for the commit it checked out.`;
+    case "runner.not_installed":
+      return `Install the agent.cloud GitHub App on this repository from ${origin}/security/github/setup, and run the workflow on the default branch.`;
+    case "runner.mode_runner":
+      return "Nothing to do: agent.cloud has this repository in runner mode now, so the next run sends its report instead.";
+    case "runner.rate_limited":
+      return `Nothing to do: agent.cloud accepts at most ${REPORTS_PER_HOUR} reports per repository an hour, and the next run sends again.`;
+    case "runner.report_invalid":
+    case "runner.lockfiles_invalid":
+      return "Update this action to the commit agent.cloud's setup page pins; if it already is, tell agent.cloud with this run's log.";
+    case "runner.too_large":
+      return "Nothing to send in this run: the job summary and the agentcloud-baseline artifact still have the whole result.";
+    case "runner.stale_run":
+      return "Nothing to do: a newer run already sent this repository's lockfiles.";
+    case "runner.unreachable":
+      return `Check that this runner can reach ${origin} over HTTPS; the next run tries again.`;
+    case "runner.redirect":
+    case "runner.not_found":
+      return `Check agentcloud-url: ${origin} doesn't take runner reports at ${RUNNER_REPORTS_PATH}.`;
+    default:
+      return status >= 500 ? "Nothing to do: agent.cloud had a problem, and the next run tries again." : `Check agentcloud-url (${origin}) and that this action is the version agent.cloud's setup page pins.`;
+  }
+}
+function describeRefusal(attempt, refusal) {
+  const status = refusal.status ? `HTTP ${refusal.status}` : "no answer";
+  return `${attempt} failed: ${refusal.code} (${status}). ${refusal.message} Fix: ${refusal.fix}`;
+}
+var oneLine = (value, max = 500) => String(value ?? "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim().slice(0, max);
+async function readBounded(res) {
+  const reader = res.body?.getReader();
+  const chunks = [];
+  let size = 0;
+  while (reader) {
+    const next = await reader.read();
+    if (next.done) break;
+    size += next.value.byteLength;
+    if (size > RESPONSE_MAX_BYTES) {
+      await reader.cancel();
+      return "";
+    }
+    chunks.push(next.value);
+  }
+  return Buffer.concat(chunks, size).toString("utf8");
+}
+function parseJson(text3) {
+  try {
+    return JSON.parse(text3);
+  } catch {
+    return null;
+  }
+}
+var sleep = (ms) => ms > 0 ? new Promise((resolve2) => setTimeout(resolve2, ms)) : Promise.resolve();
+function createControlClient(options) {
+  const origin = controlOrigin(options.origin);
+  const fetcher = options.fetch ?? globalThis.fetch;
+  const backoff = options.baseBackoffMs ?? 1e3;
+  const timeoutMs = options.timeoutMs ?? TIMEOUT_MS;
+  const refuse = (status, code, message, fix) => ({
+    ok: false,
+    refusal: { status, code, message: oneLine(message), fix: oneLine(fix) || fixFor(code, status, origin) }
+  });
+  async function request2(method, path4, body2) {
+    const url3 = new URL(path4, origin);
+    if (url3.origin !== origin || url3.pathname !== path4 || url3.search) throw new Error("runner.agentcloud_origin_refused");
+    for (let attempt = 1; ; attempt++) {
+      let token;
+      try {
+        token = await options.getIdToken(origin);
+      } catch (error64) {
+        return refuse(0, "runner.oidc_unavailable", `GitHub didn't give this job an identity token: ${error64 instanceof Error ? error64.message : String(error64)}`);
+      }
+      let res;
+      try {
+        res = await fetcher(url3, {
+          method,
+          redirect: "manual",
+          signal: AbortSignal.timeout(timeoutMs),
+          headers: {
+            accept: "application/json",
+            authorization: `Bearer ${token}`,
+            "user-agent": `agentcloud-security-baseline-action/${ACTION_VERSION}`,
+            ...body2 === void 0 ? {} : { "content-type": "application/json" }
+          },
+          ...body2 === void 0 ? {} : { body: body2 }
+        });
+      } catch (error64) {
+        if (attempt < 2) {
+          await sleep(backoff);
+          continue;
+        }
+        return refuse(0, "runner.unreachable", `No answer from ${origin}: ${error64 instanceof Error ? error64.message : String(error64)}.`);
+      }
+      const text3 = await readBounded(res);
+      if (res.status >= 500 && attempt < 2) {
+        await sleep(backoff);
+        continue;
+      }
+      const parsed = parseJson(text3);
+      if (res.status >= 200 && res.status < 300) {
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+          return refuse(res.status, "runner.answer_invalid", `${origin} answered ${path4} with something other than a JSON object.`);
+        }
+        return { ok: true, status: res.status, body: parsed };
+      }
+      if (res.status >= 300 && res.status < 400) {
+        return refuse(res.status, "runner.redirect", `${origin} answered ${path4} with a redirect, which this action doesn't follow.`);
+      }
+      const error63 = parsed && typeof parsed === "object" ? parsed.error : void 0;
+      const code = typeof error63?.code === "string" && /^[a-z0-9_.]{1,64}$/.test(error63.code) ? error63.code : res.status === 404 ? "runner.not_found" : `http_${res.status}`;
+      const message = typeof error63?.message === "string" ? error63.message : `${origin} answered ${path4} with HTTP ${res.status}.`;
+      return refuse(res.status, code, message, typeof error63?.fix === "string" ? error63.fix : void 0);
+    }
+  }
+  return {
+    origin,
+    async mode() {
+      const answer = await request2("GET", RUNNER_MODE_PATH);
+      if (answer.ok && answer.body.mode !== "runner" && answer.body.mode !== "agent.cloud") {
+        return refuse(
+          answer.status,
+          "runner.mode_unknown",
+          `${origin} named a mode this action doesn't know: ${oneLine(answer.body.mode, 40)}.`,
+          "Update this action to the commit agent.cloud's setup page pins."
+        );
+      }
+      return answer;
+    },
+    sendReport: (json2) => request2("POST", RUNNER_REPORTS_PATH, json2),
+    sendLockfiles: (json2) => request2("POST", RUNNER_LOCKFILES_PATH, json2)
+  };
+}
+
+// src/checkout.ts
+import { createHash as createHash5 } from "node:crypto";
+import { closeSync, fstatSync, lstatSync as lstatSync2, openSync, readdirSync, readSync, realpathSync } from "node:fs";
+import { join as join2, sep as sep3 } from "node:path";
+
+// vendor/security-checks/src/baseline-profile.ts
+var BASELINE = {
+  id: "discovery-deps-v1",
+  revision: 2,
+  components: {
+    check: DEPS_CHECK_ID,
+    check_version: DEPS_CHECK_VERSION,
+    parser: DEPS_LOCK_VERSION,
+    identity: DEPS_IDENTITY_VERSION,
+    osv: DEPS_OSV_VERSION,
+    dependabot: DEPS_DEPENDABOT_VERSION,
+    correlation: DEPS_CHECK_VERSION,
+    fix_facts: DEPS_FACTS_VERSION,
+    renderer: "security-report-html/1"
+  },
+  lock: { filename: "package-lock.json", versions: [2, 3], section: "packages", count: 25, order: "shallowest_then_bytewise", bytes: DEPS_LOCK_BYTES, run_bytes: 20 * 1024 ** 2, package_bytes: 256 * 1024 },
+  responses: { commit: 8 * 1024 ** 2, tree: 8 * 1024 ** 2, blob: DEPS_LOCK_BYTES, alerts: 4 * 1024 ** 2 },
+  other_inputs: [
+    "npm-shrinkwrap.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "bun.lock",
+    "bun.lockb",
+    "deno.lock",
+    "deno.json",
+    "deno.jsonc",
+    "requirements.txt",
+    "pyproject.toml",
+    "Pipfile",
+    "Pipfile.lock",
+    "poetry.lock",
+    "uv.lock",
+    "setup.py",
+    "setup.cfg",
+    "Gemfile",
+    "Gemfile.lock",
+    "go.mod",
+    "go.sum",
+    "Cargo.toml",
+    "Cargo.lock",
+    "pom.xml",
+    "build.gradle",
+    "build.gradle.kts",
+    "gradle.lockfile",
+    "composer.json",
+    "composer.lock",
+    "packages.config",
+    "packages.lock.json",
+    "Package.swift",
+    "Package.resolved",
+    "pubspec.yaml",
+    "pubspec.lock",
+    "mix.exs",
+    "mix.lock",
+    "rebar.config",
+    "rebar.lock"
+  ],
+  unlocked_manifest: { filename: "package.json", siblings: ["package-lock.json", "npm-shrinkwrap.json", "yarn.lock", "pnpm-lock.yaml", "bun.lock", "bun.lockb"], exclude_selected_workspaces: true },
+  report: { per_lockfile: 1, limits: DEPS_REPORT_LIMITS },
+  identities: 5e3,
+  alerts: { state: "open", pages: 50, per_page: 100 },
+  request: { timeout_ms: 3e4, retries: 3, defer_after_s: 60 },
+  rate: { npm: 20, osv: 5 },
+  deadline_ms: 20 * 6e4,
+  lease_ms: 2 * 6e4,
+  compute_ms: 6e4,
+  memory_mib: 512,
+  attempts: 3,
+  active: { tenant: 1, deployment: 4, unclaimed: 1 },
+  spacing_s: 15 * 60,
+  daily: { tenant: 200, deployment: 2e3, unclaimed: 500, window_s: 24 * 3600 },
+  trial: { repositories: 5, days: 14 },
+  stale_minutes: 60,
+  proof: { hours: 1, minimum_permission: "write", per_person_hour: 10, pages: 10, per_page: 100 },
+  stale_banner_hours: 24,
+  model_and_provider_spend: 0,
+  retention: "DFBASE-16"
+};
+var BASELINE_DIGEST = "b0e65639847efc7fc9140dcfbdec38e817024541d01c8e14ab9a957d0de9f714";
+var BASELINE_SETTING = `${BASELINE.id}:${BASELINE.revision}:${BASELINE_DIGEST}`;
+
+// src/checkout.ts
+var filename = (p) => p.split("/").at(-1);
+var directory = (p) => p.slice(0, Math.max(0, p.lastIndexOf("/")));
+var keyAt = (dir, name) => dir ? `${dir}/${name}` : name;
+var byPath = (a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b));
+var safeName = (s) => {
+  try {
+    safeSourceText(s, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+var gitBlobSha = (bytes) => createHash5("sha1").update(`blob ${bytes.byteLength}\0`).update(bytes).digest("hex");
+function isInsideRoot(root, candidate) {
+  return candidate === root || candidate.startsWith(root.endsWith(sep3) ? root : `${root}${sep3}`);
+}
+function readCheckoutFileBounded(root, absPath, maxBytes) {
+  const real = realpathSync(absPath);
+  if (!isInsideRoot(root, real)) throw new Error("baseline.path_outside_checkout");
+  const fd = openSync(real, "r");
+  try {
+    const stat2 = fstatSync(fd);
+    if (!stat2.isFile() || stat2.size > maxBytes) return null;
+    const chunks = [];
+    let total = 0;
+    const buf = Buffer.allocUnsafe(Math.min(64 * 1024, maxBytes + 1));
+    for (; ; ) {
+      const n = readSync(fd, buf, 0, Math.min(buf.length, maxBytes + 1 - total), null);
+      if (n === 0) break;
+      total += n;
+      if (total > maxBytes) return null;
+      chunks.push(Buffer.from(buf.subarray(0, n)));
+    }
+    return Buffer.concat(chunks, total);
+  } finally {
+    closeSync(fd);
+  }
+}
+function walkCheckout(root) {
+  const visible = /* @__PURE__ */ new Map();
+  const walk = (absDir, relDir) => {
+    const entries = readdirSync(absDir, { withFileTypes: true }).sort((a, b) => byPath(a.name, b.name));
+    for (const entry of entries) {
+      if (entry.name === "node_modules" || !relDir && entry.name === ".git") continue;
+      const relPath = keyAt(relDir, entry.name);
+      const absPath = join2(absDir, entry.name);
+      const stat2 = lstatSync2(absPath);
+      if (stat2.isDirectory()) {
+        walk(absPath, relPath);
+        continue;
+      }
+      if (!exactPath.safeParse(relPath).success) continue;
+      const kind = stat2.isSymbolicLink() ? "symlink" : stat2.isFile() ? "file" : "other";
+      visible.set(relPath, { path: relPath, absPath, kind, size: kind === "file" ? stat2.size : 0 });
+    }
+  };
+  walk(root, "");
+  return visible;
+}
+function parseOverrides(siblingBytes, siblingUnreadable) {
+  if (!siblingBytes) return { overrides: { state: siblingUnreadable ? "unreadable" : "absent" }, siblingSafe: false };
+  let overrides = { state: "unreadable" };
+  let siblingSafe = false;
+  try {
+    const manifest = JSON.parse(utf8(siblingBytes));
+    screenedJson(manifest, 512 * 1024);
+    siblingSafe = true;
+    if (manifest && typeof manifest === "object" && !Array.isArray(manifest)) {
+      overrides = Object.hasOwn(manifest, "overrides") ? { state: "present", value: manifest.overrides } : { state: "absent" };
+    }
+  } catch {
+  }
+  return { overrides, siblingSafe };
+}
+function acquireCheckout(checkoutDir) {
+  const root = realpathSync(checkoutDir);
+  const visible = walkCheckout(root);
+  const candidates = [...visible.values()].filter((e) => filename(e.path) === BASELINE.lock.filename).sort((a, b) => a.path.split("/").length - b.path.split("/").length || byPath(a.path, b.path));
+  const locks = [];
+  const skipped = [];
+  const selectedPaths = [];
+  const selected = [];
+  const workspaces = /* @__PURE__ */ new Set();
+  let totalSize = 0;
+  for (const candidate of candidates) {
+    const path4 = candidate.path;
+    const dir = directory(path4);
+    if (!safeName(path4)) {
+      skipped.push({ path: `redacted-${sha256(path4)}`, reason: "credential_shaped_content" });
+      continue;
+    }
+    const skip = (reason) => skipped.push({ path: path4, reason });
+    if (candidate.kind !== "file") {
+      skip(candidate.kind === "symlink" ? "symlink" : "not_regular");
+      continue;
+    }
+    if (visible.has(keyAt(dir, "npm-shrinkwrap.json"))) {
+      skip("npm_shrinkwrap_precedence");
+      continue;
+    }
+    if (candidate.size > BASELINE.lock.bytes) {
+      skip("lockfile_oversize");
+      continue;
+    }
+    if (selectedPaths.length >= BASELINE.lock.count) {
+      skip("lockfile_count_limit");
+      continue;
+    }
+    if (totalSize + candidate.size > BASELINE.lock.run_bytes) {
+      skip("lockfile_run_bytes");
+      continue;
+    }
+    const bytes = readCheckoutFileBounded(root, candidate.absPath, BASELINE.lock.bytes);
+    if (bytes === null) {
+      skip("lockfile_oversize");
+      continue;
+    }
+    if (totalSize + bytes.byteLength > BASELINE.lock.run_bytes) {
+      skip("lockfile_run_bytes");
+      continue;
+    }
+    selectedPaths.push(path4);
+    totalSize += bytes.byteLength;
+    const siblingPath = keyAt(dir, "package.json");
+    const peer = visible.get(siblingPath);
+    const readablePeer = peer && peer.kind === "file" && peer.size <= BASELINE.lock.package_bytes ? peer : null;
+    const siblingBytes = readablePeer ? readCheckoutFileBounded(root, readablePeer.absPath, BASELINE.lock.package_bytes) : null;
+    const siblingUnreadable = Boolean(peer && !siblingBytes);
+    selected.push({
+      path: path4,
+      bytes,
+      packageJson: siblingBytes ? { path: siblingPath, bytes: siblingBytes } : null,
+      packageJsonUnreadable: siblingUnreadable
+    });
+    const parsed = parseDepsLock(bytes);
+    if (parsed.state !== "parsed") {
+      skip(parsed.reason ?? "unsupported_lockfile");
+      continue;
+    }
+    const { overrides, siblingSafe } = parseOverrides(siblingBytes, siblingUnreadable);
+    const pairs2 = [...new Set(parsed.entries.filter((e) => e.kind === "registry").map((e) => JSON.stringify([e.name, e.version])))];
+    for (const e of parsed.entries) {
+      if (e.kind === "first_party" && !e.path.split("/").includes("node_modules") && exactPath.safeParse(e.path).success) {
+        workspaces.add(keyAt(dir, e.path));
+      }
+    }
+    locks.push({
+      path: path4,
+      bytes,
+      git_blob: gitBlobSha(bytes),
+      sha256: sha256(bytes),
+      overrides,
+      package_json: readablePeer && siblingBytes ? {
+        path: siblingPath,
+        size: siblingBytes.byteLength,
+        git_blob: gitBlobSha(siblingBytes),
+        sha256: siblingSafe ? sha256(siblingBytes) : null
+      } : null,
+      pairs: pairs2
+    });
+  }
+  const other = {};
+  for (const e of visible.values()) {
+    if (e.kind !== "file") continue;
+    const name = filename(e.path);
+    const dir = directory(e.path);
+    if (BASELINE.other_inputs.includes(name) || name === BASELINE.unlocked_manifest.filename && !workspaces.has(dir) && !BASELINE.unlocked_manifest.siblings.some((n) => visible.has(keyAt(dir, n)))) {
+      other[name] = (other[name] ?? 0) + 1;
+    }
+  }
+  const chosen = new Set(selectedPaths);
+  const selectionSkipped = skipped.filter((s) => !chosen.has(s.path));
+  return { locks, selectedPaths, skipped, other, selected, selectionSkipped };
+}
+
+// src/history.ts
+var REPORT_FILE = "agentcloud-report.json";
+var HISTORY_LIST_MAX = 300;
+function sendableCount(bytes, artifact, current) {
+  if (bytes.byteLength > REPORT_MAX_BYTES) return null;
+  let parsed;
+  try {
+    parsed = parseReportJson(bytes);
+  } catch {
+    return null;
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const { envelope: envelope2, reports } = parsed;
+  if (!envelope2 || envelope2.repository_id !== current.repository_id || envelope2.repository_owner_id !== current.repository_owner_id || envelope2.head_sha !== artifact.headSha || envelope2.workflow_run_id !== artifact.runId || !Array.isArray(reports) || reports.length === 0) {
+    return null;
+  }
+  for (const body2 of reports) {
+    const entries = body2?.extension?.not_checked?.entries;
+    if (!Array.isArray(entries) || entries.length > 0) return null;
+  }
+  return { reports: reports.length };
+}
+async function collectEarlierReports(source, current, budget) {
+  const left = { other_commit: 0, no_report: 0, unreadable: 0, invalid: 0, over_limit: 0 };
+  const newestPerRun = /* @__PURE__ */ new Map();
+  for (const artifact of await source.list()) {
+    if (artifact.expired || artifact.runId === current.workflow_run_id || !/^[1-9][0-9]{0,18}$/.test(artifact.runId)) continue;
+    const seen = newestPerRun.get(artifact.runId);
+    if (!seen || artifact.createdAt > seen.createdAt || artifact.createdAt === seen.createdAt && artifact.id > seen.id) {
+      newestPerRun.set(artifact.runId, artifact);
+    }
+  }
+  const newestFirst = [...newestPerRun.values()].sort(
+    (a, b) => b.createdAt.localeCompare(a.createdAt) || b.id - a.id
+  );
+  const chosen = [];
+  let remaining = budget;
+  for (const artifact of newestFirst) {
+    if (artifact.headSha !== current.head_sha) {
+      left.other_commit++;
+      continue;
+    }
+    if (remaining <= 0) {
+      left.over_limit++;
+      continue;
+    }
+    let bytes;
+    try {
+      bytes = await source.read(artifact);
+    } catch {
+      left.unreadable++;
+      continue;
+    }
+    if (!bytes) {
+      left.no_report++;
+      continue;
+    }
+    const ok = sendableCount(bytes, artifact, current);
+    if (!ok) {
+      left.invalid++;
+      continue;
+    }
+    if (ok.reports > remaining) {
+      left.over_limit++;
+      continue;
+    }
+    remaining -= ok.reports;
+    chosen.push({ runId: artifact.runId, createdAt: artifact.createdAt, json: bytes.toString("utf8"), reports: ok.reports });
+  }
+  return { send: chosen.reverse(), left };
+}
+
 // src/output.ts
 var FAIL_ON_LEVELS = ["critical", "high", "moderate", "low"];
 var SETUP_PAGE_URL = "https://agent.cloud/security/github/setup";
@@ -129550,256 +130340,6 @@ function serializeArtifact(result) {
   ].join(",")}}`;
 }
 
-// vendor/security-checks/src/baseline-profile.ts
-var BASELINE = {
-  id: "discovery-deps-v1",
-  revision: 2,
-  components: {
-    check: DEPS_CHECK_ID,
-    check_version: DEPS_CHECK_VERSION,
-    parser: DEPS_LOCK_VERSION,
-    identity: DEPS_IDENTITY_VERSION,
-    osv: DEPS_OSV_VERSION,
-    dependabot: DEPS_DEPENDABOT_VERSION,
-    correlation: DEPS_CHECK_VERSION,
-    fix_facts: DEPS_FACTS_VERSION,
-    renderer: "security-report-html/1"
-  },
-  lock: { filename: "package-lock.json", versions: [2, 3], section: "packages", count: 25, order: "shallowest_then_bytewise", bytes: DEPS_LOCK_BYTES, run_bytes: 20 * 1024 ** 2, package_bytes: 256 * 1024 },
-  responses: { commit: 8 * 1024 ** 2, tree: 8 * 1024 ** 2, blob: DEPS_LOCK_BYTES, alerts: 4 * 1024 ** 2 },
-  other_inputs: [
-    "npm-shrinkwrap.json",
-    "yarn.lock",
-    "pnpm-lock.yaml",
-    "bun.lock",
-    "bun.lockb",
-    "deno.lock",
-    "deno.json",
-    "deno.jsonc",
-    "requirements.txt",
-    "pyproject.toml",
-    "Pipfile",
-    "Pipfile.lock",
-    "poetry.lock",
-    "uv.lock",
-    "setup.py",
-    "setup.cfg",
-    "Gemfile",
-    "Gemfile.lock",
-    "go.mod",
-    "go.sum",
-    "Cargo.toml",
-    "Cargo.lock",
-    "pom.xml",
-    "build.gradle",
-    "build.gradle.kts",
-    "gradle.lockfile",
-    "composer.json",
-    "composer.lock",
-    "packages.config",
-    "packages.lock.json",
-    "Package.swift",
-    "Package.resolved",
-    "pubspec.yaml",
-    "pubspec.lock",
-    "mix.exs",
-    "mix.lock",
-    "rebar.config",
-    "rebar.lock"
-  ],
-  unlocked_manifest: { filename: "package.json", siblings: ["package-lock.json", "npm-shrinkwrap.json", "yarn.lock", "pnpm-lock.yaml", "bun.lock", "bun.lockb"], exclude_selected_workspaces: true },
-  report: { per_lockfile: 1, limits: DEPS_REPORT_LIMITS },
-  identities: 5e3,
-  alerts: { state: "open", pages: 50, per_page: 100 },
-  request: { timeout_ms: 3e4, retries: 3, defer_after_s: 60 },
-  rate: { npm: 20, osv: 5 },
-  deadline_ms: 20 * 6e4,
-  lease_ms: 2 * 6e4,
-  compute_ms: 6e4,
-  memory_mib: 512,
-  attempts: 3,
-  active: { tenant: 1, deployment: 4, unclaimed: 1 },
-  spacing_s: 15 * 60,
-  daily: { tenant: 200, deployment: 2e3, unclaimed: 500, window_s: 24 * 3600 },
-  trial: { repositories: 5, days: 14 },
-  stale_minutes: 60,
-  proof: { hours: 1, minimum_permission: "write", per_person_hour: 10, pages: 10, per_page: 100 },
-  stale_banner_hours: 24,
-  model_and_provider_spend: 0,
-  retention: "DFBASE-16"
-};
-var BASELINE_DIGEST = "b0e65639847efc7fc9140dcfbdec38e817024541d01c8e14ab9a957d0de9f714";
-var BASELINE_SETTING = `${BASELINE.id}:${BASELINE.revision}:${BASELINE_DIGEST}`;
-
-// src/checkout.ts
-import { createHash as createHash5 } from "node:crypto";
-import { closeSync, fstatSync, lstatSync as lstatSync2, openSync, readdirSync, readSync, realpathSync } from "node:fs";
-import { join as join2, sep as sep3 } from "node:path";
-var filename = (p) => p.split("/").at(-1);
-var directory = (p) => p.slice(0, Math.max(0, p.lastIndexOf("/")));
-var keyAt = (dir, name) => dir ? `${dir}/${name}` : name;
-var byPath = (a, b) => Buffer.compare(Buffer.from(a), Buffer.from(b));
-var safeName = (s) => {
-  try {
-    safeSourceText(s, 0);
-    return true;
-  } catch {
-    return false;
-  }
-};
-var gitBlobSha = (bytes) => createHash5("sha1").update(`blob ${bytes.byteLength}\0`).update(bytes).digest("hex");
-function isInsideRoot(root, candidate) {
-  return candidate === root || candidate.startsWith(root.endsWith(sep3) ? root : `${root}${sep3}`);
-}
-function readCheckoutFileBounded(root, absPath, maxBytes) {
-  const real = realpathSync(absPath);
-  if (!isInsideRoot(root, real)) throw new Error("baseline.path_outside_checkout");
-  const fd = openSync(real, "r");
-  try {
-    const stat2 = fstatSync(fd);
-    if (!stat2.isFile() || stat2.size > maxBytes) return null;
-    const chunks = [];
-    let total = 0;
-    const buf = Buffer.allocUnsafe(Math.min(64 * 1024, maxBytes + 1));
-    for (; ; ) {
-      const n = readSync(fd, buf, 0, Math.min(buf.length, maxBytes + 1 - total), null);
-      if (n === 0) break;
-      total += n;
-      if (total > maxBytes) return null;
-      chunks.push(Buffer.from(buf.subarray(0, n)));
-    }
-    return Buffer.concat(chunks, total);
-  } finally {
-    closeSync(fd);
-  }
-}
-function walkCheckout(root) {
-  const visible = /* @__PURE__ */ new Map();
-  const walk = (absDir, relDir) => {
-    const entries = readdirSync(absDir, { withFileTypes: true }).sort((a, b) => byPath(a.name, b.name));
-    for (const entry of entries) {
-      if (entry.name === "node_modules" || !relDir && entry.name === ".git") continue;
-      const relPath = keyAt(relDir, entry.name);
-      const absPath = join2(absDir, entry.name);
-      const stat2 = lstatSync2(absPath);
-      if (stat2.isDirectory()) {
-        walk(absPath, relPath);
-        continue;
-      }
-      if (!exactPath.safeParse(relPath).success) continue;
-      const kind = stat2.isSymbolicLink() ? "symlink" : stat2.isFile() ? "file" : "other";
-      visible.set(relPath, { path: relPath, absPath, kind, size: kind === "file" ? stat2.size : 0 });
-    }
-  };
-  walk(root, "");
-  return visible;
-}
-function parseOverrides(siblingBytes, siblingUnreadable) {
-  if (!siblingBytes) return { overrides: { state: siblingUnreadable ? "unreadable" : "absent" }, siblingSafe: false };
-  let overrides = { state: "unreadable" };
-  let siblingSafe = false;
-  try {
-    const manifest = JSON.parse(utf8(siblingBytes));
-    screenedJson(manifest, 512 * 1024);
-    siblingSafe = true;
-    if (manifest && typeof manifest === "object" && !Array.isArray(manifest)) {
-      overrides = Object.hasOwn(manifest, "overrides") ? { state: "present", value: manifest.overrides } : { state: "absent" };
-    }
-  } catch {
-  }
-  return { overrides, siblingSafe };
-}
-function acquireCheckout(checkoutDir) {
-  const root = realpathSync(checkoutDir);
-  const visible = walkCheckout(root);
-  const candidates = [...visible.values()].filter((e) => filename(e.path) === BASELINE.lock.filename).sort((a, b) => a.path.split("/").length - b.path.split("/").length || byPath(a.path, b.path));
-  const locks = [];
-  const skipped = [];
-  const selectedPaths = [];
-  const workspaces = /* @__PURE__ */ new Set();
-  let totalSize = 0;
-  for (const candidate of candidates) {
-    const path4 = candidate.path;
-    const dir = directory(path4);
-    if (!safeName(path4)) {
-      skipped.push({ path: `redacted-${sha256(path4)}`, reason: "credential_shaped_content" });
-      continue;
-    }
-    const skip = (reason) => skipped.push({ path: path4, reason });
-    if (candidate.kind !== "file") {
-      skip(candidate.kind === "symlink" ? "symlink" : "not_regular");
-      continue;
-    }
-    if (visible.has(keyAt(dir, "npm-shrinkwrap.json"))) {
-      skip("npm_shrinkwrap_precedence");
-      continue;
-    }
-    if (candidate.size > BASELINE.lock.bytes) {
-      skip("lockfile_oversize");
-      continue;
-    }
-    if (selectedPaths.length >= BASELINE.lock.count) {
-      skip("lockfile_count_limit");
-      continue;
-    }
-    if (totalSize + candidate.size > BASELINE.lock.run_bytes) {
-      skip("lockfile_run_bytes");
-      continue;
-    }
-    const bytes = readCheckoutFileBounded(root, candidate.absPath, BASELINE.lock.bytes);
-    if (bytes === null) {
-      skip("lockfile_oversize");
-      continue;
-    }
-    if (totalSize + bytes.byteLength > BASELINE.lock.run_bytes) {
-      skip("lockfile_run_bytes");
-      continue;
-    }
-    selectedPaths.push(path4);
-    totalSize += bytes.byteLength;
-    const parsed = parseDepsLock(bytes);
-    if (parsed.state !== "parsed") {
-      skip(parsed.reason ?? "unsupported_lockfile");
-      continue;
-    }
-    const siblingPath = keyAt(dir, "package.json");
-    const peer = visible.get(siblingPath);
-    const readablePeer = peer && peer.kind === "file" && peer.size <= BASELINE.lock.package_bytes ? peer : null;
-    const siblingBytes = readablePeer ? readCheckoutFileBounded(root, readablePeer.absPath, BASELINE.lock.package_bytes) : null;
-    const { overrides, siblingSafe } = parseOverrides(siblingBytes, Boolean(peer && !siblingBytes));
-    const pairs2 = [...new Set(parsed.entries.filter((e) => e.kind === "registry").map((e) => JSON.stringify([e.name, e.version])))];
-    for (const e of parsed.entries) {
-      if (e.kind === "first_party" && !e.path.split("/").includes("node_modules") && exactPath.safeParse(e.path).success) {
-        workspaces.add(keyAt(dir, e.path));
-      }
-    }
-    locks.push({
-      path: path4,
-      bytes,
-      git_blob: gitBlobSha(bytes),
-      sha256: sha256(bytes),
-      overrides,
-      package_json: readablePeer && siblingBytes ? {
-        path: siblingPath,
-        size: siblingBytes.byteLength,
-        git_blob: gitBlobSha(siblingBytes),
-        sha256: siblingSafe ? sha256(siblingBytes) : null
-      } : null,
-      pairs: pairs2
-    });
-  }
-  const other = {};
-  for (const e of visible.values()) {
-    if (e.kind !== "file") continue;
-    const name = filename(e.path);
-    const dir = directory(e.path);
-    if (BASELINE.other_inputs.includes(name) || name === BASELINE.unlocked_manifest.filename && !workspaces.has(dir) && !BASELINE.unlocked_manifest.siblings.some((n) => visible.has(keyAt(dir, n)))) {
-      other[name] = (other[name] ?? 0) + 1;
-    }
-  }
-  return { locks, selectedPaths, skipped, other };
-}
-
 // src/http.ts
 var MAX_PUBLIC_BYTES = 8 * 1024 ** 2;
 function safeDecode3(segment) {
@@ -129868,7 +130408,7 @@ async function readBoundedBytes(res, max) {
   }
   return Buffer.concat(chunks, size);
 }
-function sleep(ms, signal) {
+function sleep2(ms, signal) {
   if (ms <= 0) return Promise.resolve();
   return new Promise((resolve2, reject) => {
     if (signal?.aborted) {
@@ -129910,7 +130450,7 @@ function createRunnerHttp(options = {}) {
         } catch {
           options.signal?.throwIfAborted();
           if (attempt >= retries) throw new Error("source_unavailable");
-          await sleep(baseBackoffMs * 2 ** attempt, options.signal);
+          await sleep2(baseBackoffMs * 2 ** attempt, options.signal);
           continue;
         }
         if (res.status === 404) {
@@ -129922,7 +130462,7 @@ function createRunnerHttp(options = {}) {
           await res.body?.cancel();
           if (attempt >= retries) throw new Error("source_unavailable");
           const waitMs = retryAfter !== null ? baseBackoffMs > 0 ? retryAfter * 1e3 : 0 : baseBackoffMs * 2 ** attempt;
-          await sleep(waitMs, options.signal);
+          await sleep2(waitMs, options.signal);
           continue;
         }
         if (res.status !== 200) {
@@ -129936,7 +130476,7 @@ function createRunnerHttp(options = {}) {
           options.signal?.throwIfAborted();
           if (err instanceof Error && err.message === "runner.public_response_limit") throw err;
           if (attempt >= retries) throw new Error("source_unavailable");
-          await sleep(baseBackoffMs * 2 ** attempt, options.signal);
+          await sleep2(baseBackoffMs * 2 ** attempt, options.signal);
           continue;
         }
         let parsed;
@@ -129978,7 +130518,7 @@ function createMemoryIdentityCache() {
 async function runBaseline(options) {
   const now = options.now ?? Date.now;
   const http3 = options.http ?? createRunnerHttp({ ...options.httpOptions, now, signal: options.signal });
-  const acquired = acquireCheckout(options.checkoutDir);
+  const acquired = options.acquired ?? acquireCheckout(options.checkoutDir);
   const cache = createMemoryIdentityCache();
   const admittedInRun = /* @__PURE__ */ new Set();
   const skipped = [...acquired.skipped];
@@ -130078,12 +130618,29 @@ async function runBaseline(options) {
 var ARTIFACT_NAME = "agentcloud-baseline";
 var ARTIFACT_FILE = "agentcloud-baseline.json";
 var ARTIFACT_RETENTION_DAYS = 30;
+function repositoryParts(env) {
+  const [owner, repo, extra] = (env.GITHUB_REPOSITORY ?? "").split("/");
+  if (!owner || !repo || extra !== void 0) throw new Error("GITHUB_REPOSITORY is not set to owner/repository.");
+  return { owner, repo };
+}
+function readRegularFile(path4, maxBytes) {
+  let stat2;
+  try {
+    stat2 = lstatSync3(path4);
+  } catch {
+    return null;
+  }
+  if (!stat2.isFile() || stat2.size > maxBytes) return null;
+  const bytes = readFileSync2(path4);
+  return bytes.byteLength > maxBytes ? null : bytes;
+}
 function createGitHubRuntime() {
   return {
     getInput: (name) => getInput(name),
     setOutput: (name, value) => setOutput(name, value),
     setFailed: (message) => setFailed(message),
     info: (message) => info(message),
+    warning: (message) => warning(message),
     async writeSummary(markdown) {
       summary.addRaw(markdown);
       await summary.write();
@@ -130092,34 +130649,226 @@ function createGitHubRuntime() {
       const client2 = new DefaultArtifactClient();
       await client2.uploadArtifact(req.name, req.files, req.rootDirectory, { retentionDays: req.retentionDays });
     },
+    getIdToken: (audience) => getIDToken(audience),
+    async listBaselineArtifacts(token) {
+      const { owner, repo } = repositoryParts(process.env);
+      const octokit = getOctokit(token);
+      const found = [];
+      for (let page = 1; found.length < HISTORY_LIST_MAX; page++) {
+        const { data } = await octokit.request("GET /repos/{owner}/{repo}/actions/artifacts", {
+          owner,
+          repo,
+          name: ARTIFACT_NAME,
+          per_page: 100,
+          page
+        });
+        for (const a of data.artifacts) {
+          found.push({
+            id: a.id,
+            runId: String(a.workflow_run?.id ?? ""),
+            headSha: a.workflow_run?.head_sha ?? "",
+            createdAt: a.created_at ?? "",
+            expired: a.expired
+          });
+        }
+        if (data.artifacts.length < 100) break;
+      }
+      return found.slice(0, HISTORY_LIST_MAX);
+    },
+    async readArtifactFile(artifact, token, file2, maxBytes) {
+      const { owner, repo } = repositoryParts(process.env);
+      const dir = mkdtempSync(join3(process.env.RUNNER_TEMP || tmpdir(), "agentcloud-history-"));
+      try {
+        await new DefaultArtifactClient().downloadArtifact(artifact.id, {
+          path: dir,
+          findBy: { token, workflowRunId: Number(artifact.runId), repositoryOwner: owner, repositoryName: repo }
+        });
+        return readRegularFile(join3(dir, file2), maxBytes);
+      } finally {
+        rmSync(dir, { recursive: true, force: true });
+      }
+    },
     env: process.env,
     cwd: process.env.GITHUB_WORKSPACE || process.cwd()
   };
 }
+var isTrue = (value) => value?.trim().toLowerCase() === "true";
+var plural2 = (n, one, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+async function prepareSending(runtime, origin, envelope2, delivery) {
+  runtime.info(`Sending to agent.cloud is on (${origin}).`);
+  if (!envelope2.ok) {
+    runtime.warning(
+      `Nothing was sent to agent.cloud: this run has no ${envelope2.missing.join(", ")}, which GitHub Actions sets. Fix: run the action in a GitHub Actions job.`
+    );
+    return null;
+  }
+  const client2 = createControlClient({
+    origin,
+    getIdToken: (audience) => runtime.getIdToken(audience),
+    fetch: runtime.httpOptions?.fetch,
+    baseBackoffMs: runtime.httpOptions?.baseBackoffMs
+  });
+  const answer = await client2.mode();
+  if (!answer.ok) {
+    runtime.warning(`${describeRefusal("Asking agent.cloud for this repository's mode", answer.refusal)} Nothing was sent to agent.cloud.`);
+    return null;
+  }
+  delivery.mode = answer.body.mode;
+  runtime.info(
+    answer.body.mode === "runner" ? "agent.cloud has this repository in runner mode: this run sends its report." : "agent.cloud has this repository in agent.cloud mode: this run sends its package-lock.json files and their package.json files."
+  );
+  return { client: client2, envelope: envelope2.envelope, mode: answer.body.mode };
+}
+async function sendHistory(runtime, sending, budget, delivery) {
+  const token = runtime.getInput("github-token").trim();
+  if (!token) {
+    runtime.warning("send-history found no token to read earlier runs with. Fix: leave the github-token input at its default, the job's own token.");
+    return;
+  }
+  let collected;
+  try {
+    collected = await collectEarlierReports(
+      {
+        list: () => runtime.listBaselineArtifacts(token),
+        read: (artifact) => runtime.readArtifactFile(artifact, token, REPORT_FILE, REPORT_MAX_BYTES)
+      },
+      sending.envelope,
+      budget
+    );
+  } catch (error63) {
+    runtime.warning(
+      `send-history couldn't list earlier runs' ${ARTIFACT_NAME} artifacts: ${error63 instanceof Error ? error63.message : String(error63)} Fix: give the job \`permissions: actions: read\`, as workflow/agentcloud-baseline.yml does.`
+    );
+    return;
+  }
+  const history = { sent: 0, refused: 0, left: { ...collected.left } };
+  delivery.history = history;
+  for (const earlier of collected.send) {
+    const answer = await sending.client.sendReport(earlier.json);
+    if (answer.ok) {
+      history.sent++;
+      runtime.info(`Sent run ${earlier.runId}'s report to agent.cloud${answer.body.repeated ? ", which already had it" : ""}.`);
+      continue;
+    }
+    history.refused++;
+    runtime.warning(describeRefusal(`Sending run ${earlier.runId}'s report to agent.cloud`, answer.refusal));
+    if (answer.refusal.status !== 400) break;
+  }
+  const { other_commit, no_report, unreadable, invalid, over_limit } = collected.left;
+  const notes = [
+    other_commit && `${plural2(other_commit, "run")} at another commit (agent.cloud takes a report only for the commit this run's identity token names)`,
+    no_report && `${plural2(no_report, "run")} whose artifact has no ${REPORT_FILE} (made before v0.2.0 of this action)`,
+    unreadable && `${plural2(unreadable, "artifact")} that couldn't be downloaded`,
+    invalid && `${plural2(invalid, "report")} for another repository or run, or naming an unchecked dependency`,
+    over_limit && `${plural2(over_limit, "run")} over agent.cloud's ${REPORTS_PER_HOUR} reports an hour`
+  ].filter(Boolean);
+  runtime.info(
+    `send-history sent ${plural2(history.sent, "earlier run's report", "earlier runs' reports")}${notes.length ? `; left out ${notes.join(", ")}` : ""}.`
+  );
+}
+async function deliver(runtime, sending, acquired, reportBytes, reportCount, delivery) {
+  const origin = sending.client.origin;
+  const wantsHistory = isTrue(runtime.getInput("send-history"));
+  if (wantsHistory && runtime.env.GITHUB_EVENT_NAME !== "workflow_dispatch") {
+    runtime.info("send-history is for a workflow_dispatch run; this run sends only its own result.");
+  } else if (wantsHistory) {
+    const own2 = sending.mode === "runner" && reportBytes && Buffer.byteLength(reportBytes) <= REPORT_MAX_BYTES ? reportCount : 0;
+    await sendHistory(runtime, sending, REPORTS_PER_HOUR - own2, delivery);
+  }
+  if (sending.mode === "runner") {
+    if (!reportBytes) {
+      runtime.info("No lockfile was analyzed, so there is no report to send to agent.cloud.");
+      return;
+    }
+    const size2 = Buffer.byteLength(reportBytes);
+    if (size2 > REPORT_MAX_BYTES) {
+      delivery.report = "refused";
+      runtime.warning(
+        `The report wasn't sent: it is ${size2} bytes, over agent.cloud's ${REPORT_MAX_BYTES}-byte limit. Fix: ${fixFor("runner.too_large", 413, origin)}`
+      );
+      return;
+    }
+    const answer2 = await sending.client.sendReport(reportBytes);
+    if (!answer2.ok) {
+      delivery.report = "refused";
+      runtime.warning(describeRefusal("Sending this run's report to agent.cloud", answer2.refusal));
+      return;
+    }
+    delivery.report = answer2.body.repeated ? "repeated" : "sent";
+    runtime.info(
+      `Sent the report for ${plural2(reportCount, "lockfile")} to agent.cloud${answer2.body.repeated ? ", which already had it" : ""}. Unchecked dependencies went only as counts.`
+    );
+    return;
+  }
+  const payload = buildLockfilesPayload(acquired, sending.envelope);
+  for (const path4 of payload.withheld) {
+    runtime.warning(`${path4} wasn't sent to agent.cloud: it looks like it holds a credential.`);
+  }
+  const size = Buffer.byteLength(payload.json);
+  if (size > LOCKFILES_MAX_BYTES) {
+    delivery.lockfiles = "refused";
+    runtime.warning(
+      `The lockfiles weren't sent: they are ${size} bytes encoded, over agent.cloud's ${LOCKFILES_MAX_BYTES}-byte limit. Fix: ${fixFor("runner.too_large", 413, origin)}`
+    );
+    return;
+  }
+  const answer = await sending.client.sendLockfiles(payload.json);
+  if (!answer.ok) {
+    delivery.lockfiles = "refused";
+    runtime.warning(describeRefusal("Sending this run's lockfiles to agent.cloud", answer.refusal));
+    return;
+  }
+  delivery.lockfiles = answer.body.repeated ? "repeated" : "sent";
+  runtime.info(
+    `Sent ${plural2(payload.lockfiles, "package-lock.json file")} and their package.json files to agent.cloud${answer.body.repeated ? ", which already had them" : ""}.`
+  );
+}
 async function runAction(runtime = createGitHubRuntime()) {
+  const startedAt = (runtime.now ?? Date.now)();
   const failOn = parseFailOn(runtime.getInput("fail-on"));
   const sendingEnabled = shouldSendReport(runtime.getInput("send-report"), runtime.env);
   const workingDir = runtime.getInput("working-directory").trim() || runtime.cwd;
+  const envelope2 = envelopeFromEnv(runtime.env, startedAt);
+  const delivery = { mode: null, report: "not_sent", lockfiles: "not_sent", history: null };
+  let sending = null;
+  if (sendingEnabled) {
+    const origin = controlOrigin(runtime.getInput("agentcloud-url"));
+    try {
+      sending = await prepareSending(runtime, origin, envelope2, delivery);
+    } catch (error63) {
+      runtime.warning(`Nothing was sent to agent.cloud: ${error63 instanceof Error ? error63.message : String(error63)}`);
+    }
+  } else if (isTrue(runtime.getInput("send-history"))) {
+    runtime.info("send-history does nothing while sending is off: nothing was sent to agent.cloud.");
+  }
+  const acquired = acquireCheckout(workingDir);
   const result = await runBaseline({
     checkoutDir: workingDir,
+    acquired,
     now: runtime.now,
     httpOptions: runtime.httpOptions
   });
   const findings = extractFindings(result.reports);
   const summary2 = renderSummary(result);
   const artifactBytes = serializeArtifact(result);
+  const reportBytes = envelope2.ok && result.reports.length > 0 ? serializeReportPayload(envelope2.envelope, result.reports) : null;
   await runtime.writeSummary(summary2);
   const stageBase = runtime.env.RUNNER_TEMP || tmpdir();
   const stageDir = mkdtempSync(join3(stageBase, "agentcloud-baseline-"));
   try {
-    const filePath = join3(stageDir, ARTIFACT_FILE);
-    writeFileSync(filePath, artifactBytes, "utf8");
+    const contents = { [ARTIFACT_FILE]: artifactBytes };
+    if (reportBytes) contents[REPORT_FILE] = reportBytes;
+    const files = Object.entries(contents).map(([name, content]) => {
+      const filePath = join3(stageDir, name);
+      writeFileSync(filePath, content, "utf8");
+      return filePath;
+    });
     await runtime.uploadArtifact({
       name: ARTIFACT_NAME,
-      files: [filePath],
+      files,
       rootDirectory: stageDir,
       retentionDays: ARTIFACT_RETENTION_DAYS,
-      content: artifactBytes
+      contents
     });
   } finally {
     rmSync(stageDir, { recursive: true, force: true });
@@ -130128,11 +130877,13 @@ async function runAction(runtime = createGitHubRuntime()) {
   runtime.setOutput("findings-count", String(findings.length));
   runtime.setOutput("artifact-name", ARTIFACT_NAME);
   runtime.setOutput("send-report", String(sendingEnabled));
-  if (sendingEnabled) {
-    if (runtime.onSendReport) {
-      await runtime.onSendReport(result);
-    } else {
-      runtime.info("Report sending is enabled; OIDC delivery ships in slice 3.");
+  if (sending) {
+    try {
+      await deliver(runtime, sending, acquired, reportBytes, result.reports.length, delivery);
+    } catch (error63) {
+      runtime.warning(
+        `Sending to agent.cloud stopped: ${error63 instanceof Error ? error63.message : String(error63)}. The job summary and the ${ARTIFACT_NAME} artifact have the whole result.`
+      );
     }
   }
   const gate = evaluateFailOn(findings, failOn);
@@ -130143,7 +130894,9 @@ async function runAction(runtime = createGitHubRuntime()) {
     result,
     summary: summary2,
     artifactBytes,
+    reportBytes,
     sendingEnabled,
+    delivery,
     failed: gate.failed,
     failureMessage: gate.message
   };

@@ -6,9 +6,21 @@ inputs:
     required: false
     default: ''
   send-report:
-    description: 'Send the report body to agent.cloud (off by default; also enabled by the AGENTCLOUD_SEND_REPORT variable).'
+    description: 'Send to agent.cloud (off by default; the AGENTCLOUD_SEND_REPORT variable set to true also turns it on). Needs the job permission id-token: write.'
     required: false
     default: 'false'
+  agentcloud-url:
+    description: 'The agent.cloud to send to, as an https:// origin. Used only when sending is on.'
+    required: false
+    default: 'https://agent.cloud'
+  send-history:
+    description: 'On a workflow_dispatch run with sending on, also send the reports earlier runs of this repository still keep. Needs the job permission actions: read.'
+    required: false
+    default: 'false'
+  github-token:
+    description: "The token send-history reads earlier runs' artifacts with. Used only by send-history."
+    required: false
+    default: ${{ github.token }}
   working-directory:
     description: 'Checkout directory to scan (defaults to GITHUB_WORKSPACE or the current working directory).'
     required: false
@@ -21,7 +33,7 @@ outputs:
   artifact-name:
     description: 'Name of the uploaded report artifact (agentcloud-baseline).'
   send-report:
-    description: 'Whether sending the report to agent.cloud is enabled (true or false).'
+    description: 'Whether sending to agent.cloud is enabled (true or false).'
 runs:
   using: 'node24'
   main: 'dist/index.mjs'
