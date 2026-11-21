@@ -15,9 +15,11 @@ import {
   REPORT_FILE,
   REPORT_MAX_BYTES,
   runAction,
+  sendableReport,
   SETUP_PAGE_URL,
   type BaselineArtifact,
 } from '../src/index.ts';
+import type { DepsReportBody } from '@summationai/security-checks';
 import { fakeControl, fakeIdToken, fakeOidc } from './fake-control.ts';
 import { githubEnv, makeCheckout, makeFakeFetch, makeRuntime, NOW, osvAdvisory, RUN, regEntry } from './helpers.ts';
 
@@ -142,6 +144,119 @@ test('DFGHR-11, DFGHR-12, DFGHR-15, DFGHR-20: in runner mode the action asks the
   } finally {
     checkout.cleanup();
   }
+});
+
+// A vulnerable public package installed inside two unchecked dependencies' folders: one from a private registry, one the
+// public registry doesn't know. The private one pins the public one, so a recommendation quotes its path as well.
+const nestedLockfile = {
+  lockfileVersion: 3,
+  packages: {
+    '': { name: 'demo', dependencies: { 'pub-pkg': '^1.0.0', '@acme/private': '^1.0.0', 'priv-pkg': '^1.0.0' } },
+    'node_modules/pub-pkg': regEntry('pub-pkg', '1.0.0'),
+    'node_modules/@acme/private': {
+      version: '1.0.0',
+      resolved: 'https://npm.internal.example/@acme/private/-/private-1.0.0.tgz',
+      integrity: 'sha512-Zml4dHVyZQ==',
+      dependencies: { 'pub-pkg': '1.1.0' },
+    },
+    'node_modules/@acme/private/node_modules/pub-pkg': regEntry('pub-pkg', '1.1.0'),
+    'node_modules/priv-pkg': { ...regEntry('priv-pkg', '1.0.0'), dependencies: { 'pub-pkg': '^1.1.0' } },
+    'node_modules/priv-pkg/node_modules/pub-pkg': regEntry('pub-pkg', '1.1.0'),
+  },
+};
+const UNCHECKED_NAMES = ['@acme/private', 'priv-pkg'];
+
+test('DFGHR-11: a path through an unchecked dependency is sent with a stable placeholder for its name, and the summary and artifact keep the whole path', async () => {
+  const checkout = makeCheckout({ 'package-lock.json': nestedLockfile, 'package.json': { name: 'demo' } });
+  try {
+    const sent: string[] = [];
+    for (let run = 0; run < 2; run++) {
+      const { control, oidc, net } = setup();
+      const rt = makeRuntime(checkout.dir, net.fetcher, { inputs: { 'send-report': 'true' }, env: githubEnv(), getIdToken: oidc.getIdToken });
+      const exec = await runAction(rt.runtime);
+
+      // Control accepted it under its own checks, joinDepsReport included: the recomputed occurrence keys hold.
+      assert.deepEqual(rt.warnings, []);
+      assert.deepEqual(exec.delivery, { mode: 'runner', report: 'sent', lockfiles: 'not_sent', history: null });
+      const { raw, payload } = control.reports[0]!;
+      sent.push(raw);
+      const body = payload.reports[0]!;
+      assert.equal(body.extension.not_checked.total, 2);
+
+      // Each unchecked dependency's folder is a placeholder, numbered by first appearance; a path through none is unchanged.
+      const entries = body.observations.flatMap((o) => (o.kind === 'source_observation' && o.occurrence.kind === 'dependency' ? [o.occurrence.entry] : []));
+      assert.deepEqual([...new Set(entries)].sort(), [
+        'node_modules/<unchecked-1>/node_modules/pub-pkg',
+        'node_modules/<unchecked-2>/node_modules/pub-pkg',
+        'node_modules/pub-pkg',
+      ]);
+      assert.deepEqual(body.extension.fix_facts.map((f) => f.entry).sort(), [...new Set(entries)].sort());
+      assert.deepEqual(body.extension.fix_facts.flatMap((f) => f.blocking_dependents.map((d) => d.path)), ['node_modules/<unchecked-1>']);
+      const rationale = body.recommendations.map((r) => r.rationale).join('\n');
+      assert.match(rationale, /node_modules\/<unchecked-1> dependencies "1\.1\.0"/);
+      assert.match(rationale, /lock entry node_modules\/<unchecked-2>\/node_modules\/pub-pkg from/);
+      assert.match(rationale, /lock entry node_modules\/pub-pkg from/);
+      assert.equal(body.lockfile.path, 'package-lock.json');
+      const firsts = [...new Set([...raw.matchAll(/<unchecked-(\d+)>/g)].map((m) => m[1]))];
+      assert.deepEqual(firsts, ['1', '2'], 'numbered by first appearance in the bytes sent');
+
+      // No sent byte names an unchecked dependency, and the artifact keeps the same bytes as agentcloud-report.json.
+      for (const name of UNCHECKED_NAMES) assert.ok(!raw.includes(name), `the sent report names ${name}`);
+      assert.equal(rt.artifacts[0]!.contents[REPORT_FILE], raw);
+
+      // The customer's own summary and agentcloud-baseline.json keep every path whole.
+      const local = rt.artifacts[0]!.contents[ARTIFACT_FILE]!;
+      for (const path of ['node_modules/@acme/private/node_modules/pub-pkg', 'node_modules/priv-pkg/node_modules/pub-pkg']) {
+        assert.ok(local.includes(`"${path}"`), `the artifact keeps ${path}`);
+      }
+      assert.ok(!local.includes('<unchecked-'));
+      assert.match(rt.summaries[0]!, /`node_modules\/@acme\/private` \(not_approved_public_registry\)/);
+      assert.match(rt.summaries[0]!, /`node_modules\/priv-pkg` \(public_identity_unverified\)/);
+      assert.ok(!rt.summaries[0]!.includes('<unchecked-'));
+    }
+    assert.equal(sent[0], sent[1], 'the same report is sent with the same placeholders every time');
+  } finally {
+    checkout.cleanup();
+  }
+});
+
+test('DFGHR-11: placeholders cover cut-short names and whole names only, and the body given is left unchanged', () => {
+  const body = {
+    extension: {
+      not_checked: {
+        total: 3,
+        by_reason: { not_approved_public_registry: 2, unsupported_entry: 1 },
+        // The check cuts a listed path at 300 characters, so a deep entry's name may arrive only as its start.
+        entries: [
+          { entry: 'node_modules/@acme/ui', reason: 'not_approved_public_registry' },
+          { entry: 'node_modules/tools', reason: 'not_approved_public_registry' },
+          { entry: `node_modules/${'a/node_modules/'.repeat(19)}@acme/very-long-na…`, reason: 'unsupported_entry' },
+        ],
+      },
+    },
+    observations: [],
+    findings: [],
+    texts: [
+      'node_modules/@acme/ui-kit/node_modules/tools-extra', // other names that only start like an unchecked one
+      'node_modules/@acme/ui/node_modules/@acme/ui-kit', // the folder named @acme/ui, not the @acme/ui-kit inside it
+      'Upgrade x at node_modules/@acme/u… from 1.0.0', // a name the report's own text cut short
+      'node_modules/@acme/very-long-name-indeed/node_modules/x', // the whole name a cut entry starts
+      'node_modules/tools', // a whole path that is the unchecked entry itself
+      'packages/tools/node_modules/tools/x', // only a node_modules folder names a dependency
+    ],
+  } as unknown as DepsReportBody;
+  const before = structuredClone(body);
+  const sent = sendableReport(body) as unknown as { texts: string[]; extension: DepsReportBody['extension'] };
+  assert.deepEqual(sent.texts, [
+    'node_modules/@acme/ui-kit/node_modules/tools-extra',
+    'node_modules/<unchecked-1>/node_modules/@acme/ui-kit',
+    'Upgrade x at node_modules/<unchecked-1>… from 1.0.0',
+    'node_modules/<unchecked-2>/node_modules/x',
+    'node_modules/<unchecked-3>',
+    'packages/tools/node_modules/<unchecked-3>/x',
+  ]);
+  assert.deepEqual(sent.extension.not_checked, { total: 3, by_reason: { not_approved_public_registry: 2, unsupported_entry: 1 }, entries: [] });
+  assert.deepEqual(body, before, 'the summary and artifact still get every path whole');
 });
 
 test('DFGHR-15: in agent.cloud mode the action sends the selected lockfiles and their package.json files instead of a report, never a credential', async () => {

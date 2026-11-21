@@ -16,8 +16,8 @@ Your code stays on your runner, and nothing goes to agent.cloud unless you turn 
    plus a coverage line saying what it could and couldn't check.
 5. Uploads an artifact named `agentcloud-baseline`, kept for 30 days, with two JSON files: `agentcloud-baseline.json`,
    the whole result, which names the dependencies it couldn't check; and `agentcloud-report.json`, exactly what sending
-   sends in runner mode (see below), which names them only as counts. An administrator of your organization on
-   agent.cloud can upload `agentcloud-report.json` there later, for a run at most 30 days old.
+   sends in runner mode (see below), which only counts them and shows a placeholder for their names. An administrator
+   of your organization on agent.cloud can upload `agentcloud-report.json` there later, for a run at most 30 days old.
 6. With sending on, sends to agent.cloud: see below.
 
 The job doesn't fail on findings unless you set `fail-on`. If the runner can't reach npm or OSV, the report says which
@@ -47,7 +47,11 @@ Sending is on when the `send-report` input or the `AGENTCLOUD_SEND_REPORT` repos
    started) and, for each analyzed lockfile, its report: the lockfile's path, Git blob hash and SHA-256; the package
    names, versions and paths with advisories, severities and fix versions; and coverage. A dependency the action
    couldn't check, usually a package from your private registry, is sent only as a count per reason, never by name.
-   No file is sent: no lockfile, no `package.json`. A report over 1 MiB isn't sent.
+   A path through one, such as a public package installed in its folder, is sent with a placeholder for its name:
+   `node_modules/@acme/private/node_modules/lodash` goes as `node_modules/<unchecked-1>/node_modules/lodash`. The
+   placeholders are numbered by first appearance in each lockfile's report, and the same report always gets the same
+   ones. The summary and `agentcloud-baseline.json` keep the whole path. No file is sent: no lockfile, no
+   `package.json`. A report over 1 MiB isn't sent.
 4. **In agent.cloud mode, instead of a report:** `POST /security/github/runner/lockfiles` with the run's identity
    (without the start time) and the bytes of each `package-lock.json` the action selected, at most 25, with the
    `package.json` next to it, plus the paths of the lockfiles it passed over and its counts of other lockfile types.

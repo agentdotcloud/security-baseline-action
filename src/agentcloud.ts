@@ -5,7 +5,7 @@
 //   POST /security/github/runner/reports    runner mode: the report bodies, never file bytes (DFGHR-11)
 //   POST /security/github/runner/lockfiles  agent.cloud mode: the selected lockfiles and sibling package.json files
 // Request bodies, limits and answers follow control as built (summationai/agent-cloud PRs 6423 and 6438).
-import { canonicalJson, secretInFile, type DepsReportBody } from '@summationai/security-checks';
+import { canonicalJson, occurrenceKey, secretInFile, type DepsReportBody } from '@summationai/security-checks';
 import type { CheckoutAcquisition, CheckoutSkip } from './checkout.ts';
 import { ACTION_VERSION } from './version.ts';
 
@@ -84,18 +84,125 @@ export function envelopeFromEnv(env: Readonly<Record<string, string | undefined>
   };
 }
 
-/** DFGHR-11: a report body as sent. Unchecked dependencies stay only as counts per reason, never by name. */
+const NODE_MODULES = 'node_modules/';
+/** A character that can continue an npm package name. Anything else ends a name, in a path or in a sentence. */
+const NAME_CHAR = /[A-Za-z0-9._~!'()*-]/;
+/** What the check's display text ends with where it cut a long path short. */
+const CUT = '…';
+
+/** One dependency a report counts as unchecked, by the name its lock entry is installed under. */
+interface UncheckedName {
+  name: string;
+  /** The check cut the entry's path short, so `name` is only the start of the name. */
+  cut: boolean;
+}
+
+/** The names a report's not_checked entries are installed under: each entry's path after its last `node_modules`. */
+function uncheckedNames(entries: readonly { entry: string }[]): UncheckedName[] {
+  const names = new Map<string, UncheckedName>();
+  for (const { entry } of entries) {
+    const cut = entry.endsWith(CUT);
+    const segments = (cut ? entry.slice(0, -CUT.length) : entry).split('/');
+    const at = segments.lastIndexOf('node_modules');
+    const name = at < 0 ? '' : segments.slice(at + 1).join('/');
+    // A cut name matches every folder it starts, the whole name included, so it wins over the same text uncut.
+    if (name) names.set(name, { name, cut: cut || (names.get(name)?.cut ?? false) });
+  }
+  // Longest first, so `@acme/ui-kit` is tried before `@acme/ui`; then bytewise, so the order never depends on input order.
+  return [...names.values()].sort((a, b) => b.name.length - a.name.length || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+}
+
+/**
+ * Which unchecked dependency, if any, the package folder starting at `start` (just after a `node_modules/`) names, and
+ * where its name ends. `key` is the name the placeholder stands for. A name the report's own text cut short
+ * (`node_modules/@acme/priv…`, in a recommendation's rationale) still names the dependency it starts.
+ */
+function namedAt(s: string, start: number, names: readonly UncheckedName[]): { key: string; end: number } | null {
+  const run = (k: number) => {
+    while (k < s.length && NAME_CHAR.test(s[k]!)) k++;
+    return k;
+  };
+  let end = s[start] === '@' ? run(start + 1) : run(start);
+  if (s[start] === '@' && s[end] === '/') end = run(end + 1);
+  const folder = s.slice(start, end);
+  const folderCut = s.startsWith(CUT, end) && folder.length > 0;
+  for (const { name, cut } of names) {
+    if (!cut) {
+      const after = start + name.length;
+      if (s.startsWith(name, start) && (after === s.length || !NAME_CHAR.test(s[after]!))) return { key: name, end: after };
+      if (folderCut && name.startsWith(folder)) return { key: name, end };
+    } else if (folder.startsWith(name) || (folderCut && name.startsWith(folder))) {
+      return { key: folder, end };
+    }
+  }
+  return null;
+}
+
+/**
+ * DFGHR-11: a report body as sent. Unchecked dependencies stay only as counts per reason, never by name, and every
+ * path that runs through one names it only by a placeholder: `node_modules/@acme/private/node_modules/lodash` goes as
+ * `node_modules/<unchecked-1>/node_modules/lodash`. The placeholders are numbered by first appearance in the body's
+ * canonical JSON, so the same body always gets the same ones. Lockfile, occurrence, evidence and fix-fact paths are
+ * replaced, and so are the paths recommendations quote, while the occurrence keys and the findings that cite them
+ * are recomputed so the body still joins. A path through no unchecked dependency is unchanged. The job summary and
+ * agentcloud-baseline.json keep every path as it is.
+ */
 export function sendableReport(body: DepsReportBody): DepsReportBody {
   const nc = body.extension.not_checked;
-  return {
+  const sendable: DepsReportBody = {
     ...body,
     extension: { ...body.extension, not_checked: { total: nc.total, by_reason: { ...nc.by_reason }, entries: [] } },
   };
+  const names = uncheckedNames(nc.entries);
+  if (!names.length) return sendable;
+
+  const numbers = new Map<string, number>();
+  const placeholder = (key: string) => {
+    if (!numbers.has(key)) numbers.set(key, numbers.size + 1);
+    return `<unchecked-${numbers.get(key)}>`;
+  };
+  const redact = (s: string): string => {
+    let out = '';
+    let from = 0;
+    for (let at = s.indexOf(NODE_MODULES); at >= 0; at = s.indexOf(NODE_MODULES, at + 1)) {
+      // `node_modules` is a whole path segment: at the start, or after `/`, a space or anything else a name can't hold.
+      if (at < from || (at > 0 && NAME_CHAR.test(s[at - 1]!))) continue;
+      const start = at + NODE_MODULES.length;
+      const named = namedAt(s, start, names);
+      if (!named) continue;
+      out += s.slice(from, start) + placeholder(named.key);
+      from = named.end;
+    }
+    return out + s.slice(from);
+  };
+  // Every string, in the order canonicalJson writes them, so "first appearance" is first in the bytes sent.
+  const walk = (value: unknown): unknown => {
+    if (typeof value === 'string') return redact(value);
+    if (Array.isArray(value)) return value.map(walk);
+    if (value && typeof value === 'object') {
+      return Object.fromEntries(Object.keys(value).sort().map((k) => [k, walk((value as Record<string, unknown>)[k])]));
+    }
+    return value;
+  };
+  const redacted = walk(sendable) as DepsReportBody;
+
+  // An occurrence's key is the hash of its coordinates, entry path included, and findings cite occurrences by key.
+  const rekeyed = new Map<string, string>();
+  for (const o of redacted.observations) {
+    if (o.kind !== 'source_observation') continue;
+    const { key, ...coordinates } = o.occurrence;
+    const next = occurrenceKey(coordinates);
+    if (next !== key) rekeyed.set(key, next);
+    o.occurrence.key = next;
+  }
+  for (const f of redacted.findings) f.occurrence_keys = f.occurrence_keys.map((k) => rekeyed.get(k) ?? k);
+  return redacted;
 }
 
 /**
  * DFGHR-11, DFGHR-22: the bytes POST /security/github/runner/reports takes, `{envelope, reports}`. The artifact keeps
- * these same bytes as agentcloud-report.json, so a later upload or send-history sends exactly what this run would.
+ * these same bytes as agentcloud-report.json, so a later upload or send-history sends exactly what this run would,
+ * with the same placeholders for unchecked dependencies (sendableReport).
  * Each part is canonical JSON on its own, as serializeArtifact does, so 25 lockfiles never hit one document's caps.
  */
 export function serializeReportPayload(envelope: RunEnvelope, reports: readonly DepsReportBody[]): string {

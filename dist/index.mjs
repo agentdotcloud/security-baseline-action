@@ -129630,7 +129630,7 @@ var COPIED_KEYS = ["license", "engines", "os", "cpu", "libc", "bin", "funding", 
 var DERIVED_KEYS = [...IDENTITY_KEYS, ...COPIED_KEYS];
 
 // src/version.ts
-var ACTION_VERSION = "0.2.0";
+var ACTION_VERSION = "0.2.2";
 
 // src/agentcloud.ts
 var DEFAULT_AGENTCLOUD_URL = "https://agent.cloud";
@@ -129684,12 +129684,85 @@ function envelopeFromEnv(env, startedAt) {
     }
   };
 }
+var NODE_MODULES = "node_modules/";
+var NAME_CHAR = /[A-Za-z0-9._~!'()*-]/;
+var CUT = "\u2026";
+function uncheckedNames(entries) {
+  const names = /* @__PURE__ */ new Map();
+  for (const { entry } of entries) {
+    const cut = entry.endsWith(CUT);
+    const segments = (cut ? entry.slice(0, -CUT.length) : entry).split("/");
+    const at = segments.lastIndexOf("node_modules");
+    const name = at < 0 ? "" : segments.slice(at + 1).join("/");
+    if (name) names.set(name, { name, cut: cut || (names.get(name)?.cut ?? false) });
+  }
+  return [...names.values()].sort((a, b) => b.name.length - a.name.length || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
+}
+function namedAt(s, start, names) {
+  const run = (k) => {
+    while (k < s.length && NAME_CHAR.test(s[k])) k++;
+    return k;
+  };
+  let end = s[start] === "@" ? run(start + 1) : run(start);
+  if (s[start] === "@" && s[end] === "/") end = run(end + 1);
+  const folder = s.slice(start, end);
+  const folderCut = s.startsWith(CUT, end) && folder.length > 0;
+  for (const { name, cut } of names) {
+    if (!cut) {
+      const after = start + name.length;
+      if (s.startsWith(name, start) && (after === s.length || !NAME_CHAR.test(s[after]))) return { key: name, end: after };
+      if (folderCut && name.startsWith(folder)) return { key: name, end };
+    } else if (folder.startsWith(name) || folderCut && name.startsWith(folder)) {
+      return { key: folder, end };
+    }
+  }
+  return null;
+}
 function sendableReport(body2) {
   const nc = body2.extension.not_checked;
-  return {
+  const sendable = {
     ...body2,
     extension: { ...body2.extension, not_checked: { total: nc.total, by_reason: { ...nc.by_reason }, entries: [] } }
   };
+  const names = uncheckedNames(nc.entries);
+  if (!names.length) return sendable;
+  const numbers = /* @__PURE__ */ new Map();
+  const placeholder = (key) => {
+    if (!numbers.has(key)) numbers.set(key, numbers.size + 1);
+    return `<unchecked-${numbers.get(key)}>`;
+  };
+  const redact = (s) => {
+    let out = "";
+    let from = 0;
+    for (let at = s.indexOf(NODE_MODULES); at >= 0; at = s.indexOf(NODE_MODULES, at + 1)) {
+      if (at < from || at > 0 && NAME_CHAR.test(s[at - 1])) continue;
+      const start = at + NODE_MODULES.length;
+      const named = namedAt(s, start, names);
+      if (!named) continue;
+      out += s.slice(from, start) + placeholder(named.key);
+      from = named.end;
+    }
+    return out + s.slice(from);
+  };
+  const walk = (value) => {
+    if (typeof value === "string") return redact(value);
+    if (Array.isArray(value)) return value.map(walk);
+    if (value && typeof value === "object") {
+      return Object.fromEntries(Object.keys(value).sort().map((k) => [k, walk(value[k])]));
+    }
+    return value;
+  };
+  const redacted = walk(sendable);
+  const rekeyed = /* @__PURE__ */ new Map();
+  for (const o of redacted.observations) {
+    if (o.kind !== "source_observation") continue;
+    const { key, ...coordinates } = o.occurrence;
+    const next = occurrenceKey(coordinates);
+    if (next !== key) rekeyed.set(key, next);
+    o.occurrence.key = next;
+  }
+  for (const f of redacted.findings) f.occurrence_keys = f.occurrence_keys.map((k) => rekeyed.get(k) ?? k);
+  return redacted;
 }
 function serializeReportPayload(envelope2, reports) {
   return `{"envelope":${canonicalJson(envelope2)},"reports":[${reports.map((b) => canonicalJson(sendableReport(b))).join(",")}]}`;
