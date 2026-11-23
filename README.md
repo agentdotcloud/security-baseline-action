@@ -20,8 +20,33 @@ Your code stays on your runner, and nothing goes to agent.cloud unless you turn 
    of your organization on agent.cloud can upload `agentcloud-report.json` there later, for a run at most 30 days old.
 6. With sending on, sends to agent.cloud: see below.
 
-The job doesn't fail on findings unless you set `fail-on`. If the runner can't reach npm or OSV, the report says which
-source was unavailable and marks coverage incomplete, and the job still passes.
+If the runner can't reach npm or OSV, the report says which source was unavailable and marks coverage incomplete, and
+the job still passes.
+
+## Where you see the results
+
+Each run's results are on that run's page in GitHub. With sending off, that's the only place they are.
+
+1. In the repository, open **Actions**, pick **agent.cloud dependency baseline** from the workflows on the left, and
+   open a run.
+2. The run's **Summary** shows the table of findings and the coverage line.
+3. The **Artifacts** section at the bottom of the same page has `agentcloud-baseline`, the two JSON files, for 30 days.
+
+**Nothing tells you about findings unless you set `fail-on`.** The job passes even when it finds advisories, so a run
+with findings looks like any other green run, and someone has to open it to see them. To be told, add `fail-on` to the
+action's `with:` in your workflow, one line:
+
+```diff
+       - uses: agentdotcloud/security-baseline-action@e955024ca11e7dec29fcbb898fdc702eafef9fbb # v0.2.2
+         with:
++          fail-on: high # fail on high or critical; critical, high, moderate or low
+           send-history: ${{ inputs.send-history }}
+```
+
+The job then fails when a finding is at or above that severity, and GitHub sends its usual failed-workflow
+notification. For a push it goes to whoever pushed. For the weekly run it goes to whoever created the workflow file
+or last changed its `schedule`. Each person's GitHub notification settings decide whether that's an email, a web
+notification or nothing.
 
 ## What leaves your runner
 
