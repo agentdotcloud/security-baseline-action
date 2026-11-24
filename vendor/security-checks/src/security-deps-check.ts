@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { osvMatch, queryOsv, type Advisory, type InventoryOccurrence, type OsvCheckpoint, type PublicHTTP } from './security-advisories.ts';
 import { candidateRequests, classify, planCandidates, DEPS_FACTS_VERSION, DEPS_FIX_CLASSES, type DepsAffectedInterval, type DepsFindingFacts,
   type DepsFindingInput, type DepsFixClass, type DepsOccurrenceEvidence, type DepsOccurrencePlan, type DepsOverridesInput } from './security-deps-facts.ts';
-import { DEPS_LOCK_VERSION, parseDepsLock, type DepsLockEntry } from './security-deps-lock.ts';
+import { DEPS_LOCK_VERSION, lockFormatOf, parseDepsLock, type DepsLockEntry, type DepsLockFormat } from './security-deps-lock.ts';
 import { npmExactVersion, npmPackageName } from './security-npm.ts';
 import { evidenceHash, exactPath, gitSha, safeSourceText, sha256 } from './security-primitives.ts';
 import { canonicalJson, reportHash } from './security-report-json.ts';
@@ -139,8 +139,8 @@ export type DepsCheckResult =
     quarantined_osv: string[]; requests: DepsCheckState['requests'] }
   /** DFBASE-14: over a DFRPT-15 single-report limit. No report; the totals go to the run summary. */
   | { outcome: 'held'; reason: 'discovery.report_limit'; totals: Record<keyof typeof DEPS_REPORT_LIMITS, number>; limits: typeof DEPS_REPORT_LIMITS; requests: DepsCheckState['requests'] }
-  /** DFBASE-10, DFBASE-15: a lockfile that is credential-shaped, unsupported or malformed publishes no report, and nothing derived from it is kept. */
-  | { outcome: 'skipped'; reason: 'credential_shaped_content' | 'unsupported_lockfile' | 'malformed_json'; requests: DepsCheckState['requests'] };
+  /** DFBASE-10, DFBASE-15, DFBASE-23: a lockfile that is credential-shaped, unsupported or malformed publishes no report, and nothing derived from it is kept. */
+  | { outcome: 'skipped'; reason: 'credential_shaped_content' | 'unsupported_lockfile' | 'malformed_json' | 'malformed_lockfile'; requests: DepsCheckState['requests'] };
 
 type Json = Record<string, unknown>;
 const isObject = (v: unknown): v is Json => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -220,22 +220,27 @@ const reportable = (e: DepsLockEntry): e is DepsLockEntry & { name: string; vers
 
 interface Group { entry: DepsLockEntry & { name: string; version: string }; flaw: string; osv: { observation: SourceObservation; record: Advisory; match: ReturnType<typeof osvMatch> }[]; alerts: { observation: SourceObservation; alert: Alert }[] }
 
-const RATIONALE: Record<DepsFixClass, (f: DepsFindingFacts, o: DepsOccurrencePlan, lockVersion: number) => string> = {
+const RATIONALE: Record<DepsFixClass, (f: DepsFindingFacts, o: DepsOccurrencePlan, lockVersion: number, format: DepsLockFormat) => string> = {
   verify_occurrence: () => 'This finding is held, so no fix is proposed. Verify the occurrence and the advisory before acting on it.',
   no_fix_published: (_f, o) => `No fixed version is published for the affected range that contains ${o.name ?? 'this package'} ${o.installed ?? ''}.`.replace(' .', '.'),
   manual_fix_selection: f => `A fixed version exists but no upgrade could be selected automatically (${[...f.candidate_reasons, ...f.range_reasons].join(', ') || 'no valid candidate'}). Choose the fix by hand.`,
   range_change_needed: (f, o) => `${o.name} ${f.candidate} fixes this, but ${f.blocking_total} declared range${f.blocking_total === 1 ? '' : 's'} exclude${f.blocking_total === 1 ? 's' : ''} it: `
     + f.blocking_dependents.map(d => `${shown(d.path || '(root)', 120)} ${d.field} "${shown(d.range, 60)}"`).join('; ') + (f.blocking_total > f.blocking_dependents.length ? `; and ${f.blocking_total - f.blocking_dependents.length} more` : '') + '. A dependent\'s range must change first.',
-  multi_entry_upgrade: (f, o, v) => `Upgrade ${o.name} at ${shown(o.entry, 200)} from ${o.installed} to ${f.candidate}. Every dependent's declared range accepts it, but `
-    + (v !== 3 ? 'this lockfileVersion 2 file also carries the legacy dependency tree' : 'its dependency edges differ from the installed version\'s, or could not be read') + ', so more than one lock entry changes.',
+  multi_entry_upgrade: (f, o, v, fmt) => `Upgrade ${o.name} at ${shown(o.entry, 200)} from ${o.installed} to ${f.candidate}. Every dependent's declared range accepts it, but `
+    + (fmt !== 'npm' ? `this ${fmt === 'pnpm' ? 'pnpm-lock.yaml' : 'yarn.lock'} lockfile updates with ${fmt}` : v !== 3 ? 'this lockfileVersion 2 file also carries the legacy dependency tree' : 'its dependency edges differ from the installed version\'s, or could not be read') + ', so more than one lock entry changes.',
   single_entry_upgrade: (f, o) => `Change the one lock entry ${shown(o.entry, 200)} from ${o.name} ${o.installed} to ${f.candidate}. Every dependent's declared range accepts ${f.candidate}, and its registry manifest declares the same dependency edges as ${o.installed}.`,
 };
 const UNCERTAINTIES = ['Engine constraints, install scripts and behavior changes of another version are not assessed.', 'Runtime reachability and exploitability are not assessed.'];
-const PRECONDITIONS: Record<DepsFixClass, string[]> = {
-  verify_occurrence: ['Resolve the listed holds.'], no_fix_published: ['Watch the advisory for a fixed version, or replace or remove the dependency.'],
-  manual_fix_selection: ['Select a fixed version that every dependent accepts.'], range_change_needed: ['Change the listed dependents\' declared ranges, or upgrade those dependents.'],
-  multi_entry_upgrade: ['Regenerate the lockfile with npm and review every changed entry.', 'Run the project\'s tests.'],
-  single_entry_upgrade: ['Regenerate the lockfile with npm and confirm that one entry changed.', 'Run the project\'s tests.'],
+const preconditionsFor = (cls: DepsFixClass, format: DepsLockFormat): string[] => {
+  const tool = format === 'pnpm' ? 'pnpm' : format === 'yarn' ? 'yarn' : 'npm';
+  switch (cls) {
+    case 'verify_occurrence': return ['Resolve the listed holds.'];
+    case 'no_fix_published': return ['Watch the advisory for a fixed version, or replace or remove the dependency.'];
+    case 'manual_fix_selection': return ['Select a fixed version that every dependent accepts.'];
+    case 'range_change_needed': return ['Change the listed dependents\' declared ranges, or upgrade those dependents.'];
+    case 'multi_entry_upgrade': return [`Regenerate the lockfile with ${tool} and review every changed entry.`, 'Run the project\'s tests.'];
+    case 'single_entry_upgrade': return ['Regenerate the lockfile with npm and confirm that one entry changed.', 'Run the project\'s tests.'];
+  }
 };
 
 /**
@@ -269,9 +274,15 @@ export async function staticDeps(lockfile: DepsCheckLockfile, capabilities: Deps
   const registry = client('npm-registry'), osv = client('osv');
   const startedAt = new Date(now()).toISOString();
 
-  const lock = parseDepsLock(lockfile.bytes);
-  // DFBASE-10, DFBASE-15: only a parsed lockfile reports. Nothing is disclosed or derived for any other.
-  if (lock.state !== 'parsed') return { outcome: 'skipped', reason: lock.state === 'credential_shaped' ? 'credential_shaped_content' : lock.state === 'unsupported' ? 'unsupported_lockfile' : 'malformed_json', requests: state.requests };
+  const lock = parseDepsLock(lockfile.bytes, path);
+  // DFBASE-10, DFBASE-15, DFBASE-23: only a parsed lockfile reports. Nothing is disclosed or derived for any other.
+  if (lock.state !== 'parsed') {
+    const skipReason = lock.state === 'credential_shaped' ? 'credential_shaped_content'
+      : lock.state === 'unsupported' ? 'unsupported_lockfile'
+      : lock.reason === 'malformed_lockfile' ? 'malformed_lockfile' : 'malformed_json';
+    return { outcome: 'skipped', reason: skipReason, requests: state.requests };
+  }
+  const format = lockFormatOf(lock);
   const entries = lock.entries;
   const registryEntries = entries.filter((e): e is DepsLockEntry & { name: string; version: string; resolved: string; integrity: string } => e.kind === 'registry');
   const notChecked = new Map<string, string>();
@@ -285,8 +296,9 @@ export async function staticDeps(lockfile: DepsCheckLockfile, capabilities: Deps
   for (const e of [...registryEntries].sort((a, b) => bytewise(a.path, b.path))) {
     if (!admitted.has(JSON.stringify([e.name, e.version]))) { notChecked.set(e.path, 'identity_limit'); continue; }
     const key = identityKey(e);
+    const isYarnBerryChecksum = e.integrity.startsWith('yarn-berry-sha512:');
     if (!Object.hasOwn(state.identities, key)) {
-      const hit = await cache?.get(e.name, e.version, e.integrity) ?? null;
+      const hit = !isYarnBerryChecksum ? (await cache?.get(e.name, e.version, e.integrity) ?? null) : null;
       // A cache hit must still equal the lock entry, and evidence cites this run's time, never the row's.
       if (hit && hit.name === e.name && hit.version === e.version && hit.tarball === e.resolved && hit.integrity === e.integrity) {
         state.identities[key] = { state: 'verified', tarball: hit.tarball, integrity: hit.integrity, manifest: hit.manifest, confirmed_at: new Date(now()).toISOString() };
@@ -294,12 +306,13 @@ export async function staticDeps(lockfile: DepsCheckLockfile, capabilities: Deps
         try {
           const response = await registry.json(`${REGISTRY}/${encodeURIComponent(e.name)}/${encodeURIComponent(e.version)}`);
           const m = RegistryManifest.safeParse(response.body);
+          const sriOk = m.success && /^sha(?:256|384|512)-[A-Za-z0-9+/]+=*$/.test(m.data.dist.integrity);
           if (!m.success || m.data.name !== e.name || m.data.version !== e.version) state.identities[key] = { state: 'unverified', reason: 'public_identity_unverified' };
-          else if (m.data.dist.tarball !== e.resolved || m.data.dist.integrity !== e.integrity) state.identities[key] = { state: 'unverified', reason: 'public_identity_mismatch' };
+          else if (m.data.dist.tarball !== e.resolved || (isYarnBerryChecksum ? !sriOk : m.data.dist.integrity !== e.integrity)) state.identities[key] = { state: 'unverified', reason: 'public_identity_mismatch' };
           else {
             const facts = manifestFacts(m.data);
-            state.identities[key] = { state: 'verified', tarball: e.resolved, integrity: e.integrity, manifest: facts, confirmed_at: iso(response.retrieved_at) };
-            await cache?.put({ name: e.name, version: e.version, tarball: e.resolved, integrity: e.integrity, manifest: facts });
+            state.identities[key] = { state: 'verified', tarball: e.resolved, integrity: m.data.dist.integrity, manifest: facts, confirmed_at: iso(response.retrieved_at) };
+            if (!isYarnBerryChecksum) await cache?.put({ name: e.name, version: e.version, tarball: e.resolved, integrity: e.integrity, manifest: facts });
           }
         } catch (error) {
           if (error instanceof DepsCheckError) throw error;
@@ -314,7 +327,7 @@ export async function staticDeps(lockfile: DepsCheckLockfile, capabilities: Deps
   const checked = registryEntries.filter(e => verified.has(e.path));
 
   // DFBASE-11: OSV, a required source. Only verified identities are queried; its failure is the caller's to retry.
-  const occurrences: InventoryOccurrence[] = checked.map(e => ({ entry: e.path, name: e.name, version: e.version, resolved: e.resolved, integrity: e.integrity, dev: e.dev, optional: e.optional }));
+  const occurrences: InventoryOccurrence[] = checked.map(e => ({ entry: e.path, name: e.name, version: e.version, resolved: e.resolved, integrity: verified.get(e.path)!.integrity, dev: e.dev, optional: e.optional }));
   const queried = async (occ: InventoryOccurrence[], slot: 'osv' | 'candidate_osv') => {
     try { return state[slot] = await queryOsv(osv, occ, state[slot], async cp => { state[slot] = cp; await save(); }); }
     catch (e) { if (e instanceof DepsCheckError) throw e; throw new DepsCheckError('deps_check.source_failed', clientCode(e), 'osv'); }
@@ -325,7 +338,8 @@ export async function staticDeps(lockfile: DepsCheckLockfile, capabilities: Deps
 
   const evidence = new Map<string, BodyEvidence>(), observations: Observation[] = [], dispositions: SecurityReport['dispositions'] = [];
   const cite = (e: BodyEvidence) => { evidence.set(e.evidence_id, e); return e.evidence_id; };
-  const lockEvidence = cite({ evidence_id: 'ev-lockfile', sha256: lockfile.sha256, bytes: lockfile.bytes.byteLength, media_type: 'application/json', classification: 'restricted', kind: 'npm-lockfile',
+  const lockMediaType = format === 'pnpm' ? 'application/yaml' : format === 'yarn' ? 'text/plain' : 'application/json';
+  const lockEvidence = cite({ evidence_id: 'ev-lockfile', sha256: lockfile.sha256, bytes: lockfile.bytes.byteLength, media_type: lockMediaType, classification: 'restricted', kind: 'npm-lockfile',
     origin: 'repository blob at the pinned commit', captured_at: startedAt, artifact_id: null, git: { blob: lockfile.git_blob, path } });
   if (lockfile.package_json?.sha256 && exactPath.safeParse(lockfile.package_json.path).success) cite({ evidence_id: 'ev-package-json', sha256: lockfile.package_json.sha256, bytes: lockfile.package_json.size, media_type: 'application/json',
     classification: 'restricted', kind: 'npm-manifest-overrides', origin: 'repository blob at the pinned commit; only its overrides key was read', captured_at: startedAt, artifact_id: null, git: { blob: lockfile.package_json.git_blob, path: lockfile.package_json.path } });
@@ -476,8 +490,8 @@ export async function staticDeps(lockfile: DepsCheckLockfile, capabilities: Deps
   for (const [, members] of [...byRecommendation].sort(([a], [b]) => bytewise(a, b))) {
     const first = members[0]!, o = plans.get(first.entry)!, id = `rec-${short(path, first.entry, first.class)}`, upgrade = (['range_change_needed', 'multi_entry_upgrade', 'single_entry_upgrade'] as DepsFixClass[]).includes(first.class);
     const open = upgrade ? o.finding_ids.filter(x => !o.closes.includes(x)) : [];
-    recommendations.push({ recommendation_id: id, finding_ids: members.map(f => f.finding_id), category: `dependency.${first.class}`, rationale: shown(RATIONALE[first.class](first, o, facts.lockfile_version), 2000),
-      scope_ids: [DEPS_BODY_SCOPE], evidence_ids: [lockEvidence], preconditions: PRECONDITIONS[first.class],
+    recommendations.push({ recommendation_id: id, finding_ids: members.map(f => f.finding_id), category: `dependency.${first.class}`, rationale: shown(RATIONALE[first.class](first, o, facts.lockfile_version, format), 2000),
+      scope_ids: [DEPS_BODY_SCOPE], evidence_ids: [lockEvidence], preconditions: preconditionsFor(first.class, format),
       uncertainties: [...UNCERTAINTIES, ...open.length ? [`This upgrade does not close ${open.slice(0, 10).join(', ')}${open.length > 10 ? ` and ${open.length - 10} more` : ''} on the same occurrence.`] : []], requires_human_review: true });
     for (const f of members) findings.find(x => x.finding_id === f.finding_id)!.recommendation_ids = [id];
   }

@@ -200,7 +200,7 @@ async function prepareSending(
   runtime.info(
     answer.body.mode === 'runner'
       ? 'agent.cloud has this repository in runner mode: this run sends its report.'
-      : 'agent.cloud has this repository in agent.cloud mode: this run sends its package-lock.json files and their package.json files.',
+      : 'agent.cloud has this repository in agent.cloud mode: this run sends its selected lockfiles and their package.json files.',
   );
   return { client, envelope: envelope.envelope, mode: answer.body.mode };
 }
@@ -319,7 +319,7 @@ async function deliver(
   }
   delivery.lockfiles = answer.body.repeated ? 'repeated' : 'sent';
   runtime.info(
-    `Sent ${plural(payload.lockfiles, 'package-lock.json file')} and their package.json files to agent.cloud${answer.body.repeated ? ', which already had them' : ''}.`,
+    `Sent ${plural(payload.lockfiles, 'lockfile')} and their package.json files to agent.cloud${answer.body.repeated ? ', which already had them' : ''}.`,
   );
 }
 

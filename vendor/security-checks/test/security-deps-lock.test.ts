@@ -21,7 +21,7 @@ const tree={
 test('DFBASE-10: lockfile v2 and v3 read the same packages section into the same entries; the v2 legacy tree is ignored',()=>{
  const v3=parseDepsLock(lock(tree,3)),v2=parseDepsLock(JSON.stringify({lockfileVersion:2,packages:tree,dependencies:{a:{version:'9.9.9'},evil:{version:'1.0.0'}}}));
  assert.equal(v3.state,'parsed');assert.equal(v2.state,'parsed');assert.equal(v3.lockfile_version,3);assert.equal(v2.lockfile_version,2);
- assert.equal(v3.parser_version,DEPS_LOCK_VERSION);assert.equal(DEPS_LOCK_VERSION,'npm-lock-v2v3/semver-7.8.6/deps-v2');
+ assert.equal(v3.parser_version,DEPS_LOCK_VERSION);assert.equal(DEPS_LOCK_VERSION,'npm-pnpm-yarn-lock/semver-7.8.6/deps-v3');
  assert.deepEqual(v2.entries,v3.entries);assert.deepEqual(v2.root,v3.root);
  assert.ok(!v2.entries.some(e=>e.name==='evil'||e.version==='9.9.9'));
  assert.deepEqual(parseDepsLock(Buffer.from(lock(tree,3))),v3,'bytes and text parse alike');
@@ -102,4 +102,159 @@ test('DFBASE-10: malformed JSON or UTF-8 is malformed; a byte-order mark is not;
  assert.equal(parseDepsLock(Buffer.concat([Buffer.from([0xef,0xbb,0xbf]),Buffer.from(lock(tree))])).state,'parsed');
  assert.throws(()=>parseDepsLock(' '.repeat(2*1024*1024+1)),/deps_lock_oversize/);
  assert.throws(()=>parseDepsLock(new Uint8Array(2*1024*1024+1)),/deps_lock_oversize/);
+});
+
+test('DFBASE-23: pnpm-lock.yaml v6 and v9 parse public registry entries, workspaces, dev reachability, holds and direct dependents',()=>{
+ const pnpm9=[
+  "lockfileVersion: '9.0'",
+  'importers:',
+  '  .:',
+  '    dependencies:',
+  "      '@gar/promisify':",
+  '        specifier: ^1.1.0',
+  '        version: 1.1.3',
+  '      semver:',
+  '        specifier: 7.5.1',
+  '        version: 7.5.1',
+  '    devDependencies:',
+  '      vitest:',
+  '        specifier: ^1.0.0',
+  '        version: 1.2.0',
+  '  packages/web:',
+  '    dependencies:',
+  '      semver:',
+  '        specifier: ^7.5.0',
+  '        version: 7.5.1',
+  'packages:',
+  "  '@gar/promisify@1.1.3':",
+  '    resolution: {integrity: sha512-Zml4dHVyZQ==}',
+  '  semver@7.5.1:',
+  '    resolution: {integrity: sha512-Zml4dHVyZQ==}',
+  '  lru-cache@6.0.0:',
+  '    resolution: {integrity: sha512-Zml4dHVyZQ==}',
+  '  vitest@1.2.0:',
+  '    resolution: {integrity: sha512-Zml4dHVyZQ==}',
+  '  priv@1.0.0:',
+  '    resolution: {integrity: sha512-Zml4dHVyZQ==, tarball: https://npm.internal.example/priv/-/priv-1.0.0.tgz}',
+  '  sha1pkg@1.0.0:',
+  '    resolution: {integrity: sha1-deadbeef}',
+  'snapshots:',
+  "  '@gar/promisify@1.1.3': {}",
+  '  semver@7.5.1:',
+  '    dependencies:',
+  '      lru-cache: 6.0.0',
+  '  lru-cache@6.0.0: {}',
+  '  vitest@1.2.0: {}',
+ ].join('\n');
+ const r9=parseDepsLock(pnpm9,'pnpm-lock.yaml');
+ assert.equal(r9.state,'parsed');assert.equal(r9.lockfile_version,9);
+ assert.deepEqual(r9.root,{present:true,name:null,version:null,dependencies:{'@gar/promisify':'^1.1.0',semver:'7.5.1'},optionalDependencies:{},peerDependencies:{},devDependencies:{vitest:'^1.0.0'}});
+ const at=(p:string)=>r9.entries.find(e=>e.path===p)!;
+ assert.equal(at('packages/web').kind,'first_party');
+ assert.deepEqual([at('pnpm/1.1.3/node_modules/@gar/promisify').kind,at('pnpm/1.1.3/node_modules/@gar/promisify').resolved,at('pnpm/1.1.3/node_modules/@gar/promisify').dev],
+  ['registry','https://registry.npmjs.org/@gar/promisify/-/promisify-1.1.3.tgz',false]);
+ assert.equal(at('pnpm/1.2.0/node_modules/vitest').dev,true,'dev-only reachability in v9');
+ assert.deepEqual([at('pnpm/1.0.0/node_modules/priv').kind,at('pnpm/1.0.0/node_modules/priv').hold_reason],['held','not_approved_public_registry']);
+ assert.deepEqual([at('pnpm/1.0.0/node_modules/sha1pkg').kind,at('pnpm/1.0.0/node_modules/sha1pkg').hold_reason],['held','unsupported_integrity']);
+
+ const pnpm6=[
+  "lockfileVersion: '6.0'",
+  'dependencies:',
+  '  semver:',
+  '    specifier: ^7.5.0',
+  '    version: 7.5.1',
+  'packages:',
+  '  /semver@7.5.1:',
+  '    resolution: {integrity: sha512-Zml4dHVyZQ==}',
+  '    dev: false',
+ ].join('\n');
+ const r6=parseDepsLock(pnpm6,'pnpm-lock.yaml');
+ assert.equal(r6.state,'parsed');assert.equal(r6.lockfile_version,6);
+ assert.equal(r6.entries[0]!.path,'pnpm/7.5.1/node_modules/semver');
+ assert.equal(r6.entries[0]!.kind,'registry');
+ assert.equal(parseDepsLock("lockfileVersion: '5.4'\npackages: {}\n",'pnpm-lock.yaml').state,'unsupported');
+ const secret=['ghp','_','B'.repeat(36)].join('');
+ assert.equal(parseDepsLock(`lockfileVersion: '9.0'\n# ${secret}\npackages: {}\n`,'pnpm-lock.yaml').state,'credential_shaped');
+ assert.equal(parseDepsLock("lockfileVersion: '9.0'\n\tbad: 1\n",'pnpm-lock.yaml').state,'malformed');
+ assert.equal(parseDepsLock("lockfileVersion: '9.0'\na: &x {b: 1}\nc: *x\n",'pnpm-lock.yaml').state,'malformed');
+});
+
+test('DFBASE-23: yarn.lock Classic v1 and Berry __metadata parse registry entries, yarnpkg mirror URLs, aliases, workspaces and holds',()=>{
+ const yarn1=[
+  '# THIS IS AN AUTOGENERATED FILE. DO NOT EDIT THIS FILE DIRECTLY.',
+  '# yarn lockfile v1',
+  '',
+  '"@gar/promisify@^1.1.0", "@gar/promisify@~1.1.3":',
+  '  version "1.1.3"',
+  '  resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#0123456789abcdef0123456789abcdef01234567"',
+  '  integrity sha512-Zml4dHVyZQ==',
+  '',
+  'semver@7.5.1:',
+  '  version "7.5.1"',
+  '  resolved "https://registry.npmjs.org/semver/-/semver-7.5.1.tgz"',
+  '  integrity sha512-Zml4dHVyZQ==',
+  '  dependencies:',
+  '    "@gar/promisify" "~1.1.3"',
+  '',
+  '"aliased@npm:ms@^2.1.0":',
+  '  version "2.1.3"',
+  '  resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#0123456789abcdef0123456789abcdef01234567"',
+  '  integrity sha512-Zml4dHVyZQ==',
+  '',
+  'old-sha1@^1.0.0:',
+  '  version "1.0.0"',
+  '  resolved "https://registry.yarnpkg.com/old-sha1/-/old-sha1-1.0.0.tgz#0123456789abcdef0123456789abcdef01234567"',
+ ].join('\n');
+ const y1=parseDepsLock(yarn1,'yarn.lock');
+ assert.equal(y1.state,'parsed');assert.equal(y1.lockfile_version,1);
+ const yAt=(p:string)=>y1.entries.find(e=>e.path===p)!;
+ assert.deepEqual([yAt('yarn/1.1.3/node_modules/@gar/promisify').kind,yAt('yarn/1.1.3/node_modules/@gar/promisify').resolved],
+  ['registry','https://registry.npmjs.org/@gar/promisify/-/promisify-1.1.3.tgz']);
+ assert.equal(yAt('yarn/7.5.1/node_modules/semver').kind,'registry');
+ assert.deepEqual([yAt('yarn/2.1.3/node_modules/aliased').kind,yAt('yarn/2.1.3/node_modules/aliased').hold_reason],['held','npm_alias_requires_review']);
+ assert.deepEqual([yAt('yarn/1.0.0/node_modules/old-sha1').kind,yAt('yarn/1.0.0/node_modules/old-sha1').hold_reason],['held','unsupported_integrity']);
+
+ const sum='a'.repeat(128);
+ const berry=[
+  '__metadata:',
+  '  version: 8',
+  '  cacheKey: 10c0',
+  '',
+  '"app@workspace:.":',
+  '  version: 0.0.0-use.local',
+  '  resolution: "app@workspace:."',
+  '  dependencies:',
+  '    semver: "npm:^7.5.0"',
+  '    aliased: "npm:ms@2.1.3"',
+  '  devDependencies:',
+  '    vitest: "npm:^1.0.0"',
+  '',
+  '"web@workspace:packages/web":',
+  '  version: 0.0.0-use.local',
+  '  resolution: "web@workspace:packages/web"',
+  '  dependencies:',
+  '    semver: "npm:~7.5.0"',
+  '',
+  '"aliased@npm:ms@2.1.3":',
+  '  version: 2.1.3',
+  '  resolution: "ms@npm:2.1.3"',
+  `  checksum: 10c0/${sum}`,
+  '',
+  '"semver@npm:^7.5.0, semver@npm:~7.5.0":',
+  '  version: 7.5.1',
+  '  resolution: "semver@npm:7.5.1"',
+  `  checksum: 10c0/${sum}`,
+  '',
+  '"vitest@npm:^1.0.0":',
+  '  version: 1.2.0',
+  '  resolution: "vitest@npm:1.2.0"',
+  `  checksum: 10c0/${sum}`,
+ ].join('\n');
+ const yb=parseDepsLock(berry,'yarn.lock');
+ assert.equal(yb.state,'parsed');assert.equal(yb.lockfile_version,8);
+ const bAt=(p:string)=>yb.entries.find(e=>e.path===p)!;
+ assert.equal(bAt('packages/web').kind,'first_party');
+ assert.deepEqual([bAt('yarn/7.5.1/node_modules/semver').kind,bAt('yarn/7.5.1/node_modules/semver').dev],['registry',false]);
+ assert.deepEqual([bAt('yarn/1.2.0/node_modules/vitest').kind,bAt('yarn/1.2.0/node_modules/vitest').dev],['registry',true]);
+ assert.deepEqual([bAt('yarn/2.1.3/node_modules/ms').kind,bAt('yarn/2.1.3/node_modules/ms').hold_reason],['held','npm_alias_requires_review']);
 });

@@ -1,11 +1,11 @@
-// DFBASE-13: fix facts and one class per finding, in two pure phases (DFBASE-3). planCandidates proposes a candidate per
+// DFBASE-13, DFBASE-23: fix facts and one class per finding, in two pure phases (DFBASE-3). planCandidates proposes a candidate per
 // occurrence from the lockfile and advisories alone. The caller verifies each proposed candidate over the network (its
 // registry identity, an OSV query for the candidate itself, and the registry manifests of both versions) and hands that
 // evidence to classify. Nothing here reads a file, the network or a clock.
 import semver from 'semver';
 import { z } from 'zod';
-import { dependentsOf, type DepsLock, type DepsRangeField } from './security-deps-lock.ts';
-import { digest } from './security-primitives.ts';
+import { dependentsOf, lockFormatOf, type DepsLock, type DepsRangeField } from './security-deps-lock.ts';
+import { digest, screenedJson, utf8 } from './security-primitives.ts';
 
 export const DEPS_FACTS_VERSION = 'deps-facts/v1';
 /** In DFBASE-13's order: each finding gets the first that applies. */
@@ -26,7 +26,7 @@ export const DepsFindingInput = z.strictObject({
 });
 export type DepsAffectedInterval = z.infer<typeof DepsAffectedInterval>;
 export type DepsFindingInput = z.infer<typeof DepsFindingInput>;
-/** Produced from the sibling package.json by acquisition: no `overrides` key, an unusable file, or the raw value. */
+/** Produced from the sibling package.json by acquisition: no `overrides`/`resolutions` key, an unusable file, or the raw value. */
 export type DepsOverridesInput = { state: 'absent' } | { state: 'unreadable' } | { state: 'present'; value: unknown };
 export type DepsCandidateOsv = 'clear' | 'affected' | 'held' | 'unknown';
 /** The caller's verification of one proposed candidate, keyed by the occurrence's entry path. */
@@ -64,6 +64,60 @@ const highest = (a: string, b: string) => semver.rcompare(a, b) || bytewise(a, b
 const contains = (i: DepsAffectedInterval, v: string) => (i.lower === null || semver.gte(v, i.lower)) &&
   (i.upper === null || (i.upper_kind === 'last_affected' ? semver.lte(v, i.upper) : semver.lt(v, i.upper)));
 const affects = (f: DepsFindingInput, v: string) => f.affected.intervals.some(i => contains(i, v)) || f.affected.versions.some(x => semver.eq(x, v));
+
+/**
+ * DFBASE-8, DFBASE-13, DFBASE-23: extract the sibling package.json's override/resolution map for the lockfile's tool
+ * (`overrides` for package-lock.json, `pnpm.overrides` and `overrides` for pnpm-lock.yaml, `resolutions` and `overrides`
+ * for yarn.lock). An unreadable or credential-shaped manifest leaves overrides `unreadable`, never assumed absent.
+ */
+export function parseManifestOverrides(
+  siblingBytes: Uint8Array | null,
+  siblingUnreadable: boolean,
+  lockPath = 'package-lock.json',
+): { overrides: DepsOverridesInput; siblingSafe: boolean } {
+  if (!siblingBytes) return { overrides: { state: siblingUnreadable ? 'unreadable' : 'absent' }, siblingSafe: false };
+  let overrides: DepsOverridesInput = { state: 'unreadable' };
+  let siblingSafe = false;
+  try {
+    const buf = Buffer.from(siblingBytes.buffer, siblingBytes.byteOffset, siblingBytes.byteLength);
+    const manifest: unknown = JSON.parse(utf8(buf));
+    screenedJson(manifest, 512 * 1024);
+    siblingSafe = true;
+    if (isObject(manifest)) {
+      const base = lockPath.split('/').at(-1);
+      if (base === 'pnpm-lock.yaml') {
+        const pnpmVal = Object.hasOwn(manifest, 'pnpm') ? manifest.pnpm : undefined;
+        if (pnpmVal !== undefined && !isObject(pnpmVal)) return { overrides: { state: 'unreadable' }, siblingSafe };
+        const hasNpm = Object.hasOwn(manifest, 'overrides');
+        const hasPnpm = isObject(pnpmVal) && Object.hasOwn(pnpmVal, 'overrides');
+        if (!hasNpm && !hasPnpm) overrides = { state: 'absent' };
+        else if (hasNpm && hasPnpm) {
+          overrides = isObject(manifest.overrides) && isObject((pnpmVal as Json).overrides)
+            ? { state: 'present', value: { '.npm': manifest.overrides, '.pnpm': (pnpmVal as Json).overrides } }
+            : { state: 'unreadable' };
+        } else {
+          overrides = { state: 'present', value: hasPnpm ? (pnpmVal as Json).overrides : manifest.overrides };
+        }
+      } else if (base === 'yarn.lock') {
+        const hasRes = Object.hasOwn(manifest, 'resolutions');
+        const hasOvr = Object.hasOwn(manifest, 'overrides');
+        if (!hasRes && !hasOvr) overrides = { state: 'absent' };
+        else if (hasRes && hasOvr) {
+          overrides = isObject(manifest.resolutions) && isObject(manifest.overrides)
+            ? { state: 'present', value: { '.yarn': manifest.resolutions, '.npm': manifest.overrides } }
+            : { state: 'unreadable' };
+        } else {
+          overrides = { state: 'present', value: hasRes ? manifest.resolutions : manifest.overrides };
+        }
+      } else {
+        overrides = Object.hasOwn(manifest, 'overrides') ? { state: 'present', value: manifest.overrides } : { state: 'absent' };
+      }
+    }
+  } catch {
+    // An unreadable or unsafe manifest makes overrides unestablished, never assumed absent (DFBASE-8, DFBASE-13).
+  }
+  return { overrides, siblingSafe };
+}
 
 /** DFBASE-13.2: the fixed bound of the interval holding the installed version. Overlapping intervals must all be fixed. */
 function fixedVersion(f: DepsFindingInput, installed: string): string | null {
@@ -113,10 +167,18 @@ export function candidateRequests(plan: DepsCandidatePlan) {
 const semverRange = (range: string) => !/[:/\\]/.test(range) && semver.validRange(range, { loose: true }) !== null;
 const satisfies = (v: string, range: string) => ['', '*'].includes(range.trim()) || semver.satisfies(v, range, { loose: true });
 
-/** The package name an `overrides` key selects: `name`, `name@spec`, `@scope/name` or `@scope/name@spec`. */
+/**
+ * The package name an `overrides`, `pnpm.overrides` or Yarn `resolutions` key selects: `name`, `name@spec`, `@scope/name`,
+ * `@scope/name@spec`, pnpm's `parent>name@spec`, or Yarn's `**\/name` / `parent/@scope/name@spec`.
+ */
 function overrideKeyName(key: string) {
-  const at = key.indexOf('@', key.startsWith('@') ? 1 : 0);
-  return at < 0 ? key : key.slice(0, at);
+  const afterArrow = key.includes('>') ? key.slice(key.lastIndexOf('>') + 1).trim() : key;
+  const segs = afterArrow.split('/');
+  const spec = segs.length >= 2
+    ? (segs.at(-2)!.startsWith('@') ? `${segs.at(-2)}/${segs.at(-1)}` : segs.at(-1)!)
+    : afterArrow;
+  const at = spec.indexOf('@', spec.startsWith('@') ? 1 : 0);
+  return at < 0 ? spec : spec.slice(0, at);
 }
 /** Whether any `overrides` key at any depth names the package, or null when the value cannot be read as overrides. */
 function overridesName(value: unknown, name: string): boolean | null {
@@ -187,6 +249,7 @@ export function classify(lock: DepsLock, overrides: DepsOverridesInput, input: r
   evidence: Readonly<Record<string, DepsOccurrenceEvidence>>): DepsFacts {
   const { findings, entries } = parsedFindings(lock, input);
   if (digest(plan) !== digest(planCandidates(lock, findings))) throw Error('deps_facts_plan_mismatch');
+  const format = lockFormatOf(lock);
   const plans = new Map(plan.occurrences.map(o => [o.entry, o]));
   const facts = new Map([...plans].map(([path, o]) => [path, occurrenceFacts(lock, overrides, o, evidence)]));
   return { facts_version: DEPS_FACTS_VERSION, lockfile_version: lock.lockfile_version!, findings: findings.map((f): DepsFindingFacts => {
@@ -196,8 +259,8 @@ export function classify(lock: DepsLock, overrides: DepsOverridesInput, input: r
       : !fixed_version ? 'no_fix_published'
       : manual ? 'manual_fix_selection'
       : shared.blocking_total ? 'range_change_needed'
-      // A v2 lockfile's legacy tree changes too, and changed or unread edges change other entries.
-      : lock.lockfile_version !== 3 || shared.edges_unchanged !== true ? 'multi_entry_upgrade' : 'single_entry_upgrade';
+      // DFBASE-13, DFBASE-23: only npm package-lock.json v3 matches DFSEC-5's single-entry JSON repair shape.
+      : format !== 'npm' || lock.lockfile_version !== 3 || shared.edges_unchanged !== true ? 'multi_entry_upgrade' : 'single_entry_upgrade';
     return { finding_id: f.finding_id, entry: f.entry, class: cls, dev_only: entry.dev, fixed_version, ...shared };
   }) };
 }

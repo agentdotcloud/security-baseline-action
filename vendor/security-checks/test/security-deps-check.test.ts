@@ -325,7 +325,7 @@ test('DFBASE-14: the extension is strict and versioned, counts first-party entri
   const hostile = advisory(GHSA_A, 'a', fixed('1.0.5'), { summary: '<script>alert(1)</script> \u0007 ' + 'x'.repeat(11000) });
   const packages = minimal({ 'packages/web': { name: 'web', version: '1.0.0', dependencies: { a: '^1.0.0' } }, 'node_modules/web': { resolved: 'packages/web', link: true } });
   const b = body(await staticDeps(lockfile(packages), caps(world({ records: [hostile] }).http)));
-  assert.deepEqual([b.extension.schema, b.extension.first_party_count, b.extension.registry_count, b.extension.lockfile], ['summation.discovery/static-deps/1', 2, 1, { path: PATH, lockfile_version: 3, parser_version: 'npm-lock-v2v3/semver-7.8.6/deps-v2' }]);
+  assert.deepEqual([b.extension.schema, b.extension.first_party_count, b.extension.registry_count, b.extension.lockfile], ['summation.discovery/static-deps/1', 2, 1, { path: PATH, lockfile_version: 3, parser_version: 'npm-pnpm-yarn-lock/semver-7.8.6/deps-v3' }]);
   assert.throws(() => DepsDiscoveryExtension.parse({ ...b.extension, routing: 'factory' }), 'an unknown key is refused');
   assert.throws(() => DepsDiscoveryExtension.parse({ ...b.extension, schema: 'summation.discovery/static-deps/2' }));
   assert.ok(b.findings[0]!.summary.length <= 1001 && !b.findings[0]!.summary.includes('\u0007'), 'source text is bounded and has no control characters');

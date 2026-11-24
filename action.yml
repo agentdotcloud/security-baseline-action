@@ -1,5 +1,5 @@
 name: 'agent.cloud Dependency Baseline'
-description: 'Run static.deps locally on package-lock.json files in the checkout and report findings in GitHub Actions.'
+description: 'Run static.deps locally on package-lock.json, pnpm-lock.yaml and yarn.lock files in the checkout and report findings in GitHub Actions.'
 inputs:
   fail-on:
     description: 'Fail the job when a finding meets or exceeds this severity (critical, high, moderate, or low). Unset never fails on findings.'
