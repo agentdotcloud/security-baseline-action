@@ -37,7 +37,7 @@ with findings looks like any other green run, and someone has to open it to see 
 action's `with:` in your workflow, one line:
 
 ```diff
-       - uses: agentdotcloud/security-baseline-action@e955024ca11e7dec29fcbb898fdc702eafef9fbb # v0.2.2
+       - uses: agentdotcloud/security-baseline-action@e73f17a72a26b43cc05a11a320a17ebf249d14c3 # v0.3.0
          with:
 +          fail-on: high # fail on high or critical; critical, high, moderate or low
            send-history: ${{ inputs.send-history }}
@@ -110,7 +110,7 @@ file with the workflow already filled in. Review it on GitHub and commit it, or 
 [GitHub CLI](https://cli.github.com) as yourself. It's short: read it before you run it.
 
 ```sh
-git clone --branch v0.2.3 https://github.com/agentdotcloud/security-baseline-action
+git clone --branch v0.3.1 https://github.com/agentdotcloud/security-baseline-action
 cd security-baseline-action
 ./setup.sh --dry-run --org your-org      # what it would do, changing nothing
 ./setup.sh --org your-org                # every repository in your-org you can push to, except archived ones
@@ -137,6 +137,8 @@ on:
     branches: [main] # your default branch
     paths:
       - '**/package-lock.json'
+      - '**/pnpm-lock.yaml'
+      - '**/yarn.lock'
       - '**/package.json'
       - .github/workflows/agentcloud-baseline.yml
   schedule:
@@ -159,7 +161,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: agentdotcloud/security-baseline-action@e955024ca11e7dec29fcbb898fdc702eafef9fbb # v0.2.2
+      - uses: agentdotcloud/security-baseline-action@e73f17a72a26b43cc05a11a320a17ebf249d14c3 # v0.3.0
         with:
           send-history: ${{ inputs.send-history }}
         env:
@@ -167,10 +169,10 @@ jobs:
 ```
 
 Both actions are pinned to a full commit SHA, not to a tag: a tag can be moved, a commit can't. To check that the
-action's commit is v0.2.2's:
+action's commit is v0.3.0's:
 
 ```sh
-git ls-remote https://github.com/agentdotcloud/security-baseline-action 'refs/tags/v0.2.2^{}'
+git ls-remote https://github.com/agentdotcloud/security-baseline-action 'refs/tags/v0.3.0^{}'
 ```
 
 **Default branch.** If your default branch isn't `main`, put its name in `branches: [main]`. `setup.sh` does that
