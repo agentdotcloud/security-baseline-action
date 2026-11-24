@@ -17,7 +17,7 @@ workflow="$(cd "$(dirname "$0")" && pwd)/workflow/agentcloud-baseline.yml"
 title='Add agent.cloud dependency baseline'
 topic=agentcloud-baseline
 body="Adds \`$file\`, agent.cloud's dependency baseline. On your own runner it checks the npm dependencies in
-package-lock.json files for known vulnerabilities and shows what it found on the run's page.
+package-lock.json, pnpm-lock.yaml and yarn.lock files for known vulnerabilities and shows what it found on the run's page.
 See https://github.com/agentdotcloud/security-baseline-action."
 
 usage() {

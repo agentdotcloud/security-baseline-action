@@ -1,12 +1,17 @@
-// DFBASE-10, DFINT-17: the static.deps lock model. Pure (DFBASE-3): it parses lockfile bytes it is given and never reads
-// a file, installs a package or runs repository code. npmInventory stays the pilot's parser; this one adds lockfile v2,
-// first-party entries and every entry's declared ranges, which fix facts need for npm's nearest-ancestor resolution.
+// DFBASE-10, DFBASE-23, DFINT-17: the static.deps lock model across package-lock.json (v2/v3), pnpm-lock.yaml (v6/v9)
+// and yarn.lock (Classic v1 and Berry __metadata). Pure (DFBASE-3): it parses lockfile bytes it is given and never reads
+// a file, installs a package or runs repository code.
 import { z } from 'zod';
 import { npmBundled, npmExactVersion, npmPackageName, npmResolvedUnder } from './security-npm.ts';
-import { exactPath, screenedJson, utf8 } from './security-primitives.ts';
+import { parseLockYaml, parsePnpmLock, type DirectLockGraph } from './security-deps-pnpm.ts';
+import { parseYarnLock } from './security-deps-yarn.ts';
+import { exactPath, safeSourceText, screenedJson, secretInFile, utf8 } from './security-primitives.ts';
 
-export const DEPS_LOCK_VERSION = 'npm-lock-v2v3/semver-7.8.6/deps-v2';
+export const DEPS_LOCK_VERSION = 'npm-pnpm-yarn-lock/semver-7.8.6/deps-v3';
 export const DEPS_LOCK_BYTES = 2 * 1024 * 1024;
+export const DEPS_LOCK_FILENAMES = ['package-lock.json', 'pnpm-lock.yaml', 'yarn.lock'] as const;
+export type DepsLockFilename = typeof DEPS_LOCK_FILENAMES[number];
+export type DepsLockFormat = 'npm' | 'pnpm' | 'yarn';
 export const DEPS_RANGE_FIELDS = ['dependencies', 'optionalDependencies', 'peerDependencies', 'devDependencies'] as const;
 export type DepsRangeField = typeof DEPS_RANGE_FIELDS[number];
 /** Declared ranges by package name. `null` means the field is present but unreadable, so it was not read. */
@@ -20,7 +25,7 @@ export interface DepsDeclared {
 /** The root package (`packages[""]`). It is never a dependency. `present: false` leaves every range unread. */
 export interface DepsLockRoot extends DepsDeclared { present: boolean; name: string | null; version: string | null }
 /**
- * One `packages` key other than the root. `name` is the name it is installed under (the path after its last
+ * One lock entry other than the root. `name` is the name it is installed under (the path after its last
  * `node_modules`), or the declared name of a workspace folder. `registry` entries passed DFINT-17's entry rules and are
  * the only dependencies; `first_party` is a link or a workspace folder; `held` carries `hold_reason`.
  */
@@ -95,16 +100,30 @@ function lockEntry(path: string, value: unknown): DepsLockEntry {
 const refused = (state: DepsLockState, reason: string, lockfileVersion: number | null = null): DepsLock =>
   ({ parser_version: DEPS_LOCK_VERSION, state, reason, lockfile_version: lockfileVersion, root: null, entries: [] });
 
-/**
- * Parse one `package-lock.json` (DFBASE-10). lockfileVersion 2 and 3 are read from `packages` only; anything else is
- * `unsupported`. Content the evidence screen rejects as credential-shaped returns `credential_shaped` and nothing
- * derived from it. Bytes over 2 MiB are refused: acquisition skips them before they get here (DFBASE-8).
- */
-export function parseDepsLock(content: Uint8Array | string): DepsLock {
-  const size = typeof content === 'string' ? Buffer.byteLength(content) : content.byteLength;
-  if (size > DEPS_LOCK_BYTES) throw Error('deps_lock_oversize');
+const directGraphs = new WeakMap<DepsLock, DirectLockGraph>();
+export const lockFormatOf = (lock: DepsLock): DepsLockFormat => directGraphs.get(lock)?.format ?? 'npm';
+
+function detectFormat(decoded: string, filename?: string): DepsLockFormat {
+  const base = filename?.split('/').at(-1);
+  if (base === 'package-lock.json') return 'npm';
+  if (base === 'pnpm-lock.yaml') return 'pnpm';
+  if (base === 'yarn.lock') return 'yarn';
+  const trimmed = decoded.trimStart();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) return 'npm';
+  if (/^(?:\s*#[^\n]*\n|\s*\n|---\s*\n)*lockfileVersion\s*:/m.test(decoded)) return 'pnpm';
+  if (/^(?:\s*#[^\n]*\n|\s*\n)*__metadata\s*:/m.test(decoded) || /^#\s*yarn lockfile v[0-9]+\b/im.test(decoded)) return 'yarn';
+  return 'npm';
+}
+
+function screenTextLock(bytes: Buffer, decoded: string): boolean {
+  if (secretInFile(bytes)) return false;
+  try { safeSourceText(decoded, 0); return true; }
+  catch { return false; }
+}
+
+function parseNpmLock(decoded: string): DepsLock {
   let raw: unknown;
-  try { raw = JSON.parse(typeof content === 'string' ? content : utf8(Buffer.from(content.buffer, content.byteOffset, content.byteLength))); }
+  try { raw = JSON.parse(decoded); }
   catch { return refused('malformed', 'malformed_json'); }
   try { screenedJson(raw, DEPS_LOCK_BYTES); }
   catch (e) {
@@ -120,7 +139,46 @@ export function parseDepsLock(content: Uint8Array | string): DepsLock {
   return { parser_version: DEPS_LOCK_VERSION, state: 'parsed', reason: null, lockfile_version: lockfileVersion, root, entries };
 }
 
-// Resolution follows npm and Node: from a folder, look in its own node_modules, then each enclosing one, up to the root.
+/**
+ * Parse one `package-lock.json` (v2/v3), `pnpm-lock.yaml` (v6/v9) or `yarn.lock` (Classic v1 / Berry __metadata)
+ * (DFBASE-10, DFBASE-23). Content the evidence screen rejects as credential-shaped returns `credential_shaped` and
+ * nothing derived from it. Bytes over 2 MiB are refused: acquisition skips them before they get here (DFBASE-8).
+ */
+export function parseDepsLock(content: Uint8Array | string, filename?: string): DepsLock {
+  const size = typeof content === 'string' ? Buffer.byteLength(content) : content.byteLength;
+  if (size > DEPS_LOCK_BYTES) throw Error('deps_lock_oversize');
+  const buf = typeof content === 'string' ? Buffer.from(content, 'utf8') : Buffer.from(content.buffer, content.byteOffset, content.byteLength);
+  let decoded: string;
+  try {
+    decoded = typeof content === 'string' ? (content.charCodeAt(0) === 0xfeff ? content.slice(1) : content) : utf8(buf);
+  } catch {
+    const base = filename?.split('/').at(-1);
+    return refused('malformed', base === 'pnpm-lock.yaml' || base === 'yarn.lock' ? 'malformed_lockfile' : 'malformed_json');
+  }
+  const format = detectFormat(decoded, filename);
+  if (format === 'npm') return parseNpmLock(decoded);
+
+  if (!screenTextLock(buf, decoded)) return refused('credential_shaped', 'credential_shaped_content');
+  if (format === 'pnpm') {
+    let raw: Json;
+    try { raw = parseLockYaml(decoded); }
+    catch { return refused('malformed', 'malformed_lockfile'); }
+    try { screenedJson(raw, DEPS_LOCK_BYTES * 2); }
+    catch (e) {
+      if ((e as { code?: unknown }).code === 'security.secret') return refused('credential_shaped', 'credential_shaped_content');
+      return refused('malformed', 'malformed_lockfile');
+    }
+    const { lock, graph } = parsePnpmLock(raw, DEPS_LOCK_VERSION);
+    if (graph) directGraphs.set(lock, graph);
+    return lock;
+  }
+
+  const { lock, graph } = parseYarnLock(decoded, DEPS_LOCK_VERSION);
+  if (graph) directGraphs.set(lock, graph);
+  return lock;
+}
+
+// Resolution follows npm and Node for package-lock.json: from a folder, look in its own node_modules, then each enclosing one, up to the root.
 export interface DepsDependent { path: string; kind: 'root' | DepsEntryKind; field: DepsRangeField; range: string }
 /**
  * `unread` lists the keys that may depend on the entry but whose range for it could not be established: folders that
@@ -180,6 +238,14 @@ export function resolveDependency(lock: DepsLock, from: string, name: string): s
 
 /** Every declared edge that resolves to the entry at `path`, the root and first-party folders included (DFBASE-13.5). */
 export function dependentsOf(lock: DepsLock, path: string): DepsResolution {
+  if (lock.state !== 'parsed' || !lock.root) throw Error('deps_lock_not_parsed');
+  const direct = directGraphs.get(lock);
+  if (direct) {
+    const entry = lock.entries.find(e => e.path === path);
+    if (!entry) throw Error('deps_lock_unknown_entry');
+    if (!entry.name || entry.kind === 'first_party') return { dependents: [], unread: [] };
+    return direct.byEntry.get(path) ?? { dependents: [], unread: [] };
+  }
   const index = lockIndex(lock), entry = lock.entries.find(e => e.path === path);
   if (!entry) throw Error('deps_lock_unknown_entry');
   if (!entry.name || !index.installed.has(path)) return { dependents: [], unread: [] };

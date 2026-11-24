@@ -295,3 +295,82 @@ test('DFGHR-20: only the send-report input or the AGENTCLOUD_SEND_REPORT variabl
   assert.equal(shouldSendReport(undefined, { AGENTCLOUD_SEND_REPORT: 'true' }), true);
   // send.test.ts proves that with sending off nothing reaches agent.cloud, and what turning it on sends.
 });
+
+test('DFBASE-23: scans pnpm-lock.yaml and yarn.lock (Classic v1 and Berry) alongside package-lock.json, covering workspaces without counting them as unlocked', async () => {
+  const berrySum = 'b'.repeat(128);
+  const checkout = makeCheckout({
+    'pnpm-lock.yaml': [
+      "lockfileVersion: '9.0'",
+      'importers:',
+      '  .:',
+      '    dependencies:',
+      '      pub-pkg:',
+      '        specifier: ^1.0.0',
+      '        version: 1.0.0',
+      '  packages/web:',
+      '    dependencies:',
+      '      pub-pkg:',
+      '        specifier: ^1.0.0',
+      '        version: 1.0.0',
+      'packages:',
+      '  pub-pkg@1.0.0:',
+      `    resolution: {integrity: ${INTEGRITY}}`,
+      '  priv-pnpm@1.0.0:',
+      `    resolution: {integrity: ${INTEGRITY}, tarball: https://npm.internal.example/priv-pnpm/-/priv-pnpm-1.0.0.tgz}`,
+      'snapshots:',
+      '  pub-pkg@1.0.0: {}',
+    ].join('\n'),
+    'package.json': { name: 'root-pnpm', private: true },
+    'packages/web/package.json': { name: 'web', private: true },
+    'services/classic/yarn.lock': [
+      '# yarn lockfile v1',
+      '"@acme/scoped-pub@^2.0.0":',
+      '  version "2.0.0"',
+      '  resolved "https://registry.yarnpkg.com/@acme/scoped-pub/-/scoped-pub-2.0.0.tgz#0123456789abcdef0123456789abcdef01234567"',
+      `  integrity ${INTEGRITY}`,
+    ].join('\n'),
+    'services/classic/package.json': { name: 'classic', dependencies: { '@acme/scoped-pub': '^2.0.0' } },
+    'services/berry/yarn.lock': [
+      '__metadata:',
+      '  version: 8',
+      '  cacheKey: 10c0',
+      '"berry@workspace:.":',
+      '  version: 0.0.0-use.local',
+      '  resolution: "berry@workspace:."',
+      '  dependencies:',
+      '    pub-pkg: "npm:^1.0.0"',
+      '"pub-pkg@npm:^1.0.0":',
+      '  version: 1.0.0',
+      '  resolution: "pub-pkg@npm:1.0.0"',
+      `  checksum: 10c0/${berrySum}`,
+    ].join('\n'),
+    'services/berry/package.json': { name: 'berry', dependencies: { 'pub-pkg': '^1.0.0' } },
+  });
+
+  try {
+    const net = makeFakeFetch({
+      records: [
+        osvAdvisory('GHSA-1111-2222-3333', 'pub-pkg', 'HIGH', '1.2.0'),
+        osvAdvisory('GHSA-4444-5555-6666', '@acme/scoped-pub', 'MODERATE', '2.1.0'),
+      ],
+    });
+    const rt = makeRuntime(checkout.dir, net.fetcher);
+    const exec = await runAction(rt.runtime);
+
+    assert.equal(exec.failed, false);
+    assert.deepEqual(exec.result.summary.selected_lockfiles, [
+      'pnpm-lock.yaml',
+      'services/berry/yarn.lock',
+      'services/classic/yarn.lock',
+    ]);
+    assert.deepEqual(exec.result.summary.inputs_not_analyzed, {}, 'neither pnpm-lock.yaml, yarn.lock nor covered workspace package.json is counted as unanalyzed');
+    assert.equal(exec.result.reports.length, 3);
+    assert.equal(rt.outputs['findings-count'], '3');
+    assert.ok(net.calls.every((c) => !c.url.includes('priv-pnpm')), 'private pnpm tarball never looked up on npm or OSV');
+    assert.match(rt.summaries[0]!, /pnpm-lock\.yaml/);
+    assert.match(rt.summaries[0]!, /services\/classic\/yarn\.lock/);
+    assert.match(rt.summaries[0]!, /services\/berry\/yarn\.lock/);
+  } finally {
+    checkout.cleanup();
+  }
+});

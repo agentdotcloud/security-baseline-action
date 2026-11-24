@@ -28891,10 +28891,10 @@ var require_util9 = __commonJS({
       return objectToString(re) === "[object RegExp]";
     }
     exports2.isRegExp = isRegExp;
-    function isObject6(arg) {
+    function isObject8(arg) {
       return typeof arg === "object" && arg !== null;
     }
-    exports2.isObject = isObject6;
+    exports2.isObject = isObject8;
     function isDate(d) {
       return objectToString(d) === "[object Date]";
     }
@@ -30940,11 +30940,11 @@ var require_baseGetTag = __commonJS({
 // node_modules/lodash/isObject.js
 var require_isObject = __commonJS({
   "node_modules/lodash/isObject.js"(exports2, module) {
-    function isObject6(value) {
+    function isObject8(value) {
       var type = typeof value;
       return value != null && (type == "object" || type == "function");
     }
-    module.exports = isObject6;
+    module.exports = isObject8;
   }
 });
 
@@ -30952,13 +30952,13 @@ var require_isObject = __commonJS({
 var require_isFunction = __commonJS({
   "node_modules/lodash/isFunction.js"(exports2, module) {
     var baseGetTag = require_baseGetTag();
-    var isObject6 = require_isObject();
+    var isObject8 = require_isObject();
     var asyncTag = "[object AsyncFunction]";
     var funcTag = "[object Function]";
     var genTag = "[object GeneratorFunction]";
     var proxyTag = "[object Proxy]";
     function isFunction(value) {
-      if (!isObject6(value)) {
+      if (!isObject8(value)) {
         return false;
       }
       var tag = baseGetTag(value);
@@ -31019,7 +31019,7 @@ var require_baseIsNative = __commonJS({
   "node_modules/lodash/_baseIsNative.js"(exports2, module) {
     var isFunction = require_isFunction();
     var isMasked = require_isMasked();
-    var isObject6 = require_isObject();
+    var isObject8 = require_isObject();
     var toSource = require_toSource();
     var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
     var reIsHostCtor = /^\[object .+?Constructor\]$/;
@@ -31031,7 +31031,7 @@ var require_baseIsNative = __commonJS({
       "^" + funcToString.call(hasOwnProperty).replace(reRegExpChar, "\\$&").replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, "$1.*?") + "$"
     );
     function baseIsNative(value) {
-      if (!isObject6(value) || isMasked(value)) {
+      if (!isObject8(value) || isMasked(value)) {
         return false;
       }
       var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
@@ -31199,9 +31199,9 @@ var require_isIterateeCall = __commonJS({
     var eq = require_eq();
     var isArrayLike = require_isArrayLike();
     var isIndex = require_isIndex();
-    var isObject6 = require_isObject();
+    var isObject8 = require_isObject();
     function isIterateeCall(value, index, object2) {
-      if (!isObject6(object2)) {
+      if (!isObject8(object2)) {
         return false;
       }
       var type = typeof index;
@@ -31446,13 +31446,13 @@ var require_nativeKeysIn = __commonJS({
 // node_modules/lodash/_baseKeysIn.js
 var require_baseKeysIn = __commonJS({
   "node_modules/lodash/_baseKeysIn.js"(exports2, module) {
-    var isObject6 = require_isObject();
+    var isObject8 = require_isObject();
     var isPrototype = require_isPrototype();
     var nativeKeysIn = require_nativeKeysIn();
     var objectProto = Object.prototype;
     var hasOwnProperty = objectProto.hasOwnProperty;
     function baseKeysIn(object2) {
-      if (!isObject6(object2)) {
+      if (!isObject8(object2)) {
         return nativeKeysIn(object2);
       }
       var isProto = isPrototype(object2), result = [];
@@ -32329,7 +32329,7 @@ var require_event_target_shim = __commonJS({
     var CAPTURE = 1;
     var BUBBLE = 2;
     var ATTRIBUTE = 3;
-    function isObject6(x) {
+    function isObject8(x) {
       return x !== null && typeof x === "object";
     }
     function getListeners(eventTarget) {
@@ -32355,7 +32355,7 @@ var require_event_target_shim = __commonJS({
           return null;
         },
         set(listener) {
-          if (typeof listener !== "function" && !isObject6(listener)) {
+          if (typeof listener !== "function" && !isObject8(listener)) {
             listener = null;
           }
           const listeners = getListeners(this);
@@ -32446,11 +32446,11 @@ var require_event_target_shim = __commonJS({
         if (listener == null) {
           return;
         }
-        if (typeof listener !== "function" && !isObject6(listener)) {
+        if (typeof listener !== "function" && !isObject8(listener)) {
           throw new TypeError("'listener' should be a function or an object.");
         }
         const listeners = getListeners(this);
-        const optionsIsObj = isObject6(options);
+        const optionsIsObj = isObject8(options);
         const capture = optionsIsObj ? Boolean(options.capture) : Boolean(options);
         const listenerType = capture ? CAPTURE : BUBBLE;
         const newNode = {
@@ -32487,7 +32487,7 @@ var require_event_target_shim = __commonJS({
           return;
         }
         const listeners = getListeners(this);
-        const capture = isObject6(options) ? Boolean(options.capture) : Boolean(options);
+        const capture = isObject8(options) ? Boolean(options.capture) : Boolean(options);
         const listenerType = capture ? CAPTURE : BUBBLE;
         let prev = null;
         let node2 = listeners.get(eventName);
@@ -52740,12 +52740,12 @@ var require_implementation2 = __commonJS({
         }
       };
       keysShim = function keys(object2) {
-        var isObject6 = object2 !== null && typeof object2 === "object";
+        var isObject8 = object2 !== null && typeof object2 === "object";
         var isFunction = toStr.call(object2) === "[object Function]";
         var isArguments = isArgs(object2);
-        var isString = isObject6 && toStr.call(object2) === "[object String]";
+        var isString = isObject8 && toStr.call(object2) === "[object String]";
         var theKeys = [];
-        if (!isObject6 && !isFunction && !isArguments) {
+        if (!isObject8 && !isFunction && !isArguments) {
           throw new TypeError("Object.keys called on a non-object");
         }
         var skipProto = hasProtoEnumBug && isFunction;
@@ -53796,7 +53796,7 @@ var require_isPropertyKey = __commonJS({
 var require_isObject2 = __commonJS({
   "node_modules/es-object-atoms/isObject.js"(exports2, module) {
     "use strict";
-    module.exports = function isObject6(x) {
+    module.exports = function isObject8(x) {
       return !!x && (typeof x === "function" || typeof x === "object");
     };
   }
@@ -53809,9 +53809,9 @@ var require_Get = __commonJS({
     var $TypeError = require_type();
     var inspect2 = require_object_inspect();
     var isPropertyKey = require_isPropertyKey();
-    var isObject6 = require_isObject2();
+    var isObject8 = require_isObject2();
     module.exports = function Get(O, P) {
-      if (!isObject6(O)) {
+      if (!isObject8(O)) {
         throw new $TypeError("Assertion failed: Type(O) is not Object");
       }
       if (!isPropertyKey(P)) {
@@ -53957,10 +53957,10 @@ var require_HasOwnProperty = __commonJS({
     "use strict";
     var $TypeError = require_type();
     var hasOwn = require_hasown();
-    var isObject6 = require_isObject2();
+    var isObject8 = require_isObject2();
     var isPropertyKey = require_isPropertyKey();
     module.exports = function HasOwnProperty(O, P) {
-      if (!isObject6(O)) {
+      if (!isObject8(O)) {
         throw new $TypeError("Assertion failed: `O` must be an Object");
       }
       if (!isPropertyKey(P)) {
@@ -54413,7 +54413,7 @@ var require_Set2 = __commonJS({
   "node_modules/es-abstract/2025/Set.js"(exports2, module) {
     "use strict";
     var $TypeError = require_type();
-    var isObject6 = require_isObject2();
+    var isObject8 = require_isObject2();
     var isPropertyKey = require_isPropertyKey();
     var SameValue = require_SameValue();
     var noThrowOnStrictViolation = (function() {
@@ -54425,7 +54425,7 @@ var require_Set2 = __commonJS({
       }
     })();
     module.exports = function Set2(O, P, V, Throw) {
-      if (!isObject6(O)) {
+      if (!isObject8(O)) {
         throw new $TypeError("Assertion failed: `O` must be an Object");
       }
       if (!isPropertyKey(P)) {
@@ -55968,11 +55968,11 @@ var require_ToPropertyDescriptor = __commonJS({
     "use strict";
     var hasOwn = require_hasown();
     var $TypeError = require_type();
-    var isObject6 = require_isObject2();
+    var isObject8 = require_isObject2();
     var IsCallable = require_IsCallable();
     var ToBoolean = require_ToBoolean();
     module.exports = function ToPropertyDescriptor(Obj) {
-      if (!isObject6(Obj)) {
+      if (!isObject8(Obj)) {
         throw new $TypeError("ToPropertyDescriptor requires an object");
       }
       var desc = {};
@@ -56015,7 +56015,7 @@ var require_DefinePropertyOrThrow = __commonJS({
   "node_modules/es-abstract/2025/DefinePropertyOrThrow.js"(exports2, module) {
     "use strict";
     var $TypeError = require_type();
-    var isObject6 = require_isObject2();
+    var isObject8 = require_isObject2();
     var isPropertyDescriptor = require_property_descriptor();
     var DefineOwnProperty = require_DefineOwnProperty();
     var FromPropertyDescriptor = require_FromPropertyDescriptor();
@@ -56024,7 +56024,7 @@ var require_DefinePropertyOrThrow = __commonJS({
     var SameValue = require_SameValue();
     var ToPropertyDescriptor = require_ToPropertyDescriptor();
     module.exports = function DefinePropertyOrThrow(O, P, desc) {
-      if (!isObject6(O)) {
+      if (!isObject8(O)) {
         throw new $TypeError("Assertion failed: Type(O) is not Object");
       }
       if (!isPropertyKey(P)) {
@@ -56092,17 +56092,17 @@ var require_SpeciesConstructor = __commonJS({
     var GetIntrinsic = require_get_intrinsic();
     var $species = GetIntrinsic("%Symbol.species%", true);
     var $TypeError = require_type();
-    var isObject6 = require_isObject2();
+    var isObject8 = require_isObject2();
     var IsConstructor = require_IsConstructor();
     module.exports = function SpeciesConstructor(O, defaultConstructor) {
-      if (!isObject6(O)) {
+      if (!isObject8(O)) {
         throw new $TypeError("Assertion failed: Type(O) is not Object");
       }
       var C = O.constructor;
       if (typeof C === "undefined") {
         return defaultConstructor;
       }
-      if (!isObject6(C)) {
+      if (!isObject8(C)) {
         throw new $TypeError("O.constructor is not an Object");
       }
       var S = $species ? C[$species] : void 0;
@@ -56949,13 +56949,13 @@ var require_implementation5 = __commonJS({
     "use strict";
     var GetIntrinsic = require_get_intrinsic();
     var IsCallable = require_IsCallable2();
-    var isObject6 = require_isObject3();
+    var isObject8 = require_isObject3();
     var whichBuiltinType = require_which_builtin_type();
     var $TypeError = require_type();
     var gPO = require_get_proto();
     var $Object = require_es_object_atoms();
     module.exports = function getPrototypeOf(O) {
-      if (!isObject6(O)) {
+      if (!isObject8(O)) {
         throw new $TypeError("Reflect.getPrototypeOf called on non-object");
       }
       if (gPO) {
@@ -57283,7 +57283,7 @@ var require_ValidateTypedArray = __commonJS({
   "node_modules/es-abstract/2025/ValidateTypedArray.js"(exports2, module) {
     "use strict";
     var $TypeError = require_type();
-    var isObject6 = require_isObject2();
+    var isObject8 = require_isObject2();
     var IsTypedArrayOutOfBounds = require_IsTypedArrayOutOfBounds();
     var MakeTypedArrayWithBufferWitnessRecord = require_MakeTypedArrayWithBufferWitnessRecord();
     var isTypedArray = require_is_typed_array();
@@ -57291,7 +57291,7 @@ var require_ValidateTypedArray = __commonJS({
       if (order !== "SEQ-CST" && order !== "UNORDERED") {
         throw new $TypeError("Assertion failed: `order` must be ~SEQ-CST~ or ~UNORDERED~");
       }
-      if (!isObject6(O)) {
+      if (!isObject8(O)) {
         throw new $TypeError("Assertion failed: `O` must be an Object");
       }
       if (!isTypedArray(O)) {
@@ -104280,8 +104280,8 @@ var stringifyIteratively = (rootValue, replacer, spaceParam) => {
   const isFunctionReplacer = typeof replacer === "function";
   const propertyList = Array.isArray(replacer) ? new Set(replacer.map(String)) : null;
   const prepareVal = (parent, key, val) => {
-    const isObject6 = val !== null && typeof val === "object";
-    const hasToJSON = isObject6 && typeof val.toJSON === "function";
+    const isObject8 = val !== null && typeof val === "object";
+    const hasToJSON = isObject8 && typeof val.toJSON === "function";
     if (hasToJSON) {
       val = val.toJSON(key);
     }
@@ -112095,7 +112095,7 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     }
     return propValues;
   });
-  const isObject6 = isObject2;
+  const isObject8 = isObject2;
   const catchall = def.catchall;
   let value;
   const memo2 = globalConfig.memoizer;
@@ -112103,7 +112103,7 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
     const input2 = payload.value;
-    if (!isObject6(input2)) {
+    if (!isObject8(input2)) {
       payload.issues.push({
         expected: "object",
         code: "invalid_type",
@@ -112239,7 +112239,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
     return doc.compile();
   };
   let fastpass;
-  const isObject6 = isObject2;
+  const isObject8 = isObject2;
   const jit = !globalConfig.jitless;
   const allowsEval2 = allowsEval;
   const fastEnabled = jit && allowsEval2.value;
@@ -112248,7 +112248,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
     const input2 = payload.value;
-    if (!isObject6(input2)) {
+    if (!isObject8(input2)) {
       payload.issues.push({
         expected: "object",
         code: "invalid_type",
@@ -128317,11 +128317,1209 @@ var npmExactVersion = external_exports.string().min(1).max(256).refine((value) =
 var npmBundled = (entry) => typeof entry === "object" && entry !== null && entry.inBundle === true;
 var npmResolvedUnder = (resolved, name) => resolved.pathname.startsWith(`/${name}/-/`);
 
-// vendor/security-checks/src/security-deps-lock.ts
-var DEPS_LOCK_VERSION = "npm-lock-v2v3/semver-7.8.6/deps-v2";
-var DEPS_LOCK_BYTES = 2 * 1024 * 1024;
-var DEPS_RANGE_FIELDS = ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies"];
+// vendor/security-checks/src/security-deps-pnpm.ts
+var YamlSyntaxError = class extends Error {
+  constructor(message) {
+    super(message);
+  }
+};
 var isObject3 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+var bytewise = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+var RANGE_FIELDS = ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies"];
+var MAX_DEPTH = 32;
+function setOwn(target, key, value) {
+  Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
+}
+function stripLineComment(line) {
+  let single = false, double = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (single) {
+      if (ch === "'" && line[i + 1] === "'") i++;
+      else if (ch === "'") single = false;
+    } else if (double) {
+      if (ch === "\\") i++;
+      else if (ch === '"') double = false;
+    } else if (ch === "'") single = true;
+    else if (ch === '"') double = true;
+    else if (ch === "#" && (i === 0 || line[i - 1] === " " || line[i - 1] === "	")) return line.slice(0, i).trimEnd();
+  }
+  if (single || double) return line;
+  return line.trimEnd();
+}
+function flowBalance(text3) {
+  let single = false, double = false, delta = 0;
+  for (let i = 0; i < text3.length; i++) {
+    const ch = text3[i];
+    if (single) {
+      if (ch === "'" && text3[i + 1] === "'") i++;
+      else if (ch === "'") single = false;
+    } else if (double) {
+      if (ch === "\\") i++;
+      else if (ch === '"') double = false;
+    } else if (ch === "'") single = true;
+    else if (ch === '"') double = true;
+    else if (ch === "{" || ch === "[") delta++;
+    else if (ch === "}" || ch === "]") {
+      delta--;
+      if (delta < 0) throw new YamlSyntaxError("unmatched closing bracket");
+    }
+  }
+  return { delta, unclosedQuote: single ? "'" : double ? '"' : null };
+}
+function parseDoubleQuoted(raw) {
+  if (!raw.startsWith('"') || !raw.endsWith('"') || raw.length < 2) throw new YamlSyntaxError("unterminated double-quoted string");
+  let out = "";
+  for (let i = 1; i < raw.length - 1; i++) {
+    const ch = raw[i];
+    if (ch !== "\\") {
+      out += ch;
+      continue;
+    }
+    const next = raw[++i];
+    if (next === void 0) throw new YamlSyntaxError("trailing backslash");
+    switch (next) {
+      case '"':
+      case "\\":
+      case "/":
+        out += next;
+        break;
+      case "n":
+        out += "\n";
+        break;
+      case "r":
+        out += "\r";
+        break;
+      case "t":
+        out += "	";
+        break;
+      case "b":
+        out += "\b";
+        break;
+      case "f":
+        out += "\f";
+        break;
+      case "0":
+        out += "\0";
+        break;
+      case "x": {
+        const hex3 = raw.slice(i + 1, i + 3);
+        if (!/^[0-9a-fA-F]{2}$/.test(hex3)) throw new YamlSyntaxError("invalid \\x escape");
+        out += String.fromCharCode(parseInt(hex3, 16));
+        i += 2;
+        break;
+      }
+      case "u": {
+        const hex3 = raw.slice(i + 1, i + 5);
+        if (!/^[0-9a-fA-F]{4}$/.test(hex3)) throw new YamlSyntaxError("invalid \\u escape");
+        out += String.fromCharCode(parseInt(hex3, 16));
+        i += 4;
+        break;
+      }
+      case "U": {
+        const hex3 = raw.slice(i + 1, i + 9);
+        if (!/^[0-9a-fA-F]{8}$/.test(hex3)) throw new YamlSyntaxError("invalid \\U escape");
+        out += String.fromCodePoint(parseInt(hex3, 16));
+        i += 8;
+        break;
+      }
+      default:
+        out += next;
+        break;
+    }
+  }
+  return out;
+}
+function parseSingleQuoted(raw) {
+  if (!raw.startsWith("'") || !raw.endsWith("'") || raw.length < 2) throw new YamlSyntaxError("unterminated single-quoted string");
+  return raw.slice(1, -1).replace(/''/g, "'");
+}
+function splitTopLevel(inner, sep4) {
+  const parts = [];
+  let single = false, double = false, depth = 0, start = 0;
+  for (let i = 0; i < inner.length; i++) {
+    const ch = inner[i];
+    if (single) {
+      if (ch === "'" && inner[i + 1] === "'") i++;
+      else if (ch === "'") single = false;
+    } else if (double) {
+      if (ch === "\\") i++;
+      else if (ch === '"') double = false;
+    } else if (ch === "'") single = true;
+    else if (ch === '"') double = true;
+    else if (ch === "{" || ch === "[") depth++;
+    else if (ch === "}" || ch === "]") depth--;
+    else if (depth === 0 && ch === sep4 && (sep4 === "," || i + 1 === inner.length || inner[i + 1] === " " || inner[i + 1] === "	")) {
+      parts.push(inner.slice(start, i));
+      start = i + 1;
+      if (sep4 === ":") {
+        parts.push(inner.slice(start));
+        return parts;
+      }
+    }
+  }
+  if (single || double || depth !== 0) throw new YamlSyntaxError("unbalanced flow collection");
+  parts.push(inner.slice(start));
+  return parts;
+}
+function parseFlowValue(raw, depth) {
+  if (depth > MAX_DEPTH) throw new YamlSyntaxError("max YAML depth exceeded");
+  const s = raw.trim();
+  if (!s) return null;
+  if (s[0] === "&" || s[0] === "*" || s[0] === "!") throw new YamlSyntaxError("YAML anchors, aliases and tags are refused");
+  if (s.startsWith("'")) return parseSingleQuoted(s);
+  if (s.startsWith('"')) return parseDoubleQuoted(s);
+  if (s.startsWith("{")) {
+    if (!s.endsWith("}")) throw new YamlSyntaxError("unclosed flow mapping");
+    const body2 = s.slice(1, -1).trim();
+    const obj = {};
+    if (!body2) return obj;
+    for (const item of splitTopLevel(body2, ",")) {
+      const trimmed = item.trim();
+      if (!trimmed) continue;
+      const kv = splitKeyValue(trimmed);
+      if (!kv) throw new YamlSyntaxError("invalid flow mapping entry");
+      if (kv.key === "<<") throw new YamlSyntaxError("YAML merge keys are refused");
+      setOwn(obj, kv.key, parseFlowValue(kv.rest, depth + 1));
+    }
+    return obj;
+  }
+  if (s.startsWith("[")) {
+    if (!s.endsWith("]")) throw new YamlSyntaxError("unclosed flow sequence");
+    const body2 = s.slice(1, -1).trim();
+    if (!body2) return [];
+    return splitTopLevel(body2, ",").map((x) => x.trim()).filter(Boolean).map((x) => parseFlowValue(x, depth + 1));
+  }
+  if (s === "true") return true;
+  if (s === "false") return false;
+  if (s === "null" || s === "~") return null;
+  if (/^-?(?:0|[1-9][0-9]*)$/.test(s)) {
+    const n = Number(s);
+    if (Number.isSafeInteger(n)) return n;
+  }
+  if (/^-?(?:0|[1-9][0-9]*)\.[0-9]+$/.test(s)) return Number(s);
+  return s;
+}
+function splitKeyValue(content) {
+  if (content.startsWith("'")) {
+    for (let i = 1; i < content.length; i++) {
+      if (content[i] === "'" && content[i + 1] === "'") {
+        i++;
+        continue;
+      }
+      if (content[i] === "'") {
+        const after = content.slice(i + 1);
+        if (after === ":" || after.startsWith(": ") || after.startsWith(":	")) {
+          return { key: parseSingleQuoted(content.slice(0, i + 1)), rest: after.slice(1).trim() };
+        }
+        return null;
+      }
+    }
+    throw new YamlSyntaxError("unterminated single-quoted key");
+  }
+  if (content.startsWith('"')) {
+    for (let i = 1; i < content.length; i++) {
+      if (content[i] === "\\") {
+        i++;
+        continue;
+      }
+      if (content[i] === '"') {
+        const after = content.slice(i + 1);
+        if (after === ":" || after.startsWith(": ") || after.startsWith(":	")) {
+          return { key: parseDoubleQuoted(content.slice(0, i + 1)), rest: after.slice(1).trim() };
+        }
+        return null;
+      }
+    }
+    throw new YamlSyntaxError("unterminated double-quoted key");
+  }
+  const parts = splitTopLevel(content, ":");
+  if (parts.length !== 2) return null;
+  const key = parts[0].trim();
+  if (!key || key[0] === "&" || key[0] === "*" || key[0] === "!") throw new YamlSyntaxError("invalid YAML key");
+  return { key, rest: parts[1].trim() };
+}
+function parseLockYaml(source) {
+  const rawLines = source.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  const lines = [];
+  let sawContent = false;
+  for (let i = 0; i < rawLines.length; i++) {
+    const raw = rawLines[i];
+    if (/^[ ]*\t/.test(raw)) throw new YamlSyntaxError("tab indentation is not valid YAML");
+    const indent = raw.length - raw.trimStart().length;
+    const stripped = stripLineComment(raw.slice(indent));
+    if (!stripped) continue;
+    if (indent === 0 && stripped === "---") {
+      if (sawContent) throw new YamlSyntaxError("multiple YAML documents are refused");
+      continue;
+    }
+    if (indent === 0 && stripped === "...") break;
+    sawContent = true;
+    let combined = stripped;
+    for (; ; ) {
+      const state3 = flowBalance(combined);
+      if (state3.delta === 0 && state3.unclosedQuote === null) break;
+      if (++i >= rawLines.length) throw new YamlSyntaxError("unterminated multiline flow or string");
+      const nextRaw = rawLines[i];
+      if (/^[ ]*\t/.test(nextRaw)) throw new YamlSyntaxError("tab indentation is not valid YAML");
+      const nextIndent = nextRaw.length - nextRaw.trimStart().length;
+      if (nextIndent <= indent && state3.unclosedQuote === null && state3.delta === 0) break;
+      const nextPart = state3.unclosedQuote ? nextRaw.trim() : stripLineComment(nextRaw.trim());
+      combined = state3.unclosedQuote ? `${combined} ${nextPart}` : `${combined} ${nextPart}`;
+    }
+    lines.push({ indent, text: combined });
+  }
+  if (!lines.length) return {};
+  let idx = 0;
+  function parseBlockScalar(parentIndent, style) {
+    const folded = style.startsWith(">");
+    const chomp = style.endsWith("-") ? "strip" : style.endsWith("+") ? "keep" : "clip";
+    const chunks = [];
+    let blockIndent = null;
+    while (idx < lines.length && lines[idx].indent > parentIndent) {
+      const l = lines[idx++];
+      blockIndent ??= l.indent;
+      if (l.indent < blockIndent) throw new YamlSyntaxError("inconsistent block scalar indentation");
+      chunks.push(" ".repeat(l.indent - blockIndent) + l.text);
+    }
+    const joined = folded ? chunks.join(" ") : chunks.join("\n");
+    return chomp === "strip" ? joined : chomp === "keep" ? `${joined}
+` : chunks.length ? `${joined}
+` : "";
+  }
+  function parseNode(expectedIndent, depth) {
+    if (depth > MAX_DEPTH) throw new YamlSyntaxError("max YAML depth exceeded");
+    if (idx >= lines.length || lines[idx].indent < expectedIndent) return {};
+    const startIndent = lines[idx].indent;
+    if (lines[idx].text === "-" || lines[idx].text.startsWith("- ")) {
+      const arr = [];
+      while (idx < lines.length && lines[idx].indent === startIndent) {
+        const cur = lines[idx].text;
+        if (cur !== "-" && !cur.startsWith("- ")) break;
+        idx++;
+        const rest = cur.slice(1).trim();
+        if (rest) {
+          const kv = splitKeyValue(rest);
+          if (kv) {
+            const obj2 = {};
+            if (kv.rest) setOwn(obj2, kv.key, parseFlowValue(kv.rest, depth + 1));
+            else if (idx < lines.length && lines[idx].indent > startIndent) setOwn(obj2, kv.key, parseNode(lines[idx].indent, depth + 1));
+            else setOwn(obj2, kv.key, null);
+            if (idx < lines.length && lines[idx].indent > startIndent) {
+              const more = parseNode(lines[idx].indent, depth + 1);
+              if (isObject3(more)) for (const [k, v] of Object.entries(more)) setOwn(obj2, k, v);
+            }
+            arr.push(obj2);
+          } else {
+            arr.push(parseFlowValue(rest, depth + 1));
+          }
+        } else if (idx < lines.length && lines[idx].indent > startIndent) {
+          arr.push(parseNode(lines[idx].indent, depth + 1));
+        } else {
+          arr.push(null);
+        }
+      }
+      return arr;
+    }
+    const firstKv = splitKeyValue(lines[idx].text);
+    if (!firstKv) {
+      if (depth > 0) return parseFlowValue(lines[idx++].text, depth + 1);
+      throw new YamlSyntaxError("top-level YAML document must be a mapping");
+    }
+    const obj = {};
+    while (idx < lines.length && lines[idx].indent === startIndent) {
+      const line = lines[idx];
+      if (line.text === "-" || line.text.startsWith("- ")) throw new YamlSyntaxError("mixed sequence and mapping at same indentation");
+      const kv = splitKeyValue(line.text);
+      if (!kv) throw new YamlSyntaxError("expected mapping entry");
+      if (kv.key === "<<") throw new YamlSyntaxError("YAML merge keys are refused");
+      idx++;
+      if (kv.rest === "|" || kv.rest === "|-" || kv.rest === "|+" || kv.rest === ">" || kv.rest === ">-" || kv.rest === ">+") {
+        setOwn(obj, kv.key, parseBlockScalar(startIndent, kv.rest));
+      } else if (kv.rest) {
+        setOwn(obj, kv.key, parseFlowValue(kv.rest, depth + 1));
+      } else if (idx < lines.length && lines[idx].indent > startIndent) {
+        setOwn(obj, kv.key, parseNode(lines[idx].indent, depth + 1));
+      } else {
+        setOwn(obj, kv.key, null);
+      }
+    }
+    return obj;
+  }
+  const root = parseNode(lines[0].indent, 0);
+  if (idx < lines.length || !isObject3(root)) throw new YamlSyntaxError("unexpected trailing YAML content");
+  return root;
+}
+var EMPTY_DECLARED = { dependencies: {}, optionalDependencies: {}, peerDependencies: {}, devDependencies: {} };
+var safeSeg = (s) => /^[A-Za-z0-9._+-]{1,120}$/.test(s) && s !== "." && s !== "..";
+function stripPeers(ref) {
+  const paren = ref.indexOf("(");
+  return paren < 0 ? ref : ref.slice(0, paren);
+}
+function splitNameAt(spec) {
+  const s = spec.startsWith("/") ? spec.slice(1) : spec;
+  const at = s.indexOf("@", s.startsWith("@") ? 1 : 0);
+  if (at <= 0) return { name: null, ref: s };
+  return { name: s.slice(0, at), ref: s.slice(at + 1) };
+}
+function readImporterField(imp, field, specifiers, from, kind, edges) {
+  const raw = imp[field];
+  if (raw === void 0 || raw === null) return {};
+  if (!isObject3(raw)) return null;
+  const out = {};
+  for (const [depName, val] of Object.entries(raw)) {
+    if (isObject3(val) && typeof val.specifier === "string" && typeof val.version === "string") {
+      setOwn(out, depName, val.specifier);
+      edges.push({ from, kind, field, depName, range: val.specifier, ref: val.version });
+    } else if (typeof val === "string" && specifiers && typeof specifiers[depName] === "string") {
+      const spec = specifiers[depName];
+      setOwn(out, depName, spec);
+      edges.push({ from, kind, field, depName, range: spec, ref: val });
+    } else {
+      return null;
+    }
+  }
+  return out;
+}
+function resolvePnpmTarget(depName, ref, byKey) {
+  if (ref.startsWith("link:")) return null;
+  const clean = ref.startsWith("/") ? ref.slice(1) : ref;
+  const base = stripPeers(clean);
+  for (const candidate of [`${depName}@${clean}`, `/${depName}@${clean}`, `${depName}@${base}`, `/${depName}@${base}`, clean, `/${clean}`, base, `/${base}`]) {
+    const hit = byKey.get(candidate);
+    if (hit) return hit;
+  }
+  return null;
+}
+function parsePnpmLock(raw, parserVersion) {
+  const refused2 = (state3, reason, lockfileVersion = null) => ({
+    lock: { parser_version: parserVersion, state: state3, reason, lockfile_version: lockfileVersion, root: null, entries: [] },
+    graph: null
+  });
+  const lv = raw.lockfileVersion;
+  const major = lv === 9 || typeof lv === "string" && /^9(?:\.[0-9]+)?$/.test(lv) ? 9 : lv === 6 || typeof lv === "string" && /^6(?:\.[0-9]+)?$/.test(lv) ? 6 : null;
+  if (major === null) {
+    const num = typeof lv === "number" && Number.isInteger(lv) ? lv : typeof lv === "string" && /^[0-9]+(?:\.[0-9]+)?$/.test(lv) ? Math.trunc(Number(lv)) : null;
+    return refused2("unsupported", "unsupported_lockfile", num);
+  }
+  if (raw.packages !== void 0 && raw.packages !== null && !isObject3(raw.packages)) return refused2("unsupported", "unsupported_lockfile", major);
+  if (major === 9 && raw.snapshots !== void 0 && raw.snapshots !== null && !isObject3(raw.snapshots)) return refused2("unsupported", "unsupported_lockfile", major);
+  const hasRootImporterFields = RANGE_FIELDS.some((f) => raw[f] !== void 0) || raw.specifiers !== void 0;
+  const importersObj = isObject3(raw.importers) ? raw.importers : raw.importers === void 0 && hasRootImporterFields ? { ".": raw } : raw.importers === void 0 && isObject3(raw.packages) ? {} : null;
+  if (!importersObj) return refused2("unsupported", "unsupported_lockfile", major);
+  const importerEdges = [];
+  const unreadImporters = /* @__PURE__ */ new Set();
+  const entries = [];
+  let root = { present: false, name: null, version: null, dependencies: null, optionalDependencies: null, peerDependencies: null, devDependencies: null };
+  for (const [impPath, impVal] of Object.entries(importersObj)) {
+    if (!isObject3(impVal)) {
+      if (impPath === ".") root = { present: true, name: null, version: null, dependencies: null, optionalDependencies: null, peerDependencies: null, devDependencies: null };
+      else entries.push({
+        path: impPath,
+        name: null,
+        version: null,
+        kind: exactPath.safeParse(impPath).success ? "first_party" : "held",
+        hold_reason: exactPath.safeParse(impPath).success ? null : "unsupported_entry",
+        resolved: null,
+        integrity: null,
+        dev: false,
+        optional: false,
+        dependencies: null,
+        optionalDependencies: null,
+        peerDependencies: null,
+        devDependencies: null
+      });
+      unreadImporters.add(impPath === "." ? "" : impPath);
+      continue;
+    }
+    const specs = isObject3(impVal.specifiers) ? impVal.specifiers : null;
+    const targetPath = impPath === "." ? "" : impPath;
+    const kind = impPath === "." ? "root" : "first_party";
+    const decl = {
+      dependencies: readImporterField(impVal, "dependencies", specs, targetPath, kind, importerEdges),
+      optionalDependencies: readImporterField(impVal, "optionalDependencies", specs, targetPath, kind, importerEdges),
+      peerDependencies: impVal.peerDependencies === void 0 ? {} : readImporterField(impVal, "peerDependencies", specs, targetPath, kind, importerEdges),
+      devDependencies: readImporterField(impVal, "devDependencies", specs, targetPath, kind, importerEdges)
+    };
+    if (Object.values(decl).some((v) => v === null)) unreadImporters.add(targetPath);
+    if (impPath === ".") {
+      root = { present: true, name: typeof impVal.name === "string" ? impVal.name : null, version: typeof impVal.version === "string" ? impVal.version : null, ...decl };
+    } else {
+      const valid = exactPath.safeParse(impPath).success && !impPath.split("/").includes("node_modules");
+      entries.push({
+        path: impPath,
+        name: typeof impVal.name === "string" ? impVal.name : null,
+        version: typeof impVal.version === "string" ? impVal.version : null,
+        kind: valid ? "first_party" : "held",
+        hold_reason: valid ? null : "unsupported_entry",
+        resolved: null,
+        integrity: null,
+        dev: false,
+        optional: false,
+        ...decl
+      });
+    }
+  }
+  if (!root.present && Object.keys(importersObj).length === 0) {
+    root = { present: true, name: null, version: null, ...EMPTY_DECLARED };
+  }
+  const packagesObj = isObject3(raw.packages) ? raw.packages : {};
+  const snapshotsObj = major === 9 && isObject3(raw.snapshots) ? raw.snapshots : {};
+  const rawPkgs = Object.entries(packagesObj).map(([pkgKey, val]) => {
+    const obj = isObject3(val) ? val : null;
+    const baseKey = stripPeers(pkgKey.startsWith("/") ? pkgKey.slice(1) : pkgKey);
+    const { name: keyName, ref: keyRef } = splitNameAt(baseKey);
+    const explicitName = typeof obj?.name === "string" ? obj.name : null;
+    const explicitVer = typeof obj?.version === "string" ? obj.version : null;
+    return { pkgKey, val, obj, name: explicitName ?? keyName, version: explicitVer ?? keyRef, keyName, keyRef };
+  });
+  const pairCounts = /* @__PURE__ */ new Map();
+  for (const p of rawPkgs) {
+    const k = `${p.name ?? ""}\0${p.version ?? ""}`;
+    pairCounts.set(k, (pairCounts.get(k) ?? 0) + 1);
+  }
+  const keyToPath = /* @__PURE__ */ new Map();
+  const pkgByPath = /* @__PURE__ */ new Map();
+  const snapsByBase = /* @__PURE__ */ new Map();
+  if (major === 9) {
+    for (const [snapKey, snapVal] of Object.entries(snapshotsObj)) {
+      if (!isObject3(snapVal)) continue;
+      const base = stripPeers(snapKey);
+      snapsByBase.set(base, [...snapsByBase.get(base) ?? [], snapVal]);
+    }
+  }
+  for (const p of rawPkgs) {
+    const validName = p.name !== null && npmPackageName.safeParse(p.name).success;
+    const count2 = pairCounts.get(`${p.name ?? ""}\0${p.version ?? ""}`) ?? 0;
+    const verSeg = p.version && safeSeg(p.version) ? count2 === 1 ? p.version : `${p.version}_${sha256(p.pkgKey).slice(0, 8)}` : sha256(p.pkgKey).slice(0, 12);
+    const path4 = validName ? `pnpm/${verSeg}/node_modules/${p.name}` : `pnpm/${sha256(p.pkgKey).slice(0, 12)}/node_modules/invalid`;
+    keyToPath.set(p.pkgKey, path4);
+    if (p.pkgKey.startsWith("/")) keyToPath.set(p.pkgKey.slice(1), path4);
+    pkgByPath.set(path4, p);
+  }
+  const prodQueue = [], devQueue = [];
+  for (const edge of importerEdges) {
+    const target = resolvePnpmTarget(edge.depName, edge.ref, keyToPath);
+    if (!target) continue;
+    if (edge.field === "devDependencies") devQueue.push(target);
+    else if (edge.field === "dependencies" || edge.field === "optionalDependencies") prodQueue.push(target);
+  }
+  const transitiveOut = /* @__PURE__ */ new Map();
+  for (const p of rawPkgs) {
+    const fromPath = keyToPath.get(p.pkgKey);
+    const sources = major === 9 ? snapsByBase.get(p.pkgKey) ?? (p.obj ? [p.obj] : []) : p.obj ? [p.obj] : [];
+    for (const src of sources) {
+      for (const field of ["dependencies", "optionalDependencies"]) {
+        const deps = src[field];
+        if (!isObject3(deps)) continue;
+        for (const [depName, depRef] of Object.entries(deps)) {
+          if (typeof depRef !== "string") continue;
+          const target = resolvePnpmTarget(depName, depRef, keyToPath);
+          if (target && target !== fromPath) {
+            if (!transitiveOut.has(fromPath)) transitiveOut.set(fromPath, /* @__PURE__ */ new Set());
+            transitiveOut.get(fromPath).add(target);
+          }
+        }
+      }
+    }
+  }
+  const bfs = (seeds) => {
+    const seen = new Set(seeds);
+    const stack = [...seeds];
+    while (stack.length) {
+      const cur = stack.pop();
+      for (const next of transitiveOut.get(cur) ?? []) if (!seen.has(next)) {
+        seen.add(next);
+        stack.push(next);
+      }
+    }
+    return seen;
+  };
+  const prodReachable = bfs(prodQueue), devReachable = bfs(devQueue);
+  for (const p of rawPkgs) {
+    const path4 = keyToPath.get(p.pkgKey);
+    const obj = p.obj;
+    const resolution = isObject3(obj?.resolution) ? obj.resolution : null;
+    const snaps = major === 9 ? snapsByBase.get(p.pkgKey) ?? [] : [];
+    const optional2 = obj?.optional === true || snaps.length > 0 && snaps.every((s) => s.optional === true);
+    const dev = obj?.dev === true || devReachable.has(path4) && !prodReachable.has(path4);
+    const validName = p.name !== null && npmPackageName.safeParse(p.name).success ? p.name : null;
+    const integrity = typeof resolution?.integrity === "string" ? resolution.integrity : null;
+    const rawTarball = typeof resolution?.tarball === "string" ? resolution.tarball : null;
+    const baseEntry = {
+      path: path4,
+      version: p.version,
+      resolved: rawTarball,
+      integrity,
+      dev,
+      optional: optional2,
+      ...EMPTY_DECLARED
+    };
+    const held = (reason) => ({ ...baseEntry, name: validName, kind: "held", hold_reason: reason });
+    if (!obj || !exactPath.safeParse(path4).success) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    if (resolution && typeof resolution.directory === "string") {
+      entries.push({ ...baseEntry, name: validName, kind: "first_party", hold_reason: null });
+      continue;
+    }
+    if (npmBundled(obj) || obj.inBundle === true) {
+      entries.push(held("bundled_dependency"));
+      continue;
+    }
+    if (!validName) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    if (typeof obj.name === "string" && p.keyName && obj.name !== p.keyName) {
+      entries.push(held("npm_alias_requires_review"));
+      continue;
+    }
+    if (!resolution) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    if (resolution.type === "git" || rawTarball && /^(?:git(?:\+[a-z]+)?|ssh):/i.test(rawTarball)) {
+      entries.push(held("not_approved_public_registry"));
+      continue;
+    }
+    if (rawTarball && /^(?:file|link):/i.test(rawTarball)) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    if (!p.version || !npmExactVersion.safeParse(p.version).success) {
+      if (rawTarball && /^https?:/i.test(rawTarball)) {
+        try {
+          const u = new URL(rawTarball);
+          if (u.protocol !== "https:" || u.hostname !== "registry.npmjs.org" || u.username || u.password || u.port || u.search || u.hash) {
+            entries.push(held("not_approved_public_registry"));
+            continue;
+          }
+        } catch {
+        }
+      }
+      entries.push(held("unsupported_exact_version"));
+      continue;
+    }
+    if (resolution.type !== void 0) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    const resolvedUrl = rawTarball ?? `https://registry.npmjs.org/${validName}/-/${validName.split("/").at(-1)}-${p.version}.tgz`;
+    let url3;
+    try {
+      url3 = new URL(resolvedUrl);
+    } catch {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    if (url3.protocol !== "https:" || url3.hostname !== "registry.npmjs.org" || url3.username || url3.password || url3.port || url3.search || url3.hash) {
+      entries.push(held("not_approved_public_registry"));
+      continue;
+    }
+    if (!integrity || !/^sha(?:256|384|512)-[A-Za-z0-9+/]+=*$/.test(integrity)) {
+      entries.push({ ...baseEntry, resolved: resolvedUrl, name: validName, kind: "held", hold_reason: "unsupported_integrity" });
+      continue;
+    }
+    if (!npmResolvedUnder(url3, validName)) {
+      entries.push({ ...baseEntry, resolved: resolvedUrl, name: validName, kind: "held", hold_reason: "npm_alias_requires_review" });
+      continue;
+    }
+    entries.push({ ...baseEntry, resolved: resolvedUrl, name: validName, kind: "registry", hold_reason: null });
+  }
+  const byEntry = /* @__PURE__ */ new Map();
+  for (const e of entries) byEntry.set(e.path, { dependents: [], unread: /* @__PURE__ */ new Set() });
+  for (const edge of importerEdges) {
+    const target = resolvePnpmTarget(edge.depName, edge.ref, keyToPath);
+    if (!target || !byEntry.has(target)) continue;
+    byEntry.get(target).dependents.push({ path: edge.from, kind: edge.kind, field: edge.field, range: edge.range });
+  }
+  for (const [fromPath, targets] of transitiveOut) {
+    for (const target of targets) byEntry.get(target)?.unread.add(fromPath);
+  }
+  for (const imp of unreadImporters) {
+    for (const bucket of byEntry.values()) bucket.unread.add(imp);
+  }
+  const finalGraph = /* @__PURE__ */ new Map();
+  for (const [entryPath, bucket] of byEntry) {
+    finalGraph.set(entryPath, {
+      dependents: bucket.dependents.sort((a, b) => bytewise(a.path, b.path) || bytewise(a.field, b.field)),
+      unread: [...bucket.unread].sort(bytewise)
+    });
+  }
+  return {
+    lock: { parser_version: parserVersion, state: "parsed", reason: null, lockfile_version: major, root, entries },
+    graph: { format: "pnpm", byEntry: finalGraph }
+  };
+}
+
+// vendor/security-checks/src/security-deps-yarn.ts
+var isObject4 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+var bytewise2 = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+var safeSeg2 = (s) => /^[A-Za-z0-9._+-]{1,120}$/.test(s) && s !== "." && s !== "..";
+function setOwn2(target, key, value) {
+  Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
+}
+function unquoteYarn(token) {
+  const s = token.trim();
+  if (!s.startsWith('"')) return s;
+  if (!s.endsWith('"') || s.length < 2) throw new YamlSyntaxError("unterminated Yarn string");
+  let out = "";
+  for (let i = 1; i < s.length - 1; i++) {
+    const ch = s[i];
+    if (ch !== "\\") {
+      out += ch;
+      continue;
+    }
+    const next = s[++i];
+    if (next === void 0) throw new YamlSyntaxError("trailing backslash");
+    if (next === "n") out += "\n";
+    else if (next === "r") out += "\r";
+    else if (next === "t") out += "	";
+    else out += next;
+  }
+  return out;
+}
+function splitDescriptors(header) {
+  const out = [];
+  let inQuote = false, start = 0;
+  for (let i = 0; i < header.length; i++) {
+    const ch = header[i];
+    if (inQuote) {
+      if (ch === "\\") i++;
+      else if (ch === '"') inQuote = false;
+    } else if (ch === '"') inQuote = true;
+    else if (ch === ",") {
+      const part = unquoteYarn(header.slice(start, i));
+      if (part) out.push(part);
+      start = i + 1;
+    }
+  }
+  if (inQuote) throw new YamlSyntaxError("unterminated quote in descriptor header");
+  const tail = unquoteYarn(header.slice(start));
+  if (tail) out.push(tail);
+  return out;
+}
+function splitDescriptorAt(desc) {
+  const at = desc.indexOf("@", desc.startsWith("@") ? 1 : 0);
+  if (at <= 0) return null;
+  return { name: desc.slice(0, at), spec: desc.slice(at + 1) };
+}
+function stripNpmProtocol(spec) {
+  if (!spec.startsWith("npm:")) return spec;
+  const rest = spec.slice(4);
+  const at = rest.indexOf("@", rest.startsWith("@") ? 1 : 0);
+  return at > 0 ? spec : rest;
+}
+function parseClassicKeyVal(line) {
+  const trimmed = line.trim();
+  let i = 0;
+  if (trimmed.startsWith('"')) {
+    i = 1;
+    while (i < trimmed.length) {
+      if (trimmed[i] === "\\") {
+        i += 2;
+        continue;
+      }
+      if (trimmed[i] === '"') {
+        i++;
+        break;
+      }
+      i++;
+    }
+    if (i > trimmed.length) return null;
+  } else {
+    while (i < trimmed.length && trimmed[i] !== " " && trimmed[i] !== "	") i++;
+  }
+  const key = unquoteYarn(trimmed.slice(0, i));
+  let rest = trimmed.slice(i).trim();
+  if (rest.startsWith(":")) rest = rest.slice(1).trim();
+  if (!key || !rest) return null;
+  return { key, value: unquoteYarn(rest) };
+}
+function parseYarnClassic(source, parserVersion) {
+  const refused2 = (state3, reason, lockfileVersion = null) => ({
+    lock: { parser_version: parserVersion, state: state3, reason, lockfile_version: lockfileVersion, root: null, entries: [] },
+    graph: null
+  });
+  const lines = source.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  let sawV1Banner = false;
+  for (const raw of lines.slice(0, 10)) {
+    const t = raw.trim();
+    if (/^#\s*yarn lockfile v1$/i.test(t)) {
+      sawV1Banner = true;
+      break;
+    }
+    if (/^#\s*yarn lockfile v([0-9]+)$/i.test(t)) {
+      const m = /^#\s*yarn lockfile v([0-9]+)$/i.exec(t);
+      return refused2("unsupported", "unsupported_lockfile", Number(m[1]));
+    }
+  }
+  if (!sawV1Banner) return refused2("malformed", "malformed_lockfile");
+  const stanzas = [];
+  let i = 0;
+  try {
+    while (i < lines.length) {
+      const raw = lines[i];
+      if (/^[ ]*\t/.test(raw)) return refused2("malformed", "malformed_lockfile");
+      const indent = raw.length - raw.trimStart().length;
+      const trimmed = raw.trim();
+      if (!trimmed || trimmed.startsWith("#")) {
+        i++;
+        continue;
+      }
+      if (indent !== 0 || !trimmed.endsWith(":")) return refused2("malformed", "malformed_lockfile");
+      const rawHeader = trimmed.slice(0, -1);
+      const descriptors = splitDescriptors(rawHeader);
+      if (!descriptors.length) return refused2("malformed", "malformed_lockfile");
+      i++;
+      const stanza = {
+        rawHeader,
+        descriptors,
+        version: null,
+        resolved: null,
+        integrity: null,
+        dependencies: {},
+        optionalDependencies: {}
+      };
+      while (i < lines.length) {
+        const subRaw = lines[i];
+        if (/^[ ]*\t/.test(subRaw)) return refused2("malformed", "malformed_lockfile");
+        const subTrim = subRaw.trim();
+        if (!subTrim || subTrim.startsWith("#")) {
+          i++;
+          continue;
+        }
+        const subIndent = subRaw.length - subRaw.trimStart().length;
+        if (subIndent === 0) break;
+        if (subIndent !== 2) return refused2("malformed", "malformed_lockfile");
+        if (subTrim.endsWith(":")) {
+          const section = unquoteYarn(subTrim.slice(0, -1));
+          i++;
+          const map2 = {};
+          let validMap = true;
+          while (i < lines.length) {
+            const depRaw = lines[i];
+            if (/^[ ]*\t/.test(depRaw)) return refused2("malformed", "malformed_lockfile");
+            const depTrim = depRaw.trim();
+            if (!depTrim || depTrim.startsWith("#")) {
+              i++;
+              continue;
+            }
+            const depIndent = depRaw.length - depRaw.trimStart().length;
+            if (depIndent <= 2) break;
+            if (depIndent !== 4) {
+              validMap = false;
+              i++;
+              continue;
+            }
+            const kv = parseClassicKeyVal(depTrim);
+            if (!kv) validMap = false;
+            else setOwn2(map2, kv.key, kv.value);
+            i++;
+          }
+          if (section === "dependencies") stanza.dependencies = validMap ? map2 : null;
+          else if (section === "optionalDependencies") stanza.optionalDependencies = validMap ? map2 : null;
+        } else {
+          const kv = parseClassicKeyVal(subTrim);
+          if (!kv) return refused2("malformed", "malformed_lockfile");
+          if (kv.key === "version") stanza.version = kv.value;
+          else if (kv.key === "resolved") stanza.resolved = kv.value;
+          else if (kv.key === "integrity") stanza.integrity = kv.value;
+          i++;
+        }
+      }
+      stanzas.push(stanza);
+    }
+  } catch {
+    return refused2("malformed", "malformed_lockfile");
+  }
+  const parsedStanzas = stanzas.map((s) => {
+    const parsedDesc = s.descriptors.map(splitDescriptorAt);
+    const firstName = parsedDesc[0]?.name ?? null;
+    return { stanza: s, parsedDesc, firstName };
+  });
+  const pairCounts = /* @__PURE__ */ new Map();
+  for (const p of parsedStanzas) {
+    const k = `${p.firstName ?? ""}\0${p.stanza.version ?? ""}`;
+    pairCounts.set(k, (pairCounts.get(k) ?? 0) + 1);
+  }
+  const entries = [];
+  const descriptorToPath = /* @__PURE__ */ new Map();
+  const entryDescriptors = /* @__PURE__ */ new Map();
+  for (const { stanza: s, parsedDesc, firstName } of parsedStanzas) {
+    const validFirst = firstName !== null && npmPackageName.safeParse(firstName).success ? firstName : null;
+    const count2 = pairCounts.get(`${firstName ?? ""}\0${s.version ?? ""}`) ?? 0;
+    const verSeg = s.version && safeSeg2(s.version) ? count2 === 1 ? s.version : `${s.version}_${sha256(s.rawHeader).slice(0, 8)}` : sha256(s.rawHeader).slice(0, 12);
+    const path4 = validFirst ? `yarn/${verSeg}/node_modules/${validFirst}` : `yarn/${sha256(s.rawHeader).slice(0, 12)}/node_modules/invalid`;
+    const decl = {
+      dependencies: s.dependencies,
+      optionalDependencies: s.optionalDependencies,
+      peerDependencies: {},
+      devDependencies: {}
+    };
+    const base = { path: path4, version: s.version, resolved: s.resolved, integrity: s.integrity, dev: false, optional: false, ...decl };
+    const held = (reason) => ({ ...base, name: validFirst, kind: "held", hold_reason: reason });
+    const goodDescs = [];
+    for (const d of parsedDesc) {
+      if (d) {
+        descriptorToPath.set(`${d.name}@${d.spec}`, path4);
+        goodDescs.push(d);
+      }
+    }
+    entryDescriptors.set(path4, goodDescs);
+    if (!exactPath.safeParse(path4).success || parsedDesc.some((d) => d === null) || !validFirst) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    if (goodDescs.some((d) => d.name !== validFirst || d.spec.startsWith("npm:") && splitDescriptorAt(d.spec.slice(4)) !== null)) {
+      entries.push(held("npm_alias_requires_review"));
+      continue;
+    }
+    if (s.resolved && /^link:/i.test(s.resolved)) {
+      entries.push({ ...base, name: validFirst, kind: "first_party", hold_reason: null });
+      continue;
+    }
+    if (!s.version || !npmExactVersion.safeParse(s.version).success) {
+      entries.push(held("unsupported_exact_version"));
+      continue;
+    }
+    if (!s.resolved) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    if (/^file:/i.test(s.resolved)) {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    let url3;
+    try {
+      url3 = new URL(s.resolved);
+    } catch {
+      entries.push(held("unsupported_entry"));
+      continue;
+    }
+    const validHash = url3.hash === "" || /^#[0-9a-fA-F]{40}$/.test(url3.hash);
+    if (url3.protocol !== "https:" || url3.hostname !== "registry.npmjs.org" && url3.hostname !== "registry.yarnpkg.com" || url3.username || url3.password || url3.port || url3.search || !validHash) {
+      entries.push(held("not_approved_public_registry"));
+      continue;
+    }
+    const normalizedUrl = `https://registry.npmjs.org${url3.pathname}`;
+    if (!s.integrity || !/^sha(?:256|384|512)-[A-Za-z0-9+/]+=*$/.test(s.integrity)) {
+      entries.push({ ...base, resolved: normalizedUrl, name: validFirst, kind: "held", hold_reason: "unsupported_integrity" });
+      continue;
+    }
+    if (!npmResolvedUnder(new URL(normalizedUrl), validFirst)) {
+      entries.push({ ...base, resolved: normalizedUrl, name: validFirst, kind: "held", hold_reason: "npm_alias_requires_review" });
+      continue;
+    }
+    entries.push({ ...base, resolved: normalizedUrl, name: validFirst, kind: "registry", hold_reason: null });
+  }
+  const byEntry = /* @__PURE__ */ new Map();
+  for (const e of entries) byEntry.set(e.path, { dependents: [], unread: /* @__PURE__ */ new Set(), claimedSpecs: /* @__PURE__ */ new Set() });
+  const unreadEntries = [];
+  for (const e of entries) {
+    if (e.dependencies === null || e.optionalDependencies === null) unreadEntries.push(e.path);
+    for (const field of ["dependencies", "optionalDependencies"]) {
+      const map2 = e[field];
+      if (!map2) continue;
+      for (const [depName, depRange] of Object.entries(map2)) {
+        const target = descriptorToPath.get(`${depName}@${depRange}`);
+        if (target && byEntry.has(target)) {
+          const bucket = byEntry.get(target);
+          bucket.dependents.push({ path: e.path, kind: e.kind, field, range: depRange });
+          bucket.claimedSpecs.add(depRange);
+        }
+      }
+    }
+  }
+  const rootDeps = {};
+  for (const e of entries) {
+    const bucket = byEntry.get(e.path);
+    for (const u of unreadEntries) if (u !== e.path) bucket.unread.add(u);
+    for (const d of entryDescriptors.get(e.path) ?? []) {
+      if (!bucket.claimedSpecs.has(d.spec)) {
+        bucket.dependents.push({ path: "", kind: "root", field: "dependencies", range: d.spec });
+        if (!Object.hasOwn(rootDeps, d.name)) setOwn2(rootDeps, d.name, d.spec);
+      }
+    }
+  }
+  const root = { present: true, name: null, version: null, dependencies: rootDeps, optionalDependencies: {}, peerDependencies: {}, devDependencies: {} };
+  const finalGraph = /* @__PURE__ */ new Map();
+  for (const [entryPath, bucket] of byEntry) {
+    finalGraph.set(entryPath, {
+      dependents: bucket.dependents.sort((a, b) => bytewise2(a.path, b.path) || bytewise2(a.field, b.field) || bytewise2(a.range, b.range)),
+      unread: [...bucket.unread].sort(bytewise2)
+    });
+  }
+  return {
+    lock: { parser_version: parserVersion, state: "parsed", reason: null, lockfile_version: 1, root, entries },
+    graph: { format: "yarn", byEntry: finalGraph }
+  };
+}
+function readBerryRanges(stanza, field) {
+  const val = stanza[field];
+  if (val === void 0 || val === null) return { clean: {}, raw: {} };
+  if (!isObject4(val)) return { clean: null, raw: null };
+  const clean = {}, raw = {};
+  for (const [k, v] of Object.entries(val)) {
+    if (typeof v !== "string" && typeof v !== "number") return { clean: null, raw: null };
+    const str = String(v);
+    setOwn2(raw, k, str);
+    setOwn2(clean, k, stripNpmProtocol(str));
+  }
+  return { clean, raw };
+}
+function parseYarnBerry(raw, parserVersion) {
+  const refused2 = (state3, reason, lockfileVersion = null) => ({
+    lock: { parser_version: parserVersion, state: state3, reason, lockfile_version: lockfileVersion, root: null, entries: [] },
+    graph: null
+  });
+  const meta3 = raw.__metadata;
+  const ver = isObject4(meta3) && typeof meta3.version === "number" && Number.isInteger(meta3.version) ? meta3.version : isObject4(meta3) && typeof meta3.version === "string" && /^[0-9]+$/.test(meta3.version) ? Number(meta3.version) : null;
+  if (!isObject4(meta3) || ver === null || ver < 4 || ver > 20) return refused2("unsupported", "unsupported_lockfile", ver);
+  const items = [];
+  for (const [key, val] of Object.entries(raw)) {
+    if (key === "__metadata") continue;
+    const obj = isObject4(val) ? val : null;
+    let descs = [];
+    try {
+      descs = splitDescriptors(key);
+    } catch {
+      return refused2("malformed", "malformed_lockfile");
+    }
+    if (!descs.length) return refused2("malformed", "malformed_lockfile");
+    const resolution = typeof obj?.resolution === "string" ? obj.resolution : null;
+    items.push({
+      key,
+      obj,
+      descriptors: descs.map(splitDescriptorAt),
+      resolution,
+      resParts: resolution ? splitDescriptorAt(resolution) : null,
+      version: typeof obj?.version === "string" ? obj.version : null
+    });
+  }
+  let root = { present: false, name: null, version: null, dependencies: null, optionalDependencies: null, peerDependencies: null, devDependencies: null };
+  const entries = [];
+  const rawEdges = [];
+  const unreadSources = /* @__PURE__ */ new Set();
+  const descriptorToPath = /* @__PURE__ */ new Map();
+  const entryDescriptors = /* @__PURE__ */ new Map();
+  const pairCounts = /* @__PURE__ */ new Map();
+  for (const it of items) {
+    if (it.resParts?.spec.startsWith("workspace:")) continue;
+    const name = it.resParts?.name ?? it.descriptors[0]?.name ?? "";
+    const k = `${name}\0${it.version ?? ""}`;
+    pairCounts.set(k, (pairCounts.get(k) ?? 0) + 1);
+  }
+  for (const it of items) {
+    const obj = it.obj;
+    if (!obj) {
+      const p = `yarn/${sha256(it.key).slice(0, 12)}/node_modules/invalid`;
+      entries.push({
+        path: p,
+        name: null,
+        version: null,
+        kind: "held",
+        hold_reason: "unsupported_entry",
+        resolved: null,
+        integrity: null,
+        dev: false,
+        optional: false,
+        dependencies: null,
+        optionalDependencies: null,
+        peerDependencies: null,
+        devDependencies: null
+      });
+      unreadSources.add(p);
+      continue;
+    }
+    const depR = readBerryRanges(obj, "dependencies");
+    const optR = readBerryRanges(obj, "optionalDependencies");
+    const peerR = readBerryRanges(obj, "peerDependencies");
+    const devR = readBerryRanges(obj, "devDependencies");
+    const decl = { dependencies: depR.clean, optionalDependencies: optR.clean, peerDependencies: peerR.clean, devDependencies: devR.clean };
+    if (it.resParts?.spec.startsWith("workspace:")) {
+      const wsRel = it.resParts.spec.slice("workspace:".length);
+      const fromPath = wsRel === "." ? "" : wsRel;
+      const nodeKind = wsRel === "." ? "root" : "first_party";
+      if (wsRel === ".") {
+        root = { present: true, name: it.resParts.name, version: it.version, ...decl };
+      } else {
+        const validWs = exactPath.safeParse(wsRel).success && !wsRel.split("/").includes("node_modules");
+        entries.push({
+          path: wsRel,
+          name: it.resParts.name,
+          version: it.version,
+          kind: validWs ? "first_party" : "held",
+          hold_reason: validWs ? null : "unsupported_entry",
+          resolved: null,
+          integrity: null,
+          dev: false,
+          optional: false,
+          ...decl
+        });
+      }
+      if ([depR.clean, optR.clean, peerR.clean, devR.clean].some((v) => v === null)) unreadSources.add(fromPath);
+      for (const [field, r] of [["dependencies", depR], ["optionalDependencies", optR], ["peerDependencies", peerR], ["devDependencies", devR]]) {
+        if (!r.raw || !r.clean) continue;
+        for (const [depName, rawSpec] of Object.entries(r.raw)) {
+          rawEdges.push({ from: fromPath, kind: nodeKind, field, depName, rawSpec, cleanRange: r.clean[depName] });
+        }
+      }
+      continue;
+    }
+    const candidateName = it.resParts?.name ?? it.descriptors[0]?.name ?? null;
+    const validName = candidateName !== null && npmPackageName.safeParse(candidateName).success ? candidateName : null;
+    const count2 = pairCounts.get(`${candidateName ?? ""}\0${it.version ?? ""}`) ?? 0;
+    const verSeg = it.version && safeSeg2(it.version) ? count2 === 1 ? it.version : `${it.version}_${sha256(it.key).slice(0, 8)}` : sha256(it.key).slice(0, 12);
+    const path4 = validName ? `yarn/${verSeg}/node_modules/${validName}` : `yarn/${sha256(it.key).slice(0, 12)}/node_modules/invalid`;
+    const goodDescs = [];
+    for (const d of it.descriptors) {
+      if (d) {
+        descriptorToPath.set(`${d.name}@${d.spec}`, path4);
+        descriptorToPath.set(`${d.name}@${stripNpmProtocol(d.spec)}`, path4);
+        goodDescs.push(d);
+      }
+    }
+    entryDescriptors.set(path4, goodDescs);
+    const base = { path: path4, version: it.version, resolved: it.resolution, integrity: null, dev: false, optional: false, ...decl };
+    const pushEntry = (e) => {
+      entries.push(e);
+      if ([depR.clean, optR.clean, peerR.clean].some((v) => v === null)) unreadSources.add(path4);
+      for (const [field, r] of [["dependencies", depR], ["optionalDependencies", optR], ["peerDependencies", peerR]]) {
+        if (!r.raw || !r.clean) continue;
+        for (const [depName, rawSpec] of Object.entries(r.raw)) {
+          rawEdges.push({ from: path4, kind: e.kind, field, depName, rawSpec, cleanRange: r.clean[depName] });
+        }
+      }
+    };
+    const held = (reason) => ({ ...base, name: validName, kind: "held", hold_reason: reason });
+    if (!exactPath.safeParse(path4).success || it.descriptors.some((d) => d === null) || !it.resParts || !validName) {
+      pushEntry(held("unsupported_entry"));
+      continue;
+    }
+    const resSpec = it.resParts.spec;
+    if (resSpec.startsWith("portal:") || resSpec.startsWith("link:")) {
+      const targetRel = resSpec.slice(resSpec.indexOf(":") + 1);
+      if (exactPath.safeParse(targetRel).success) pushEntry({ ...base, name: validName, kind: "first_party", hold_reason: null });
+      else pushEntry(held("unsupported_entry"));
+      continue;
+    }
+    if (/^(?:https?|git(?:\+[a-z]+)?|ssh):/i.test(resSpec)) {
+      pushEntry(held("not_approved_public_registry"));
+      continue;
+    }
+    if (!resSpec.startsWith("npm:")) {
+      pushEntry(held("unsupported_entry"));
+      continue;
+    }
+    if (goodDescs.some((d) => d.name !== validName)) {
+      pushEntry(held("npm_alias_requires_review"));
+      continue;
+    }
+    const resVer = resSpec.slice(4);
+    if (!it.version || resVer !== it.version || !npmExactVersion.safeParse(it.version).success) {
+      pushEntry(held("unsupported_exact_version"));
+      continue;
+    }
+    const resolvedUrl = `https://registry.npmjs.org/${validName}/-/${validName.split("/").at(-1)}-${it.version}.tgz`;
+    const checksum = typeof obj.checksum === "string" ? obj.checksum.trim() : "";
+    const m = /^[0-9A-Za-z._-]+\/([0-9a-f]{128})$/.exec(checksum);
+    if (!m) {
+      pushEntry({ ...base, resolved: resolvedUrl, name: validName, kind: "held", hold_reason: "unsupported_integrity" });
+      continue;
+    }
+    if (!npmResolvedUnder(new URL(resolvedUrl), validName)) {
+      pushEntry({ ...base, resolved: resolvedUrl, integrity: `yarn-berry-sha512:${m[1]}`, name: validName, kind: "held", hold_reason: "npm_alias_requires_review" });
+      continue;
+    }
+    pushEntry({ ...base, resolved: resolvedUrl, integrity: `yarn-berry-sha512:${m[1]}`, name: validName, kind: "registry", hold_reason: null });
+  }
+  const byEntry = /* @__PURE__ */ new Map();
+  for (const e of entries) byEntry.set(e.path, { dependents: [], unread: /* @__PURE__ */ new Set(), claimedSpecs: /* @__PURE__ */ new Set() });
+  const outGraph = /* @__PURE__ */ new Map();
+  const prodSeeds = [], devSeeds = [];
+  for (const edge of rawEdges) {
+    const target = descriptorToPath.get(`${edge.depName}@${edge.rawSpec}`) ?? descriptorToPath.get(`${edge.depName}@${edge.cleanRange}`);
+    if (!target || !byEntry.has(target)) continue;
+    const bucket = byEntry.get(target);
+    bucket.dependents.push({ path: edge.from, kind: edge.kind, field: edge.field, range: edge.cleanRange });
+    bucket.claimedSpecs.add(edge.rawSpec);
+    bucket.claimedSpecs.add(edge.cleanRange);
+    if (edge.from === "" || !edge.from.includes("/node_modules/")) {
+      if (edge.field === "devDependencies") devSeeds.push(target);
+      else if (edge.field === "dependencies" || edge.field === "optionalDependencies") prodSeeds.push(target);
+    } else if (edge.field !== "peerDependencies") {
+      if (!outGraph.has(edge.from)) outGraph.set(edge.from, /* @__PURE__ */ new Set());
+      outGraph.get(edge.from).add(target);
+    }
+  }
+  if (root.present) {
+    const bfs = (seeds) => {
+      const seen = new Set(seeds);
+      const stack = [...seeds];
+      while (stack.length) {
+        const cur = stack.pop();
+        for (const next of outGraph.get(cur) ?? []) if (!seen.has(next)) {
+          seen.add(next);
+          stack.push(next);
+        }
+      }
+      return seen;
+    };
+    const prod = bfs(prodSeeds), dev = bfs(devSeeds);
+    for (const e of entries) if (e.kind !== "first_party" && dev.has(e.path) && !prod.has(e.path)) e.dev = true;
+  } else {
+    const rootDeps = {};
+    for (const e of entries) {
+      if (e.kind === "first_party") continue;
+      const bucket = byEntry.get(e.path);
+      for (const d of entryDescriptors.get(e.path) ?? []) {
+        const clean = stripNpmProtocol(d.spec);
+        if (!bucket.claimedSpecs.has(d.spec) && !bucket.claimedSpecs.has(clean)) {
+          bucket.dependents.push({ path: "", kind: "root", field: "dependencies", range: clean });
+          if (!Object.hasOwn(rootDeps, d.name)) setOwn2(rootDeps, d.name, clean);
+        }
+      }
+    }
+    root = { present: true, name: null, version: null, dependencies: rootDeps, optionalDependencies: {}, peerDependencies: {}, devDependencies: {} };
+  }
+  for (const [entryPath, bucket] of byEntry) {
+    for (const u of unreadSources) if (u !== entryPath) bucket.unread.add(u);
+  }
+  const finalGraph = /* @__PURE__ */ new Map();
+  for (const [entryPath, bucket] of byEntry) {
+    finalGraph.set(entryPath, {
+      dependents: bucket.dependents.sort((a, b) => bytewise2(a.path, b.path) || bytewise2(a.field, b.field) || bytewise2(a.range, b.range)),
+      unread: [...bucket.unread].sort(bytewise2)
+    });
+  }
+  return {
+    lock: { parser_version: parserVersion, state: "parsed", reason: null, lockfile_version: ver, root, entries },
+    graph: { format: "yarn", byEntry: finalGraph }
+  };
+}
+function parseYarnLock(source, parserVersion) {
+  if (/^(?:\s*#[^\n]*\n|\s*\n)*__metadata\s*:/m.test(source)) {
+    let raw;
+    try {
+      raw = parseLockYaml(source);
+    } catch {
+      return { lock: { parser_version: parserVersion, state: "malformed", reason: "malformed_lockfile", lockfile_version: null, root: null, entries: [] }, graph: null };
+    }
+    return parseYarnBerry(raw, parserVersion);
+  }
+  return parseYarnClassic(source, parserVersion);
+}
+
+// vendor/security-checks/src/security-deps-lock.ts
+var DEPS_LOCK_VERSION = "npm-pnpm-yarn-lock/semver-7.8.6/deps-v3";
+var DEPS_LOCK_BYTES = 2 * 1024 * 1024;
+var DEPS_LOCK_FILENAMES = ["package-lock.json", "pnpm-lock.yaml", "yarn.lock"];
+var DEPS_RANGE_FIELDS = ["dependencies", "optionalDependencies", "peerDependencies", "devDependencies"];
+var isObject5 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 var text = (v) => typeof v === "string" ? v : null;
 var RegistryEntry = external_exports.object({
   name: external_exports.string().optional(),
@@ -128337,7 +129535,7 @@ function ranges(value, field) {
   if (!value) return null;
   const raw = value[field];
   if (raw === void 0) return {};
-  if (!isObject3(raw)) return null;
+  if (!isObject5(raw)) return null;
   const out = [];
   for (const [name, range2] of Object.entries(raw)) {
     if (typeof range2 !== "string") return null;
@@ -128356,7 +129554,7 @@ function installedName(path4) {
   return at < 0 ? null : segments.slice(at + 1).join("/");
 }
 function lockEntry(path4, value) {
-  const object2 = isObject3(value) ? value : null;
+  const object2 = isObject5(value) ? value : null;
   const base = {
     path: path4,
     version: text(object2?.version),
@@ -128391,12 +129589,32 @@ function lockEntry(path4, value) {
   return { ...base, name, kind: "registry", hold_reason: null, dev: Boolean(e.dev), optional: Boolean(e.optional) };
 }
 var refused = (state3, reason, lockfileVersion = null) => ({ parser_version: DEPS_LOCK_VERSION, state: state3, reason, lockfile_version: lockfileVersion, root: null, entries: [] });
-function parseDepsLock(content) {
-  const size = typeof content === "string" ? Buffer.byteLength(content) : content.byteLength;
-  if (size > DEPS_LOCK_BYTES) throw Error("deps_lock_oversize");
+var directGraphs = /* @__PURE__ */ new WeakMap();
+var lockFormatOf = (lock) => directGraphs.get(lock)?.format ?? "npm";
+function detectFormat(decoded, filename2) {
+  const base = filename2?.split("/").at(-1);
+  if (base === "package-lock.json") return "npm";
+  if (base === "pnpm-lock.yaml") return "pnpm";
+  if (base === "yarn.lock") return "yarn";
+  const trimmed = decoded.trimStart();
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) return "npm";
+  if (/^(?:\s*#[^\n]*\n|\s*\n|---\s*\n)*lockfileVersion\s*:/m.test(decoded)) return "pnpm";
+  if (/^(?:\s*#[^\n]*\n|\s*\n)*__metadata\s*:/m.test(decoded) || /^#\s*yarn lockfile v[0-9]+\b/im.test(decoded)) return "yarn";
+  return "npm";
+}
+function screenTextLock(bytes, decoded) {
+  if (secretInFile(bytes)) return false;
+  try {
+    safeSourceText(decoded, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function parseNpmLock(decoded) {
   let raw;
   try {
-    raw = JSON.parse(typeof content === "string" ? content : utf8(Buffer.from(content.buffer, content.byteOffset, content.byteLength)));
+    raw = JSON.parse(decoded);
   } catch {
     return refused("malformed", "malformed_json");
   }
@@ -128406,16 +129624,51 @@ function parseDepsLock(content) {
     if (e.code === "security.secret") return refused("credential_shaped", "credential_shaped_content");
     throw e;
   }
-  const lockfileVersion = isObject3(raw) && typeof raw.lockfileVersion === "number" ? raw.lockfileVersion : null;
-  const packages = isObject3(raw) ? raw.packages : void 0;
-  if (lockfileVersion !== 2 && lockfileVersion !== 3 || !isObject3(packages)) return refused("unsupported", "unsupported_lockfile", lockfileVersion);
-  const rootValue = Object.hasOwn(packages, "") ? packages[""] : void 0, rootObject = isObject3(rootValue) ? rootValue : null;
+  const lockfileVersion = isObject5(raw) && typeof raw.lockfileVersion === "number" ? raw.lockfileVersion : null;
+  const packages = isObject5(raw) ? raw.packages : void 0;
+  if (lockfileVersion !== 2 && lockfileVersion !== 3 || !isObject5(packages)) return refused("unsupported", "unsupported_lockfile", lockfileVersion);
+  const rootValue = Object.hasOwn(packages, "") ? packages[""] : void 0, rootObject = isObject5(rootValue) ? rootValue : null;
   const root = { present: rootValue !== void 0, name: text(rootObject?.name), version: text(rootObject?.version), ...declared(rootObject) };
   const entries = Object.entries(packages).filter(([path4]) => path4 !== "").map(([path4, value]) => lockEntry(path4, value));
   return { parser_version: DEPS_LOCK_VERSION, state: "parsed", reason: null, lockfile_version: lockfileVersion, root, entries };
 }
+function parseDepsLock(content, filename2) {
+  const size = typeof content === "string" ? Buffer.byteLength(content) : content.byteLength;
+  if (size > DEPS_LOCK_BYTES) throw Error("deps_lock_oversize");
+  const buf = typeof content === "string" ? Buffer.from(content, "utf8") : Buffer.from(content.buffer, content.byteOffset, content.byteLength);
+  let decoded;
+  try {
+    decoded = typeof content === "string" ? content.charCodeAt(0) === 65279 ? content.slice(1) : content : utf8(buf);
+  } catch {
+    const base = filename2?.split("/").at(-1);
+    return refused("malformed", base === "pnpm-lock.yaml" || base === "yarn.lock" ? "malformed_lockfile" : "malformed_json");
+  }
+  const format = detectFormat(decoded, filename2);
+  if (format === "npm") return parseNpmLock(decoded);
+  if (!screenTextLock(buf, decoded)) return refused("credential_shaped", "credential_shaped_content");
+  if (format === "pnpm") {
+    let raw;
+    try {
+      raw = parseLockYaml(decoded);
+    } catch {
+      return refused("malformed", "malformed_lockfile");
+    }
+    try {
+      screenedJson(raw, DEPS_LOCK_BYTES * 2);
+    } catch (e) {
+      if (e.code === "security.secret") return refused("credential_shaped", "credential_shaped_content");
+      return refused("malformed", "malformed_lockfile");
+    }
+    const { lock: lock2, graph: graph2 } = parsePnpmLock(raw, DEPS_LOCK_VERSION);
+    if (graph2) directGraphs.set(lock2, graph2);
+    return lock2;
+  }
+  const { lock, graph } = parseYarnLock(decoded, DEPS_LOCK_VERSION);
+  if (graph) directGraphs.set(lock, graph);
+  return lock;
+}
 var indexes = /* @__PURE__ */ new WeakMap();
-var bytewise = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+var bytewise3 = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 function placeOf(path4) {
   const segments = path4.split("/"), up = segments.findIndex((s) => s !== ".."), rest = up < 0 ? [] : segments.slice(up);
   if (path4.includes("\\") || !rest.length || rest.some((s) => s === "" || s === "." || s === "..")) return "unplaced";
@@ -128460,13 +129713,21 @@ function resolveDependency(lock, from, name) {
   }
 }
 function dependentsOf(lock, path4) {
+  if (lock.state !== "parsed" || !lock.root) throw Error("deps_lock_not_parsed");
+  const direct = directGraphs.get(lock);
+  if (direct) {
+    const entry2 = lock.entries.find((e) => e.path === path4);
+    if (!entry2) throw Error("deps_lock_unknown_entry");
+    if (!entry2.name || entry2.kind === "first_party") return { dependents: [], unread: [] };
+    return direct.byEntry.get(path4) ?? { dependents: [], unread: [] };
+  }
   const index = lockIndex(lock), entry = lock.entries.find((e) => e.path === path4);
   if (!entry) throw Error("deps_lock_unknown_entry");
   if (!entry.name || !index.installed.has(path4)) return { dependents: [], unread: [] };
   const name = entry.name;
-  const dependents = (index.declarers.get(name) ?? []).filter((d) => resolveDependency(lock, d.path, name) === path4).sort((a, b) => bytewise(a.path, b.path) || bytewise(a.field, b.field));
+  const dependents = (index.declarers.get(name) ?? []).filter((d) => resolveDependency(lock, d.path, name) === path4).sort((a, b) => bytewise3(a.path, b.path) || bytewise3(a.field, b.field));
   const unplaced = index.unplaced.filter((n) => DEPS_RANGE_FIELDS.some((f) => n.declared[f] === null || Object.hasOwn(n.declared[f], name)));
-  const unread = [...index.unread.filter((n) => resolveDependency(lock, n.path, name) === path4), ...unplaced].map((n) => n.path).sort(bytewise);
+  const unread = [...index.unread.filter((n) => resolveDependency(lock, n.path, name) === path4), ...unplaced].map((n) => n.path).sort(bytewise3);
   return { dependents, unread };
 }
 
@@ -128484,11 +129745,50 @@ var DepsFindingInput = external_exports.strictObject({
   current: external_exports.boolean(),
   affected: external_exports.strictObject({ intervals: external_exports.array(DepsAffectedInterval).max(1e4), versions: external_exports.array(version4).max(1e5) })
 });
-var isObject4 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-var bytewise2 = (a, b) => a < b ? -1 : a > b ? 1 : 0;
-var highest = (a, b) => import_semver2.default.rcompare(a, b) || bytewise2(a, b);
+var isObject6 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+var bytewise4 = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+var highest = (a, b) => import_semver2.default.rcompare(a, b) || bytewise4(a, b);
 var contains = (i, v) => (i.lower === null || import_semver2.default.gte(v, i.lower)) && (i.upper === null || (i.upper_kind === "last_affected" ? import_semver2.default.lte(v, i.upper) : import_semver2.default.lt(v, i.upper)));
 var affects = (f, v) => f.affected.intervals.some((i) => contains(i, v)) || f.affected.versions.some((x) => import_semver2.default.eq(x, v));
+function parseManifestOverrides(siblingBytes, siblingUnreadable, lockPath = "package-lock.json") {
+  if (!siblingBytes) return { overrides: { state: siblingUnreadable ? "unreadable" : "absent" }, siblingSafe: false };
+  let overrides = { state: "unreadable" };
+  let siblingSafe = false;
+  try {
+    const buf = Buffer.from(siblingBytes.buffer, siblingBytes.byteOffset, siblingBytes.byteLength);
+    const manifest = JSON.parse(utf8(buf));
+    screenedJson(manifest, 512 * 1024);
+    siblingSafe = true;
+    if (isObject6(manifest)) {
+      const base = lockPath.split("/").at(-1);
+      if (base === "pnpm-lock.yaml") {
+        const pnpmVal = Object.hasOwn(manifest, "pnpm") ? manifest.pnpm : void 0;
+        if (pnpmVal !== void 0 && !isObject6(pnpmVal)) return { overrides: { state: "unreadable" }, siblingSafe };
+        const hasNpm = Object.hasOwn(manifest, "overrides");
+        const hasPnpm = isObject6(pnpmVal) && Object.hasOwn(pnpmVal, "overrides");
+        if (!hasNpm && !hasPnpm) overrides = { state: "absent" };
+        else if (hasNpm && hasPnpm) {
+          overrides = isObject6(manifest.overrides) && isObject6(pnpmVal.overrides) ? { state: "present", value: { ".npm": manifest.overrides, ".pnpm": pnpmVal.overrides } } : { state: "unreadable" };
+        } else {
+          overrides = { state: "present", value: hasPnpm ? pnpmVal.overrides : manifest.overrides };
+        }
+      } else if (base === "yarn.lock") {
+        const hasRes = Object.hasOwn(manifest, "resolutions");
+        const hasOvr = Object.hasOwn(manifest, "overrides");
+        if (!hasRes && !hasOvr) overrides = { state: "absent" };
+        else if (hasRes && hasOvr) {
+          overrides = isObject6(manifest.resolutions) && isObject6(manifest.overrides) ? { state: "present", value: { ".yarn": manifest.resolutions, ".npm": manifest.overrides } } : { state: "unreadable" };
+        } else {
+          overrides = { state: "present", value: hasRes ? manifest.resolutions : manifest.overrides };
+        }
+      } else {
+        overrides = Object.hasOwn(manifest, "overrides") ? { state: "present", value: manifest.overrides } : { state: "absent" };
+      }
+    }
+  } catch {
+  }
+  return { overrides, siblingSafe };
+}
 function fixedVersion(f, installed) {
   const holding = f.affected.intervals.filter((i) => contains(i, installed));
   if (!holding.length || holding.some((i) => i.upper_kind !== "fixed")) return null;
@@ -128506,8 +129806,8 @@ function planCandidates(lock, input2) {
   const { findings, entries } = parsedFindings(lock, input2);
   const byEntry = /* @__PURE__ */ new Map();
   for (const f of findings) byEntry.set(f.entry, [...byEntry.get(f.entry) ?? [], f]);
-  const occurrences = [...byEntry.keys()].sort(bytewise2).map((path4) => {
-    const entry = entries.get(path4), on = byEntry.get(path4).sort((a, b) => bytewise2(a.finding_id, b.finding_id));
+  const occurrences = [...byEntry.keys()].sort(bytewise4).map((path4) => {
+    const entry = entries.get(path4), on = byEntry.get(path4).sort((a, b) => bytewise4(a.finding_id, b.finding_id));
     const installed = entry.kind === "registry" ? entry.version : null;
     const fixed = on.map((f) => ({ finding_id: f.finding_id, fixed_version: installed ? fixedVersion(f, installed) : null }));
     const group = fixed.filter((f) => f.fixed_version).map((f) => f.finding_id);
@@ -128534,15 +129834,18 @@ function candidateRequests(plan) {
 var semverRange = (range2) => !/[:/\\]/.test(range2) && import_semver2.default.validRange(range2, { loose: true }) !== null;
 var satisfies = (v, range2) => ["", "*"].includes(range2.trim()) || import_semver2.default.satisfies(v, range2, { loose: true });
 function overrideKeyName(key) {
-  const at = key.indexOf("@", key.startsWith("@") ? 1 : 0);
-  return at < 0 ? key : key.slice(0, at);
+  const afterArrow = key.includes(">") ? key.slice(key.lastIndexOf(">") + 1).trim() : key;
+  const segs = afterArrow.split("/");
+  const spec = segs.length >= 2 ? segs.at(-2).startsWith("@") ? `${segs.at(-2)}/${segs.at(-1)}` : segs.at(-1) : afterArrow;
+  const at = spec.indexOf("@", spec.startsWith("@") ? 1 : 0);
+  return at < 0 ? spec : spec.slice(0, at);
 }
 function overridesName(value, name) {
-  if (!isObject4(value)) return null;
+  if (!isObject6(value)) return null;
   for (const stack = [value]; stack.length; ) {
     for (const [key, v] of Object.entries(stack.pop())) {
       if (overrideKeyName(key) === name) return true;
-      if (isObject4(v)) stack.push(v);
+      if (isObject6(v)) stack.push(v);
       else if (typeof v !== "string") return null;
     }
   }
@@ -128550,20 +129853,20 @@ function overridesName(value, name) {
 }
 function pairs(raw) {
   if (raw === void 0) return [];
-  if (!isObject4(raw)) return null;
+  if (!isObject6(raw)) return null;
   const out = Object.entries(raw);
-  return out.every((p) => typeof p[1] === "string") ? out.sort(([a], [b]) => bytewise2(a, b)) : null;
+  return out.every((p) => typeof p[1] === "string") ? out.sort(([a], [b]) => bytewise4(a, b)) : null;
 }
 function manifestEdges(manifest, name, expected) {
-  if (!isObject4(manifest) || manifest.name !== name || manifest.version !== expected) return null;
+  if (!isObject6(manifest) || manifest.name !== name || manifest.version !== expected) return null;
   const dependencies = pairs(manifest.dependencies), optional2 = pairs(manifest.optionalDependencies), peer = pairs(manifest.peerDependencies);
   const meta3 = manifest.peerDependenciesMeta === void 0 ? {} : manifest.peerDependenciesMeta;
   const bundle = Object.hasOwn(manifest, "bundleDependencies") ? manifest.bundleDependencies : manifest.bundledDependencies;
-  if (!dependencies || !optional2 || !peer || !isObject4(meta3)) return null;
+  if (!dependencies || !optional2 || !peer || !isObject6(meta3)) return null;
   const bundled = bundle === true ? dependencies.map(([n]) => n) : bundle === void 0 || bundle === false ? [] : Array.isArray(bundle) && bundle.every((n) => typeof n === "string") ? bundle : null;
   if (!bundled) return null;
-  const optionalPeer = (n) => Object.hasOwn(meta3, n) && isObject4(meta3[n]) && meta3[n].optional === true;
-  return digest({ dependencies, optional: optional2, peer: peer.map(([n, r]) => [n, r, optionalPeer(n)]), bundled: [...new Set(bundled)].sort(bytewise2) });
+  const optionalPeer = (n) => Object.hasOwn(meta3, n) && isObject6(meta3[n]) && meta3[n].optional === true;
+  return digest({ dependencies, optional: optional2, peer: peer.map(([n, r]) => [n, r, optionalPeer(n)]), bundled: [...new Set(bundled)].sort(bytewise4) });
 }
 function occurrenceFacts(lock, overrides, plan, evidence) {
   const ev = Object.hasOwn(evidence, plan.entry) ? evidence[plan.entry] : void 0;
@@ -128599,12 +129902,13 @@ function occurrenceFacts(lock, overrides, plan, evidence) {
 function classify(lock, overrides, input2, plan, evidence) {
   const { findings, entries } = parsedFindings(lock, input2);
   if (digest(plan) !== digest(planCandidates(lock, findings))) throw Error("deps_facts_plan_mismatch");
+  const format = lockFormatOf(lock);
   const plans = new Map(plan.occurrences.map((o) => [o.entry, o]));
   const facts = new Map([...plans].map(([path4, o]) => [path4, occurrenceFacts(lock, overrides, o, evidence)]));
   return { facts_version: DEPS_FACTS_VERSION, lockfile_version: lock.lockfile_version, findings: findings.map((f) => {
     const entry = entries.get(f.entry), o = plans.get(f.entry), { manual, ...shared } = facts.get(f.entry);
     const fixed_version = o.fixed_versions.find((v) => v.finding_id === f.finding_id).fixed_version;
-    const cls = f.held || !f.current || entry.kind !== "registry" ? "verify_occurrence" : !fixed_version ? "no_fix_published" : manual ? "manual_fix_selection" : shared.blocking_total ? "range_change_needed" : lock.lockfile_version !== 3 || shared.edges_unchanged !== true ? "multi_entry_upgrade" : "single_entry_upgrade";
+    const cls = f.held || !f.current || entry.kind !== "registry" ? "verify_occurrence" : !fixed_version ? "no_fix_published" : manual ? "manual_fix_selection" : shared.blocking_total ? "range_change_needed" : format !== "npm" || lock.lockfile_version !== 3 || shared.edges_unchanged !== true ? "multi_entry_upgrade" : "single_entry_upgrade";
     return { finding_id: f.finding_id, entry: f.entry, class: cls, dev_only: entry.dev, fixed_version, ...shared };
   }) };
 }
@@ -129067,8 +130371,8 @@ var DepsDiscoveryExtension = external_exports.strictObject({
     entries: external_exports.array(external_exports.strictObject({ entry: external_exports.string(), reason: external_exports.string() })).max(DEPS_NOT_CHECKED_SHOWN)
   })
 });
-var isObject5 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
-var bytewise3 = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+var isObject7 = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
+var bytewise5 = (a, b) => a < b ? -1 : a > b ? 1 : 0;
 var iso = (value) => new Date(value).toISOString();
 var short = (...parts) => reportHash(parts).slice(0, 32);
 var shown = (text3, max = 300) => {
@@ -129160,17 +130464,26 @@ var RATIONALE = {
   no_fix_published: (_f, o) => `No fixed version is published for the affected range that contains ${o.name ?? "this package"} ${o.installed ?? ""}.`.replace(" .", "."),
   manual_fix_selection: (f) => `A fixed version exists but no upgrade could be selected automatically (${[...f.candidate_reasons, ...f.range_reasons].join(", ") || "no valid candidate"}). Choose the fix by hand.`,
   range_change_needed: (f, o) => `${o.name} ${f.candidate} fixes this, but ${f.blocking_total} declared range${f.blocking_total === 1 ? "" : "s"} exclude${f.blocking_total === 1 ? "s" : ""} it: ` + f.blocking_dependents.map((d) => `${shown(d.path || "(root)", 120)} ${d.field} "${shown(d.range, 60)}"`).join("; ") + (f.blocking_total > f.blocking_dependents.length ? `; and ${f.blocking_total - f.blocking_dependents.length} more` : "") + ". A dependent's range must change first.",
-  multi_entry_upgrade: (f, o, v) => `Upgrade ${o.name} at ${shown(o.entry, 200)} from ${o.installed} to ${f.candidate}. Every dependent's declared range accepts it, but ` + (v !== 3 ? "this lockfileVersion 2 file also carries the legacy dependency tree" : "its dependency edges differ from the installed version's, or could not be read") + ", so more than one lock entry changes.",
+  multi_entry_upgrade: (f, o, v, fmt) => `Upgrade ${o.name} at ${shown(o.entry, 200)} from ${o.installed} to ${f.candidate}. Every dependent's declared range accepts it, but ` + (fmt !== "npm" ? `this ${fmt === "pnpm" ? "pnpm-lock.yaml" : "yarn.lock"} lockfile updates with ${fmt}` : v !== 3 ? "this lockfileVersion 2 file also carries the legacy dependency tree" : "its dependency edges differ from the installed version's, or could not be read") + ", so more than one lock entry changes.",
   single_entry_upgrade: (f, o) => `Change the one lock entry ${shown(o.entry, 200)} from ${o.name} ${o.installed} to ${f.candidate}. Every dependent's declared range accepts ${f.candidate}, and its registry manifest declares the same dependency edges as ${o.installed}.`
 };
 var UNCERTAINTIES = ["Engine constraints, install scripts and behavior changes of another version are not assessed.", "Runtime reachability and exploitability are not assessed."];
-var PRECONDITIONS = {
-  verify_occurrence: ["Resolve the listed holds."],
-  no_fix_published: ["Watch the advisory for a fixed version, or replace or remove the dependency."],
-  manual_fix_selection: ["Select a fixed version that every dependent accepts."],
-  range_change_needed: ["Change the listed dependents' declared ranges, or upgrade those dependents."],
-  multi_entry_upgrade: ["Regenerate the lockfile with npm and review every changed entry.", "Run the project's tests."],
-  single_entry_upgrade: ["Regenerate the lockfile with npm and confirm that one entry changed.", "Run the project's tests."]
+var preconditionsFor = (cls, format) => {
+  const tool = format === "pnpm" ? "pnpm" : format === "yarn" ? "yarn" : "npm";
+  switch (cls) {
+    case "verify_occurrence":
+      return ["Resolve the listed holds."];
+    case "no_fix_published":
+      return ["Watch the advisory for a fixed version, or replace or remove the dependency."];
+    case "manual_fix_selection":
+      return ["Select a fixed version that every dependent accepts."];
+    case "range_change_needed":
+      return ["Change the listed dependents' declared ranges, or upgrade those dependents."];
+    case "multi_entry_upgrade":
+      return [`Regenerate the lockfile with ${tool} and review every changed entry.`, "Run the project's tests."];
+    case "single_entry_upgrade":
+      return ["Regenerate the lockfile with npm and confirm that one entry changed.", "Run the project's tests."];
+  }
 };
 async function staticDeps(lockfile, capabilities, dependabot) {
   const { http: http3, now, limits, signal, cache } = capabilities, path4 = lockfile.path;
@@ -129210,36 +130523,42 @@ async function staticDeps(lockfile, capabilities, dependabot) {
   } });
   const registry2 = client2("npm-registry"), osv = client2("osv");
   const startedAt = new Date(now()).toISOString();
-  const lock = parseDepsLock(lockfile.bytes);
-  if (lock.state !== "parsed") return { outcome: "skipped", reason: lock.state === "credential_shaped" ? "credential_shaped_content" : lock.state === "unsupported" ? "unsupported_lockfile" : "malformed_json", requests: state3.requests };
+  const lock = parseDepsLock(lockfile.bytes, path4);
+  if (lock.state !== "parsed") {
+    const skipReason = lock.state === "credential_shaped" ? "credential_shaped_content" : lock.state === "unsupported" ? "unsupported_lockfile" : lock.reason === "malformed_lockfile" ? "malformed_lockfile" : "malformed_json";
+    return { outcome: "skipped", reason: skipReason, requests: state3.requests };
+  }
+  const format = lockFormatOf(lock);
   const entries = lock.entries;
   const registryEntries = entries.filter((e) => e.kind === "registry");
   const notChecked = /* @__PURE__ */ new Map();
   for (const e of entries) if (e.kind === "held") notChecked.set(e.path, e.hold_reason ?? "unsupported_entry");
   const identityKey = (e) => JSON.stringify([e.name, e.version, e.resolved, e.integrity]);
-  const pairs2 = [...new Set(registryEntries.map((e) => JSON.stringify([e.name, e.version])))].sort(bytewise3);
+  const pairs2 = [...new Set(registryEntries.map((e) => JSON.stringify([e.name, e.version])))].sort(bytewise5);
   const admitted = new Set(pairs2.filter((p) => !limits.admitted_identities || limits.admitted_identities.has(p)).slice(0, limits.max_identities));
   const verified = /* @__PURE__ */ new Map();
-  for (const e of [...registryEntries].sort((a, b) => bytewise3(a.path, b.path))) {
+  for (const e of [...registryEntries].sort((a, b) => bytewise5(a.path, b.path))) {
     if (!admitted.has(JSON.stringify([e.name, e.version]))) {
       notChecked.set(e.path, "identity_limit");
       continue;
     }
     const key = identityKey(e);
+    const isYarnBerryChecksum = e.integrity.startsWith("yarn-berry-sha512:");
     if (!Object.hasOwn(state3.identities, key)) {
-      const hit = await cache?.get(e.name, e.version, e.integrity) ?? null;
+      const hit = !isYarnBerryChecksum ? await cache?.get(e.name, e.version, e.integrity) ?? null : null;
       if (hit && hit.name === e.name && hit.version === e.version && hit.tarball === e.resolved && hit.integrity === e.integrity) {
         state3.identities[key] = { state: "verified", tarball: hit.tarball, integrity: hit.integrity, manifest: hit.manifest, confirmed_at: new Date(now()).toISOString() };
       } else {
         try {
           const response = await registry2.json(`${REGISTRY}/${encodeURIComponent(e.name)}/${encodeURIComponent(e.version)}`);
           const m = RegistryManifest.safeParse(response.body);
+          const sriOk = m.success && /^sha(?:256|384|512)-[A-Za-z0-9+/]+=*$/.test(m.data.dist.integrity);
           if (!m.success || m.data.name !== e.name || m.data.version !== e.version) state3.identities[key] = { state: "unverified", reason: "public_identity_unverified" };
-          else if (m.data.dist.tarball !== e.resolved || m.data.dist.integrity !== e.integrity) state3.identities[key] = { state: "unverified", reason: "public_identity_mismatch" };
+          else if (m.data.dist.tarball !== e.resolved || (isYarnBerryChecksum ? !sriOk : m.data.dist.integrity !== e.integrity)) state3.identities[key] = { state: "unverified", reason: "public_identity_mismatch" };
           else {
             const facts2 = manifestFacts(m.data);
-            state3.identities[key] = { state: "verified", tarball: e.resolved, integrity: e.integrity, manifest: facts2, confirmed_at: iso(response.retrieved_at) };
-            await cache?.put({ name: e.name, version: e.version, tarball: e.resolved, integrity: e.integrity, manifest: facts2 });
+            state3.identities[key] = { state: "verified", tarball: e.resolved, integrity: m.data.dist.integrity, manifest: facts2, confirmed_at: iso(response.retrieved_at) };
+            if (!isYarnBerryChecksum) await cache?.put({ name: e.name, version: e.version, tarball: e.resolved, integrity: e.integrity, manifest: facts2 });
           }
         } catch (error63) {
           if (error63 instanceof DepsCheckError) throw error63;
@@ -129253,7 +130572,7 @@ async function staticDeps(lockfile, capabilities, dependabot) {
     else notChecked.set(e.path, identity.reason);
   }
   const checked = registryEntries.filter((e) => verified.has(e.path));
-  const occurrences = checked.map((e) => ({ entry: e.path, name: e.name, version: e.version, resolved: e.resolved, integrity: e.integrity, dev: e.dev, optional: e.optional }));
+  const occurrences = checked.map((e) => ({ entry: e.path, name: e.name, version: e.version, resolved: e.resolved, integrity: verified.get(e.path).integrity, dev: e.dev, optional: e.optional }));
   const queried = async (occ, slot) => {
     try {
       return state3[slot] = await queryOsv(osv, occ, state3[slot], async (cp) => {
@@ -129273,11 +130592,12 @@ async function staticDeps(lockfile, capabilities, dependabot) {
     evidence.set(e.evidence_id, e);
     return e.evidence_id;
   };
+  const lockMediaType = format === "pnpm" ? "application/yaml" : format === "yarn" ? "text/plain" : "application/json";
   const lockEvidence = cite({
     evidence_id: "ev-lockfile",
     sha256: lockfile.sha256,
     bytes: lockfile.bytes.byteLength,
-    media_type: "application/json",
+    media_type: lockMediaType,
     classification: "restricted",
     kind: "npm-lockfile",
     origin: "repository blob at the pinned commit",
@@ -129317,7 +130637,7 @@ async function staticDeps(lockfile, capabilities, dependabot) {
   }
   for (const [ordinal, q] of (osvState.quarantined ?? []).entries()) quarantine("osv", q.sha256, ordinal, q.reason, iso(q.retrieved_at));
   for (const e of checked) {
-    for (const id2 of [...hits.get(JSON.stringify([e.name, e.version])) ?? []].sort(bytewise3)) {
+    for (const id2 of [...hits.get(JSON.stringify([e.name, e.version])) ?? []].sort(bytewise5)) {
       const r = records.get(id2);
       if (!r) continue;
       const record2 = r.record, canonical2 = canonicalJson(record2), recordDigest = sha256(canonical2), match = osvMatch(record2, e.name, e.version);
@@ -129333,7 +130653,7 @@ async function staticDeps(lockfile, capabilities, dependabot) {
         artifact_id: null,
         git: null
       });
-      const occurrence = dependencyOccurrence(path4, e), severity2 = isObject5(record2.database_specific) && typeof record2.database_specific.severity === "string" ? record2.database_specific.severity : "";
+      const occurrence = dependencyOccurrence(path4, e), severity2 = isObject7(record2.database_specific) && typeof record2.database_specific.severity === "string" ? record2.database_specific.severity : "";
       const observation = {
         kind: "source_observation",
         observation_id: `obs-${short("osv", record2.id, occurrence.key)}`,
@@ -129424,7 +130744,7 @@ async function staticDeps(lockfile, capabilities, dependabot) {
     }
   }
   const findings = [], inputs = [], cves = /* @__PURE__ */ new Map();
-  for (const g of [...groups.values()].sort((a, b) => bytewise3(a.entry.path, b.entry.path) || bytewise3(a.flaw, b.flaw))) {
+  for (const g of [...groups.values()].sort((a, b) => bytewise5(a.entry.path, b.entry.path) || bytewise5(a.flaw, b.flaw))) {
     const affected = g.osv.filter((o) => o.match.state === "affected"), held = g.osv.filter((o) => o.match.state === "held"), outside = g.osv.filter((o) => o.match.state === "not-affected");
     if (!affected.length && !held.length && !g.alerts.length) {
       for (const o of outside) dispositions.push({ observation_id: o.observation.observation_id, kind: "refuted", reason: "outside_affected_range", attribution: ASSESSOR, evidence_ids: o.observation.evidence_ids, finding_id: null, quarantine_receipt_id: null });
@@ -129439,7 +130759,7 @@ async function staticDeps(lockfile, capabilities, dependabot) {
       ...range2 ? [] : ["affected_range_unreadable"]
     ])].filter((h) => /^[a-z][a-z0-9_]*$/.test(h));
     const id2 = `deps-${short(path4, g.entry.path, g.flaw)}`, members2 = [...g.osv.map((o) => o.observation), ...g.alerts.map((a) => a.observation)];
-    const aliases = [.../* @__PURE__ */ new Set([g.flaw, ...g.osv.flatMap((o) => [o.record.id, ...o.record.aliases ?? []]), ...g.alerts.flatMap((a) => [a.alert.security_advisory.ghsa_id, ...a.alert.security_advisory.cve_id ? [a.alert.security_advisory.cve_id] : []])])].filter((s) => CVE.test(s) || GHSA.test(s) || s === g.flaw).sort(bytewise3);
+    const aliases = [.../* @__PURE__ */ new Set([g.flaw, ...g.osv.flatMap((o) => [o.record.id, ...o.record.aliases ?? []]), ...g.alerts.flatMap((a) => [a.alert.security_advisory.ghsa_id, ...a.alert.security_advisory.cve_id ? [a.alert.security_advisory.cve_id] : []])])].filter((s) => CVE.test(s) || GHSA.test(s) || s === g.flaw).sort(bytewise5);
     for (const cve of aliases.filter((s) => CVE.test(s))) cves.set(JSON.stringify([g.entry.path, cve]), [...cves.get(JSON.stringify([g.entry.path, cve])) ?? [], id2]);
     const summary2 = g.osv.find((o) => o.record.summary)?.record.summary ?? g.alerts.find((a) => a.alert.security_advisory.summary)?.alert.security_advisory.summary ?? "";
     findings.push({
@@ -129474,7 +130794,7 @@ async function staticDeps(lockfile, capabilities, dependabot) {
     if (!f.assessment.holds.includes("cve_only_match")) f.assessment.holds.push("cve_only_match");
     f.assessment.dependency = "unknown";
     input2.held = true;
-    f.summary = shown(`${f.summary} Shares a CVE with ${[...others].sort(bytewise3).join(", ")}; not merged.`.trim(), 1200);
+    f.summary = shown(`${f.summary} Shares a CVE with ${[...others].sort(bytewise5).join(", ")}; not merged.`.trim(), 1200);
   }
   const plan = planCandidates(lock, inputs);
   const requests = candidateRequests(plan), candidateKey = (r) => JSON.stringify([r.name, r.candidate]);
@@ -129522,17 +130842,17 @@ async function staticDeps(lockfile, capabilities, dependabot) {
   const recommendations = [], plans = new Map(plan.occurrences.map((o) => [o.entry, o]));
   const byRecommendation = /* @__PURE__ */ new Map();
   for (const f of facts.findings) byRecommendation.set(JSON.stringify([f.entry, f.class]), [...byRecommendation.get(JSON.stringify([f.entry, f.class])) ?? [], f]);
-  for (const [, members2] of [...byRecommendation].sort(([a], [b]) => bytewise3(a, b))) {
+  for (const [, members2] of [...byRecommendation].sort(([a], [b]) => bytewise5(a, b))) {
     const first = members2[0], o = plans.get(first.entry), id2 = `rec-${short(path4, first.entry, first.class)}`, upgrade = ["range_change_needed", "multi_entry_upgrade", "single_entry_upgrade"].includes(first.class);
     const open3 = upgrade ? o.finding_ids.filter((x) => !o.closes.includes(x)) : [];
     recommendations.push({
       recommendation_id: id2,
       finding_ids: members2.map((f) => f.finding_id),
       category: `dependency.${first.class}`,
-      rationale: shown(RATIONALE[first.class](first, o, facts.lockfile_version), 2e3),
+      rationale: shown(RATIONALE[first.class](first, o, facts.lockfile_version, format), 2e3),
       scope_ids: [DEPS_BODY_SCOPE],
       evidence_ids: [lockEvidence],
-      preconditions: PRECONDITIONS[first.class],
+      preconditions: preconditionsFor(first.class, format),
       uncertainties: [...UNCERTAINTIES, ...open3.length ? [`This upgrade does not close ${open3.slice(0, 10).join(", ")}${open3.length > 10 ? ` and ${open3.length - 10} more` : ""} on the same occurrence.`] : []],
       requires_human_review: true
     });
@@ -129552,7 +130872,7 @@ async function staticDeps(lockfile, capabilities, dependabot) {
     baseline_receipt: `blob-${lockfile.git_blob}`,
     observation_ids: []
   };
-  const osvRead = reportHash([(osvState.hits ?? []).map((h) => [h.name, h.version, h.id, h.modified]), [...records.keys()].sort(bytewise3)]);
+  const osvRead = reportHash([(osvState.hits ?? []).map((h) => [h.name, h.version, h.id, h.modified]), [...records.keys()].sort(bytewise5)]);
   const osvComponent = {
     id: DEPS_COMPONENTS.osv,
     version: `${DEPS_OSV_VERSION}/${DEPS_IDENTITY_VERSION}`,
@@ -129603,9 +130923,9 @@ async function staticDeps(lockfile, capabilities, dependabot) {
       package: names.get(f.entry)?.name ?? null,
       installed: names.get(f.entry)?.version ?? null,
       blocking_dependents: f.blocking_dependents.map((d) => ({ path: shown(d.path, 300), field: d.field, range: shown(d.range, 100) })),
-      related_finding_ids: [...related.get(f.finding_id) ?? []].sort(bytewise3)
+      related_finding_ids: [...related.get(f.finding_id) ?? []].sort(bytewise5)
     })),
-    not_checked: { total: notChecked.size, by_reason: byReason, entries: [...notChecked].sort(([a], [b]) => bytewise3(a, b)).slice(0, DEPS_NOT_CHECKED_SHOWN).map(([entry, reason]) => ({ entry: shown(entry, 300), reason })) }
+    not_checked: { total: notChecked.size, by_reason: byReason, entries: [...notChecked].sort(([a], [b]) => bytewise5(a, b)).slice(0, DEPS_NOT_CHECKED_SHOWN).map(([entry, reason]) => ({ entry: shown(entry, 300), reason })) }
   });
   const body2 = {
     check: { id: DEPS_CHECK_ID, version: DEPS_CHECK_VERSION },
@@ -129630,7 +130950,7 @@ var COPIED_KEYS = ["license", "engines", "os", "cpu", "libc", "bin", "funding", 
 var DERIVED_KEYS = [...IDENTITY_KEYS, ...COPIED_KEYS];
 
 // src/version.ts
-var ACTION_VERSION = "0.2.2";
+var ACTION_VERSION = "0.3.0";
 
 // src/agentcloud.ts
 var DEFAULT_AGENTCLOUD_URL = "https://agent.cloud";
@@ -129946,7 +131266,7 @@ import { join as join2, sep as sep3 } from "node:path";
 // vendor/security-checks/src/baseline-profile.ts
 var BASELINE = {
   id: "discovery-deps-v1",
-  revision: 2,
+  revision: 3,
   components: {
     check: DEPS_CHECK_ID,
     check_version: DEPS_CHECK_VERSION,
@@ -129958,12 +131278,10 @@ var BASELINE = {
     fix_facts: DEPS_FACTS_VERSION,
     renderer: "security-report-html/1"
   },
-  lock: { filename: "package-lock.json", versions: [2, 3], section: "packages", count: 25, order: "shallowest_then_bytewise", bytes: DEPS_LOCK_BYTES, run_bytes: 20 * 1024 ** 2, package_bytes: 256 * 1024 },
+  lock: { filename: "package-lock.json", filenames: DEPS_LOCK_FILENAMES, versions: [2, 3], section: "packages", count: 25, order: "shallowest_then_bytewise", bytes: DEPS_LOCK_BYTES, run_bytes: 20 * 1024 ** 2, package_bytes: 256 * 1024 },
   responses: { commit: 8 * 1024 ** 2, tree: 8 * 1024 ** 2, blob: DEPS_LOCK_BYTES, alerts: 4 * 1024 ** 2 },
   other_inputs: [
     "npm-shrinkwrap.json",
-    "yarn.lock",
-    "pnpm-lock.yaml",
     "bun.lock",
     "bun.lockb",
     "deno.lock",
@@ -130021,7 +131339,7 @@ var BASELINE = {
   model_and_provider_spend: 0,
   retention: "DFBASE-16"
 };
-var BASELINE_DIGEST = "b0e65639847efc7fc9140dcfbdec38e817024541d01c8e14ab9a957d0de9f714";
+var BASELINE_DIGEST = "ff2b3ebba24d98f7a617033b1c075aa68422be335abd87c0bc5d5451b402f93e";
 var BASELINE_SETTING = `${BASELINE.id}:${BASELINE.revision}:${BASELINE_DIGEST}`;
 
 // src/checkout.ts
@@ -130084,25 +131402,11 @@ function walkCheckout(root) {
   walk(root, "");
   return visible;
 }
-function parseOverrides(siblingBytes, siblingUnreadable) {
-  if (!siblingBytes) return { overrides: { state: siblingUnreadable ? "unreadable" : "absent" }, siblingSafe: false };
-  let overrides = { state: "unreadable" };
-  let siblingSafe = false;
-  try {
-    const manifest = JSON.parse(utf8(siblingBytes));
-    screenedJson(manifest, 512 * 1024);
-    siblingSafe = true;
-    if (manifest && typeof manifest === "object" && !Array.isArray(manifest)) {
-      overrides = Object.hasOwn(manifest, "overrides") ? { state: "present", value: manifest.overrides } : { state: "absent" };
-    }
-  } catch {
-  }
-  return { overrides, siblingSafe };
-}
 function acquireCheckout(checkoutDir) {
   const root = realpathSync(checkoutDir);
   const visible = walkCheckout(root);
-  const candidates = [...visible.values()].filter((e) => filename(e.path) === BASELINE.lock.filename).sort((a, b) => a.path.split("/").length - b.path.split("/").length || byPath(a.path, b.path));
+  const lockNames = BASELINE.lock.filenames;
+  const candidates = [...visible.values()].filter((e) => lockNames.includes(filename(e.path))).sort((a, b) => a.path.split("/").length - b.path.split("/").length || byPath(a.path, b.path));
   const locks = [];
   const skipped = [];
   const selectedPaths = [];
@@ -130121,7 +131425,7 @@ function acquireCheckout(checkoutDir) {
       skip(candidate.kind === "symlink" ? "symlink" : "not_regular");
       continue;
     }
-    if (visible.has(keyAt(dir, "npm-shrinkwrap.json"))) {
+    if (filename(path4) === "package-lock.json" && visible.has(keyAt(dir, "npm-shrinkwrap.json"))) {
       skip("npm_shrinkwrap_precedence");
       continue;
     }
@@ -130159,12 +131463,12 @@ function acquireCheckout(checkoutDir) {
       packageJson: siblingBytes ? { path: siblingPath, bytes: siblingBytes } : null,
       packageJsonUnreadable: siblingUnreadable
     });
-    const parsed = parseDepsLock(bytes);
+    const parsed = parseDepsLock(bytes, path4);
     if (parsed.state !== "parsed") {
       skip(parsed.reason ?? "unsupported_lockfile");
       continue;
     }
-    const { overrides, siblingSafe } = parseOverrides(siblingBytes, siblingUnreadable);
+    const { overrides, siblingSafe } = parseManifestOverrides(siblingBytes, siblingUnreadable, path4);
     const pairs2 = [...new Set(parsed.entries.filter((e) => e.kind === "registry").map((e) => JSON.stringify([e.name, e.version])))];
     for (const e of parsed.entries) {
       if (e.kind === "first_party" && !e.path.split("/").includes("node_modules") && exactPath.safeParse(e.path).success) {
@@ -130375,7 +131679,7 @@ function renderSummary(result) {
     }
     lines.push("");
   } else if (result.coverage === "none") {
-    lines.push("No supported `package-lock.json` files were found to analyze.", "");
+    lines.push("No supported lockfiles (`package-lock.json`, `pnpm-lock.yaml` or `yarn.lock`) were found to analyze.", "");
   } else if (result.coverage !== "incomplete") {
     lines.push("No known advisories matched the checked dependencies.", "");
   }
@@ -130788,7 +132092,7 @@ async function prepareSending(runtime, origin, envelope2, delivery) {
   }
   delivery.mode = answer.body.mode;
   runtime.info(
-    answer.body.mode === "runner" ? "agent.cloud has this repository in runner mode: this run sends its report." : "agent.cloud has this repository in agent.cloud mode: this run sends its package-lock.json files and their package.json files."
+    answer.body.mode === "runner" ? "agent.cloud has this repository in runner mode: this run sends its report." : "agent.cloud has this repository in agent.cloud mode: this run sends its selected lockfiles and their package.json files."
   );
   return { client: client2, envelope: envelope2.envelope, mode: answer.body.mode };
 }
@@ -130893,7 +132197,7 @@ async function deliver(runtime, sending, acquired, reportBytes, reportCount, del
   }
   delivery.lockfiles = answer.body.repeated ? "repeated" : "sent";
   runtime.info(
-    `Sent ${plural2(payload.lockfiles, "package-lock.json file")} and their package.json files to agent.cloud${answer.body.repeated ? ", which already had them" : ""}.`
+    `Sent ${plural2(payload.lockfiles, "lockfile")} and their package.json files to agent.cloud${answer.body.repeated ? ", which already had them" : ""}.`
   );
 }
 async function runAction(runtime = createGitHubRuntime()) {

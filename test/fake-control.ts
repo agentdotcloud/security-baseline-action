@@ -124,9 +124,10 @@ function checkReportPayload(raw: Uint8Array): { ok: true; payload: ReportPayload
     return invalid(`The report body is invalid or contains a disallowed field (DFGHR-11): ${parsed.error.issues.slice(0, 3).map((i) => `${i.path.join('.') || 'root'}: ${i.message}`).join('; ')}.`);
   }
   const seen = new Set<string>();
+  const lockNames = P.lock.filenames as readonly string[];
   for (const body of parsed.data.reports) {
     const path = body.lockfile.path;
-    if (path.split('/').at(-1) !== P.lock.filename || body.extension.lockfile.path !== path || seen.has(path)) return invalid(`Lockfile path ${path} is invalid.`);
+    if (!lockNames.includes(path.split('/').at(-1)!) || body.extension.lockfile.path !== path || seen.has(path)) return invalid(`Lockfile path ${path} is invalid.`);
     seen.add(path);
     const nc = body.extension.not_checked;
     if (nc.entries.length > 0) return invalid('Unchecked dependencies must be reported only as counts per reason, never by name (DFGHR-11).');

@@ -1,17 +1,15 @@
-// DFBASE-8, DFBASE-10, DFGHR-9, DFGHR-15, DFGHR-18: read only regular package-lock.json files and their sibling package.json
-// files strictly inside the checkout, in DFBASE-8's exact order and bounds, without following symlinks.
+// DFBASE-8, DFBASE-10, DFBASE-23, DFGHR-9, DFGHR-15, DFGHR-18: read only regular package-lock.json, pnpm-lock.yaml
+// and yarn.lock files and their sibling package.json files strictly inside the checkout, in DFBASE-8's exact order and bounds, without following symlinks.
 import { createHash } from 'node:crypto';
 import { closeSync, fstatSync, lstatSync, openSync, readdirSync, readSync, realpathSync } from 'node:fs';
 import { join, sep } from 'node:path';
 import {
   exactPath,
   parseDepsLock,
+  parseManifestOverrides,
   safeSourceText,
-  screenedJson,
   sha256,
-  utf8,
   type DepsCheckLockfile,
-  type DepsOverridesInput,
 } from '@summationai/security-checks';
 import { BASELINE as P } from '../vendor/security-checks/src/baseline-profile.ts';
 
@@ -116,32 +114,16 @@ function walkCheckout(root: string): Map<string, TreeEntry> {
   return visible;
 }
 
-function parseOverrides(siblingBytes: Buffer | null, siblingUnreadable: boolean): { overrides: DepsOverridesInput; siblingSafe: boolean } {
-  if (!siblingBytes) return { overrides: { state: siblingUnreadable ? 'unreadable' : 'absent' }, siblingSafe: false };
-  let overrides: DepsOverridesInput = { state: 'unreadable' };
-  let siblingSafe = false;
-  try {
-    const manifest = JSON.parse(utf8(siblingBytes));
-    screenedJson(manifest, 512 * 1024);
-    siblingSafe = true;
-    if (manifest && typeof manifest === 'object' && !Array.isArray(manifest)) {
-      overrides = Object.hasOwn(manifest, 'overrides') ? { state: 'present', value: manifest.overrides } : { state: 'absent' };
-    }
-  } catch {
-    // An unreadable or unsafe manifest makes overrides unestablished, never assumed absent (DFBASE-8, DFBASE-13).
-  }
-  return { overrides, siblingSafe };
-}
-
 /**
- * DFBASE-8, DFBASE-10: discover, filter, bound and prepare package-lock.json files from a local checkout,
- * matching DFBASE's worker acquisition rules.
+ * DFBASE-8, DFBASE-10, DFBASE-23: discover, filter, bound and prepare package-lock.json, pnpm-lock.yaml and yarn.lock
+ * files from a local checkout, matching DFBASE's worker acquisition rules.
  */
 export function acquireCheckout(checkoutDir: string): CheckoutAcquisition {
   const root = realpathSync(checkoutDir);
   const visible = walkCheckout(root);
+  const lockNames = P.lock.filenames as readonly string[];
   const candidates = [...visible.values()]
-    .filter((e) => filename(e.path) === P.lock.filename)
+    .filter((e) => lockNames.includes(filename(e.path)))
     .sort((a, b) => a.path.split('/').length - b.path.split('/').length || byPath(a.path, b.path));
 
   const locks: CheckoutLock[] = [];
@@ -163,7 +145,7 @@ export function acquireCheckout(checkoutDir: string): CheckoutAcquisition {
       skip(candidate.kind === 'symlink' ? 'symlink' : 'not_regular');
       continue;
     }
-    if (visible.has(keyAt(dir, 'npm-shrinkwrap.json'))) {
+    if (filename(path) === 'package-lock.json' && visible.has(keyAt(dir, 'npm-shrinkwrap.json'))) {
       skip('npm_shrinkwrap_precedence');
       continue;
     }
@@ -207,13 +189,13 @@ export function acquireCheckout(checkoutDir: string): CheckoutAcquisition {
       packageJsonUnreadable: siblingUnreadable,
     });
 
-    const parsed = parseDepsLock(bytes);
+    const parsed = parseDepsLock(bytes, path);
     if (parsed.state !== 'parsed') {
       skip(parsed.reason ?? 'unsupported_lockfile');
       continue;
     }
 
-    const { overrides, siblingSafe } = parseOverrides(siblingBytes, siblingUnreadable);
+    const { overrides, siblingSafe } = parseManifestOverrides(siblingBytes, siblingUnreadable, path);
     const pairs = [...new Set(parsed.entries.filter((e) => e.kind === 'registry').map((e) => JSON.stringify([e.name, e.version])))];
     for (const e of parsed.entries) {
       if (e.kind === 'first_party' && !e.path.split('/').includes('node_modules') && exactPath.safeParse(e.path).success) {

@@ -1,14 +1,14 @@
 # agent.cloud dependency baseline
 
-A GitHub Action that checks the npm dependencies in your repository's `package-lock.json` files for known
-vulnerabilities. It runs on your own runner, GitHub-hosted or self-hosted, and shows what it found on the run's page.
-Your code stays on your runner, and nothing goes to agent.cloud unless you turn sending on.
+A GitHub Action that checks the npm dependencies in your repository's `package-lock.json`, `pnpm-lock.yaml` and
+`yarn.lock` files for known vulnerabilities. It runs on your own runner, GitHub-hosted or self-hosted, and shows what
+it found on the run's page. Your code stays on your runner, and nothing goes to agent.cloud unless you turn sending on.
 
 ## What it does
 
-1. Reads up to 25 `package-lock.json` files (lockfile versions 2 and 3) in the checkout, and the `package.json` next to
-   each. It never follows a symlink or reads outside the checkout. Other lockfiles, such as `yarn.lock` or
-   `pnpm-lock.yaml`, are counted in the report but not analyzed.
+1. Reads up to 25 lockfiles in the checkout (`package-lock.json` versions 2 and 3, `pnpm-lock.yaml` versions 6 and 9,
+   and `yarn.lock` v1 and Berry), and the `package.json` next to each. It never follows a symlink or reads outside the
+   checkout. Other lockfiles, such as `npm-shrinkwrap.json` or `bun.lock`, are counted in the report but not analyzed.
 2. For each dependency the lockfile says came from `registry.npmjs.org`, asks the public npm registry for that exact
    name and version, and checks that the registry's tarball and integrity hash match the lockfile.
 3. Asks [OSV](https://osv.dev) for known advisories on the dependencies that passed that check.
@@ -78,8 +78,8 @@ Sending is on when the `send-report` input or the `AGENTCLOUD_SEND_REPORT` repos
    ones. The summary and `agentcloud-baseline.json` keep the whole path. No file is sent: no lockfile, no
    `package.json`. A report over 1 MiB isn't sent.
 4. **In agent.cloud mode, instead of a report:** `POST /security/github/runner/lockfiles` with the run's identity
-   (without the start time) and the bytes of each `package-lock.json` the action selected, at most 25, with the
-   `package.json` next to it, plus the paths of the lockfiles it passed over and its counts of other lockfile types.
+   (without the start time) and the bytes of each lockfile the action selected, at most 25, with the `package.json`
+   next to it, plus the paths of the lockfiles it passed over and its counts of other lockfile types.
    agent.cloud runs the same check on those files itself. A file that looks like it holds a credential (a private
    key, a database password, or a GitHub, AWS, Slack, agent.cloud or API token) is never sent: such a lockfile is skipped
    and such a `package.json` as unreadable. The action still scans locally, so the summary and artifact are as above.
@@ -219,6 +219,6 @@ npm run build
 git diff --exit-code dist   # the bundle you built is the one committed here
 ```
 
-`src/` is the action. `vendor/security-checks/` is the dependency check itself, `@summationai/security-checks` 0.3.2,
+`src/` is the action. `vendor/security-checks/` is the dependency check itself, `@summationai/security-checks` 0.4.0,
 copied unchanged with its tests. CI runs the tests and rebuilds the bundle on every pull request and every push to
 `main`, and fails if `dist/` differs from what's committed.

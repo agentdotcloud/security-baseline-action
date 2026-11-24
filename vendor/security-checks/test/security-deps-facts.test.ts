@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { dependentsOf, parseDepsLock, resolveDependency, type DepsLock } from '../src/security-deps-lock.ts';
-import { candidateRequests, classify, DEPS_FACTS_VERSION, DEPS_FIX_CLASSES, planCandidates, type DepsAffectedInterval, type DepsFindingInput, type DepsOccurrenceEvidence, type DepsOverridesInput } from '../src/security-deps-facts.ts';
+import { candidateRequests, classify, DEPS_FACTS_VERSION, DEPS_FIX_CLASSES, parseManifestOverrides, planCandidates, type DepsAffectedInterval, type DepsFindingInput, type DepsOccurrenceEvidence, type DepsOverridesInput } from '../src/security-deps-facts.ts';
 
 const reg = (name: string, version: string, extra: Record<string, unknown> = {}) => ({ version, resolved: `https://registry.npmjs.org/${name}/-/${name.split('/').at(-1)}-${version}.tgz`, integrity: 'sha512-Zml4dHVyZQ==', ...extra });
 const lockOf = (packages: Record<string, unknown>, lockfileVersion = 3) => parseDepsLock(JSON.stringify({ name: 'app', lockfileVersion, requires: true, packages }));
@@ -249,4 +249,43 @@ test('DFBASE-13: facts are deterministic, the plan must be the findings\' own pl
   assert.throws(() => planCandidates(lock, [finding('x', A, [fixed('not-a-version')])]));
   assert.throws(() => planCandidates(parseDepsLock('{'), []), /deps_lock_not_parsed/);
   assert.throws(() => dependentsOf(lock, 'node_modules/none'), /deps_lock_unknown_entry/);
+});
+
+test('DFBASE-23: pnpm-lock.yaml and yarn.lock classify direct upgrades as multi_entry_upgrade, honor blocking ranges, and read pnpm.overrides and resolutions', () => {
+  const pnpmDirect = parseDepsLock([
+    "lockfileVersion: '9.0'",
+    'importers:',
+    '  .:',
+    '    dependencies:',
+    '      semver:',
+    '        specifier: ^7.5.0',
+    '        version: 7.5.1',
+    'packages:',
+    '  semver@7.5.1:',
+    '    resolution: {integrity: sha512-Zml4dHVyZQ==}',
+    'snapshots:',
+    '  semver@7.5.1: {}',
+  ].join('\n'), 'pnpm-lock.yaml');
+  const pEntry = 'pnpm/7.5.1/node_modules/semver';
+  const pOk = facts(pnpmDirect, [finding('f', pEntry, [fixed('7.5.2')])], { [pEntry]: clear('semver', '7.5.1', '7.5.2') });
+  assert.equal(pOk.findings[0]!.class, 'multi_entry_upgrade', 'pnpm upgrades are multi_entry_upgrade, never single_entry_upgrade');
+  const pMajor = facts(pnpmDirect, [finding('f', pEntry, [fixed('8.0.0')])], { [pEntry]: clear('semver', '7.5.1', '8.0.0') });
+  assert.equal(pMajor.findings[0]!.class, 'range_change_needed');
+
+  const pnpmOvr = parseManifestOverrides(Buffer.from(JSON.stringify({ pnpm: { overrides: { 'foo>semver@^7.5.0': '7.5.1' } } })), false, 'pnpm-lock.yaml');
+  const pOvrFacts = facts(pnpmDirect, [finding('f', pEntry, [fixed('7.5.2')])], { [pEntry]: clear('semver', '7.5.1', '7.5.2') }, pnpmOvr.overrides).findings[0]!;
+  assert.deepEqual([pOvrFacts.class, pOvrFacts.range_reasons], ['manual_fix_selection', ['overrides_name_package']]);
+
+  const yarnClassic = parseDepsLock([
+    '# yarn lockfile v1',
+    'semver@^7.5.0:',
+    '  version "7.5.1"',
+    '  resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.1.tgz#0123456789abcdef0123456789abcdef01234567"',
+    '  integrity sha512-Zml4dHVyZQ==',
+  ].join('\n'), 'yarn.lock');
+  const yEntry = 'yarn/7.5.1/node_modules/semver';
+  assert.equal(facts(yarnClassic, [finding('f', yEntry, [fixed('7.5.2')])], { [yEntry]: clear('semver', '7.5.1', '7.5.2') }).findings[0]!.class, 'multi_entry_upgrade');
+  const yarnRes = parseManifestOverrides(Buffer.from(JSON.stringify({ resolutions: { '**/semver': '7.5.1' } })), false, 'yarn.lock');
+  const yResFacts = facts(yarnClassic, [finding('f', yEntry, [fixed('7.5.2')])], { [yEntry]: clear('semver', '7.5.1', '7.5.2') }, yarnRes.overrides).findings[0]!;
+  assert.deepEqual([yResFacts.class, yResFacts.range_reasons], ['manual_fix_selection', ['overrides_name_package']]);
 });

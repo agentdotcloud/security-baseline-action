@@ -68,7 +68,7 @@ test('DFBASE-3: the package entry point reaches only zod, semver, node:crypto an
   assert.deepEqual(graph.packages, ['node:crypto', 'semver', 'zod']);
   assert.deepEqual(graph.unresolved, []);
   assert.deepEqual(graph.modules.filter(m => dirname(m) !== packageSrc), [], 'every module is in packages/security-checks/src');
-  assert.deepEqual(graph.modules.map(m => basename(m)), ['index.ts', 'secret-in.ts', 'security-advisories.ts', 'security-deps-check.ts', 'security-deps-facts.ts', 'security-deps-lock.ts', 'security-deps-repair.ts', 'security-npm.ts',
+  assert.deepEqual(graph.modules.map(m => basename(m)), ['index.ts', 'secret-in.ts', 'security-advisories.ts', 'security-deps-check.ts', 'security-deps-facts.ts', 'security-deps-lock.ts', 'security-deps-pnpm.ts', 'security-deps-repair.ts', 'security-deps-yarn.ts', 'security-npm.ts',
     'security-primitives.ts', 'security-report-coverage.ts', 'security-report-json.ts', 'security-report.ts']);
   for (const name of ['secretIn', 'sha256', 'digest', 'screenedJson', 'npmExactVersion', 'parseDepsLock', 'dependentsOf', 'planCandidates', 'classify', 'DEPS_LOCK_VERSION', 'DEPS_FACTS_VERSION',
     'staticDeps', 'joinDepsReport', 'osvMatch', 'queryOsv', 'repairLockEntry', 'buildLockRepair', 'lockEntryDiff', 'renderRepairPullRequest',

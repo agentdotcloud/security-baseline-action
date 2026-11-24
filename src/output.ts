@@ -146,7 +146,7 @@ export function renderSummary(result: BaselineRunResult): string {
     }
     lines.push('');
   } else if (result.coverage === 'none') {
-    lines.push('No supported `package-lock.json` files were found to analyze.', '');
+    lines.push('No supported lockfiles (`package-lock.json`, `pnpm-lock.yaml` or `yarn.lock`) were found to analyze.', '');
   } else if (result.coverage !== 'incomplete') {
     lines.push('No known advisories matched the checked dependencies.', '');
   }

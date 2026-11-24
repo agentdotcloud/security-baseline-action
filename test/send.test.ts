@@ -268,7 +268,7 @@ test('DFGHR-15: in agent.cloud mode the action sends the selected lockfiles and 
     'apps/api/package-lock.json': lockfile('api'),
     'apps/api/package.json': { name: 'api', description: secret },
     'leaky/package-lock.json': { ...lockfile('leaky'), description: secret },
-    'yarn.lock': '# yarn lockfile v1\n',
+    'bun.lock': '# bun lockfile\n',
   });
   mkdirSync(join(checkout.dir, 'linked'));
   symlinkSync('../package-lock.json', join(checkout.dir, 'linked/package-lock.json'));
@@ -310,7 +310,7 @@ test('DFGHR-15: in agent.cloud mode the action sends the selected lockfiles and 
       { path: 'linked/package-lock.json', reason: 'symlink' },
       { path: 'leaky/package-lock.json', reason: 'credential_shaped_content' },
     ]);
-    assert.deepEqual(payload.inputs_not_analyzed, { 'yarn.lock': 1 });
+    assert.deepEqual(payload.inputs_not_analyzed, { 'bun.lock': 1 });
     assert.ok(!raw.includes(secret), 'no credential leaves the runner');
 
     // The job summary and artifact are written as in runner mode.
@@ -633,4 +633,69 @@ test('DFGHR-20: an invalid agentcloud-url fails the job only when sending is on,
 test("DFGHR-11: the envelope's action_version is this package's version", () => {
   const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string };
   assert.equal(ACTION_VERSION, pkg.version);
+});
+
+test('DFBASE-23, DFGHR-11, DFGHR-15: runner mode sends pnpm and yarn reports with unchecked blocking dependents redacted, and agent.cloud mode sends their lockfiles', async () => {
+  const checkout = makeCheckout({
+    'pnpm-lock.yaml': [
+      "lockfileVersion: '9.0'",
+      'importers:',
+      '  .:',
+      '    dependencies:',
+      '      pub-pkg:',
+      '        specifier: ^1.0.0',
+      '        version: 1.0.0',
+      'packages:',
+      '  pub-pkg@1.0.0:',
+      '    resolution: {integrity: sha512-Zml4dHVyZQ==}',
+      'snapshots:',
+      '  pub-pkg@1.0.0: {}',
+    ].join('\n'),
+    'package.json': { name: 'pnpm-app' },
+    'web/yarn.lock': [
+      '# yarn lockfile v1',
+      '"@acme/corp-secret@^1.0.0":',
+      '  version "1.0.0"',
+      '  resolved "https://npm.internal.example/@acme/corp-secret/-/corp-secret-1.0.0.tgz"',
+      '  integrity sha512-Zml4dHVyZQ==',
+      '  dependencies:',
+      '    pub-pkg "1.0.0"',
+      '',
+      'pub-pkg@1.0.0, pub-pkg@^1.0.0:',
+      '  version "1.0.0"',
+      '  resolved "https://registry.yarnpkg.com/pub-pkg/-/pub-pkg-1.0.0.tgz#0123456789abcdef0123456789abcdef01234567"',
+      '  integrity sha512-Zml4dHVyZQ==',
+    ].join('\n'),
+    'web/package.json': { name: 'yarn-web', dependencies: { 'pub-pkg': '^1.0.0', '@acme/corp-secret': '^1.0.0' } },
+  });
+
+  try {
+    const runner = setup({ mode: 'runner' });
+    const rtRunner = makeRuntime(checkout.dir, runner.net.fetcher, {
+      inputs: { 'send-report': 'true' },
+      env: githubEnv(),
+      getIdToken: runner.oidc.getIdToken,
+    });
+    const execRunner = await runAction(rtRunner.runtime);
+    assert.deepEqual(rtRunner.warnings, []);
+    assert.equal(execRunner.delivery.report, 'sent');
+    assert.equal(runner.control.reports.length, 1);
+    const sentRaw = runner.control.reports[0]!.raw;
+    assert.ok(!sentRaw.includes('corp-secret'), 'private Yarn blocking dependent name is redacted with <unchecked-1>');
+    assert.ok(sentRaw.includes('node_modules/<unchecked-1>'), 'placeholder replaces unchecked package name in Yarn path');
+    assert.deepEqual(runner.control.reports[0]!.payload.reports.map((r) => r.lockfile.path), ['pnpm-lock.yaml', 'web/yarn.lock']);
+
+    const cloud = setup({ mode: 'agent.cloud' });
+    const rtCloud = makeRuntime(checkout.dir, cloud.net.fetcher, {
+      inputs: { 'send-report': 'true' },
+      env: githubEnv(),
+      getIdToken: cloud.oidc.getIdToken,
+    });
+    const execCloud = await runAction(rtCloud.runtime);
+    assert.deepEqual(rtCloud.warnings, []);
+    assert.equal(execCloud.delivery.lockfiles, 'sent');
+    assert.deepEqual(cloud.control.lockfiles[0]!.payload.lockfiles.map((l) => l.path), ['pnpm-lock.yaml', 'web/yarn.lock']);
+  } finally {
+    checkout.cleanup();
+  }
 });
