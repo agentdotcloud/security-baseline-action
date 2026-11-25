@@ -130954,7 +130954,7 @@ var COPIED_KEYS = ["license", "engines", "os", "cpu", "libc", "bin", "funding", 
 var DERIVED_KEYS = [...IDENTITY_KEYS, ...COPIED_KEYS];
 
 // src/version.ts
-var ACTION_VERSION = "0.3.0";
+var ACTION_VERSION = "0.3.2";
 
 // src/agentcloud.ts
 var DEFAULT_AGENTCLOUD_URL = "https://agent.cloud";
