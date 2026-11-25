@@ -129833,18 +129833,22 @@ function candidateRequests(plan) {
 }
 var semverRange = (range2) => !/[:/\\]/.test(range2) && import_semver2.default.validRange(range2, { loose: true }) !== null;
 var satisfies = (v, range2) => ["", "*"].includes(range2.trim()) || import_semver2.default.satisfies(v, range2, { loose: true });
-function overrideKeyName(key) {
-  const afterArrow = key.includes(">") ? key.slice(key.lastIndexOf(">") + 1).trim() : key;
+var selectorName = (selector) => {
+  const at = selector.indexOf("@", selector.startsWith("@") ? 1 : 0);
+  return at < 0 ? selector : selector.slice(0, at);
+};
+function overrideKeyName(key, format) {
+  if (format === "npm") return selectorName(key);
+  const parent = [...key.matchAll(/(?<![ |@:])>/g)].at(-1);
+  const afterArrow = parent ? key.slice(parent.index + 1).trim() : key;
   const segs = afterArrow.split("/");
-  const spec = segs.length >= 2 ? segs.at(-2).startsWith("@") ? `${segs.at(-2)}/${segs.at(-1)}` : segs.at(-1) : afterArrow;
-  const at = spec.indexOf("@", spec.startsWith("@") ? 1 : 0);
-  return at < 0 ? spec : spec.slice(0, at);
+  return selectorName(segs.length >= 2 ? segs.at(-2).startsWith("@") ? `${segs.at(-2)}/${segs.at(-1)}` : segs.at(-1) : afterArrow);
 }
-function overridesName(value, name) {
+function overridesName(value, name, format) {
   if (!isObject6(value)) return null;
   for (const stack = [value]; stack.length; ) {
     for (const [key, v] of Object.entries(stack.pop())) {
-      if (overrideKeyName(key) === name) return true;
+      if (overrideKeyName(key, format) === name) return true;
       if (isObject6(v)) stack.push(v);
       else if (typeof v !== "string") return null;
     }
@@ -129877,7 +129881,7 @@ function occurrenceFacts(lock, overrides, plan, evidence) {
   const none = { candidate: plan.candidate, candidate_valid: false, candidate_reasons, range_ok: null, range_reasons: [], dependents_total: null, blocking_dependents: [], blocking_total: 0, edges_unchanged: null, manual: true };
   if (candidate_reasons.length || !ev) return none;
   const candidate = plan.candidate, name = plan.name, { dependents, unread } = dependentsOf(lock, plan.entry);
-  const named = overrides.state === "absent" ? false : overrides.state === "present" ? overridesName(overrides.value, name) : null;
+  const named = overrides.state === "absent" ? false : overrides.state === "present" ? overridesName(overrides.value, name, lockFormatOf(lock)) : null;
   const manualReasons = [
     ...unread.length ? ["dependent_range_unread"] : [],
     ...dependents.some((d) => !semverRange(d.range)) ? ["dependent_range_not_semver"] : [],
