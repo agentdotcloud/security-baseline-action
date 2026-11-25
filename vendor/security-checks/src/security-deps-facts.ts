@@ -4,7 +4,7 @@
 // evidence to classify. Nothing here reads a file, the network or a clock.
 import semver from 'semver';
 import { z } from 'zod';
-import { dependentsOf, lockFormatOf, type DepsLock, type DepsRangeField } from './security-deps-lock.ts';
+import { dependentsOf, lockFormatOf, type DepsLock, type DepsLockFormat, type DepsRangeField } from './security-deps-lock.ts';
 import { digest, screenedJson, utf8 } from './security-primitives.ts';
 
 export const DEPS_FACTS_VERSION = 'deps-facts/v1';
@@ -167,25 +167,33 @@ export function candidateRequests(plan: DepsCandidatePlan) {
 const semverRange = (range: string) => !/[:/\\]/.test(range) && semver.validRange(range, { loose: true }) !== null;
 const satisfies = (v: string, range: string) => ['', '*'].includes(range.trim()) || semver.satisfies(v, range, { loose: true });
 
+// `name`, `@scope/name`, or either followed by `@spec`: the name ends at the first `@` after a scope's.
+const selectorName = (selector: string) => {
+  const at = selector.indexOf('@', selector.startsWith('@') ? 1 : 0);
+  return at < 0 ? selector : selector.slice(0, at);
+};
 /**
- * The package name an `overrides`, `pnpm.overrides` or Yarn `resolutions` key selects: `name`, `name@spec`, `@scope/name`,
- * `@scope/name@spec`, pnpm's `parent>name@spec`, or Yarn's `**\/name` / `parent/@scope/name@spec`.
+ * The package name an override key selects, by the lockfile's tool. npm's `overrides` (package-lock.json) nest instead of
+ * naming a parent, so a key is `name` or `name@spec` and the spec may hold `/`, `>`, `:` or spaces (a git, path or URL
+ * spec, a comparison range). `pnpm.overrides` and Yarn `resolutions` keys may name a parent first: pnpm's
+ * `parent>name@spec`, Yarn's `**\/name` or `parent/@scope/name@spec`. A `>` after a space, `|`, `@` or `:` is a
+ * comparison in a range (`name@>=1 <2`, `name@npm:>1`), not a pnpm parent.
  */
-function overrideKeyName(key: string) {
-  const afterArrow = key.includes('>') ? key.slice(key.lastIndexOf('>') + 1).trim() : key;
+function overrideKeyName(key: string, format: DepsLockFormat) {
+  if (format === 'npm') return selectorName(key);
+  const parent = [...key.matchAll(/(?<![ |@:])>/g)].at(-1);
+  const afterArrow = parent ? key.slice(parent.index + 1).trim() : key;
   const segs = afterArrow.split('/');
-  const spec = segs.length >= 2
+  return selectorName(segs.length >= 2
     ? (segs.at(-2)!.startsWith('@') ? `${segs.at(-2)}/${segs.at(-1)}` : segs.at(-1)!)
-    : afterArrow;
-  const at = spec.indexOf('@', spec.startsWith('@') ? 1 : 0);
-  return at < 0 ? spec : spec.slice(0, at);
+    : afterArrow);
 }
 /** Whether any `overrides` key at any depth names the package, or null when the value cannot be read as overrides. */
-function overridesName(value: unknown, name: string): boolean | null {
+function overridesName(value: unknown, name: string, format: DepsLockFormat): boolean | null {
   if (!isObject(value)) return null;
   for (const stack: Json[] = [value]; stack.length;) {
     for (const [key, v] of Object.entries(stack.pop()!)) {
-      if (overrideKeyName(key) === name) return true;
+      if (overrideKeyName(key, format) === name) return true;
       if (isObject(v)) stack.push(v); else if (typeof v !== 'string') return null;
     }
   }
@@ -226,7 +234,7 @@ function occurrenceFacts(lock: DepsLock, overrides: DepsOverridesInput, plan: De
   const none = { candidate: plan.candidate, candidate_valid: false, candidate_reasons, range_ok: null, range_reasons: [], dependents_total: null, blocking_dependents: [], blocking_total: 0, edges_unchanged: null, manual: true };
   if (candidate_reasons.length || !ev) return none;
   const candidate = plan.candidate!, name = plan.name!, { dependents, unread } = dependentsOf(lock, plan.entry);
-  const named = overrides.state === 'absent' ? false : overrides.state === 'present' ? overridesName(overrides.value, name) : null;
+  const named = overrides.state === 'absent' ? false : overrides.state === 'present' ? overridesName(overrides.value, name, lockFormatOf(lock)) : null;
   const manualReasons = [
     ...unread.length ? ['dependent_range_unread'] : [],
     ...dependents.some(d => !semverRange(d.range)) ? ['dependent_range_not_semver'] : [],

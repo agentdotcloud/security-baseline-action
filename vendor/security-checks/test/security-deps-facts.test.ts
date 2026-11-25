@@ -289,3 +289,52 @@ test('DFBASE-23: pnpm-lock.yaml and yarn.lock classify direct upgrades as multi_
   const yResFacts = facts(yarnClassic, [finding('f', yEntry, [fixed('7.5.2')])], { [yEntry]: clear('semver', '7.5.1', '7.5.2') }, yarnRes.overrides).findings[0]!;
   assert.deepEqual([yResFacts.class, yResFacts.range_reasons], ['manual_fix_selection', ['overrides_name_package']]);
 });
+
+// An override key's spec may hold `/`, `>`, `:` and spaces. Each lockfile's tool reads its own selectors: npm's
+// `overrides` (package-lock.json) never take a pnpm parent or a Yarn path, so the name is what comes before the spec.
+const overrideReasons = (lock: DepsLock, entry: string, name: string, overrides: DepsOverridesInput) =>
+  facts(lock, [finding('f', entry, [fixed('1.0.5')])], { [entry]: clear(name, '1.0.0', '1.0.5') }, overrides).findings[0]!.range_reasons;
+const NAMES = ['overrides_name_package'];
+
+test('DFBASE-13: an npm override key names the package before its spec, whatever the spec holds, at any depth', () => {
+  const S = 'node_modules/@s/a', scoped = lockOf({ '': { name: 'app', dependencies: { '@s/a': '^1.0.0' } }, [S]: reg('@s/a', '1.0.0') });
+  const npm = (lock: DepsLock, entry: string, name: string, key: string, nest = false) => {
+    const fromManifest = parseManifestOverrides(Buffer.from(JSON.stringify({ overrides: nest ? { p: { [key]: '1.0.5' } } : { [key]: '1.0.5' } })), false, 'package-lock.json').overrides;
+    return overrideReasons(lock, entry, name, fromManifest);
+  };
+  for (const key of ['a', 'a@1.0.0', 'a@git+https://github.com/o/a.git', 'a@git+ssh://git@github.com:o/r.git#v1', 'a@file:../vendor/a', 'a@github:o/r',
+    'a@>=1', 'a@>=1 <2', 'a@^1 || >=3', 'a@npm:b@^1', 'a@https://example.com/r/a-1.0.0.tgz'])
+    for (const nest of [false, true]) assert.deepEqual(npm(minimal(), A, 'a', key, nest), NAMES, `${key}${nest ? ' nested' : ''}`);
+  for (const key of ['@s/a', '@s/a@>=1 <2', '@s/a@github:o/r', '@s/a@file:../s/a', '@s/a@^1 || >=3'])
+    for (const nest of [false, true]) assert.deepEqual(npm(scoped, S, '@s/a', key, nest), NAMES, `${key}${nest ? ' nested' : ''}`);
+  // A spec that ends in another package's name, a nested key's parent, or a pnpm or Yarn selector npm doesn't read names nothing here.
+  for (const key of ['b@github:o/a', 'b@file:../a', 'b@git+https://github.com/o/a.git', 'b@>a', 'p>a', 'p>a@^1', '**/a', 'p/a', 'p/@s/a', '@s/p/a', 'aa', 'a>'])
+    assert.deepEqual(npm(minimal(), A, 'a', key), [], key);
+  for (const key of ['@s/b@github:o/a', 'p>@s/a', '**/@s/a', 'p/@s/a@^1', '@s/a2'])
+    assert.deepEqual(npm(scoped, S, '@s/a', key), [], key);
+  assert.deepEqual(overrideReasons(minimal(), A, 'a', { state: 'present', value: { 'a@github:o/r': { '.': '1.0.5', 'b@>=2': '2.0.0' } } }), NAMES);
+  assert.deepEqual(overrideReasons(minimal(), A, 'a', { state: 'present', value: { 'a@>=1': { b: 1 } } }), NAMES, 'a key that names the package decides before a later value');
+  assert.deepEqual(overrideReasons(minimal(), A, 'a', { state: 'present', value: { 'b@>=1': { c: 1 } } }), ['overrides_unreadable']);
+});
+
+test('DFBASE-23: pnpm overrides and Yarn resolutions keep their own selectors, and a `>` comparison in a range is not a pnpm parent', () => {
+  const pnpm = parseDepsLock(["lockfileVersion: '9.0'", 'importers:', '  .:', '    dependencies:', '      a:', '        specifier: ^1.0.0', '        version: 1.0.0',
+    'packages:', '  a@1.0.0:', '    resolution: {integrity: sha512-Zml4dHVyZQ==}', 'snapshots:', '  a@1.0.0: {}'].join('\n'), 'pnpm-lock.yaml');
+  const yarn = parseDepsLock(['# yarn lockfile v1', 'a@^1.0.0:', '  version "1.0.0"', '  resolved "https://registry.yarnpkg.com/a/-/a-1.0.0.tgz#0123456789abcdef0123456789abcdef01234567"',
+    '  integrity sha512-Zml4dHVyZQ=='].join('\n'), 'yarn.lock');
+  const P = 'pnpm/1.0.0/node_modules/a', Y = 'yarn/1.0.0/node_modules/a';
+  const read = (lock: DepsLock, entry: string, path: string, manifest: unknown) => overrideReasons(lock, entry, 'a', parseManifestOverrides(Buffer.from(JSON.stringify(manifest)), false, path).overrides);
+  const pnpmKey = (key: string) => read(pnpm, P, 'pnpm-lock.yaml', { pnpm: { overrides: { [key]: '1.0.5' } } });
+  for (const key of ['a', 'a@^1', 'p>a', 'p>a@^1', 'p@1>a', '@s/p@^2>a@~1.0.0', 'p>q>a', 'a@>=1', 'a@>=1 <2', 'a@^1 || >=3', 'a@<2', 'p@>=1>a', 'p@1>a@>=1 <2', 'p@^1 || >=2>a@> 1'])
+    assert.deepEqual(pnpmKey(key), NAMES, key);
+  for (const key of ['a>p', 'a@1>p', 'a@>=1>p@>=2', 'p>b@>=1', 'b@>=1 <2', 'aa@>=1'])
+    assert.deepEqual(pnpmKey(key), [], key);
+  const yarnKey = (key: string) => read(yarn, Y, 'yarn.lock', { resolutions: { [key]: '1.0.5' } });
+  for (const key of ['a', '**/a', 'p/a', 'p/**/a', '@s/p/a', 'p/a@npm:^1', 'a@npm:^1.0.0', 'a@npm:>=1', '**/a@npm:>=1 <2', 'p/a@npm:^1 || >2', 'a@>=1'])
+    assert.deepEqual(yarnKey(key), NAMES, key);
+  for (const key of ['a/p', '**/b', 'p/a2', '@s/a', 'b@npm:>=1', 'a@npm:>=1/b'])
+    assert.deepEqual(yarnKey(key), [], key);
+  // Both of a pnpm or Yarn project's override maps are read, each key with its tool's selectors.
+  assert.deepEqual(read(pnpm, P, 'pnpm-lock.yaml', { overrides: { b: '1' }, pnpm: { overrides: { 'p>a@>=1': '1.0.5' } } }), NAMES);
+  assert.deepEqual(read(yarn, Y, 'yarn.lock', { overrides: { b: '1' }, resolutions: { '**/a': '1.0.5' } }), NAMES);
+});
