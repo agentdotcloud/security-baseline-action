@@ -221,6 +221,6 @@ npm run build
 git diff --exit-code dist   # the bundle you built is the one committed here
 ```
 
-`src/` is the action. `vendor/security-checks/` is the dependency check itself, `@summationai/security-checks` 0.4.0,
+`src/` is the action. `vendor/security-checks/` is the dependency check itself, `@summationai/security-checks` 0.4.1,
 copied unchanged with its tests. CI runs the tests and rebuilds the bundle on every pull request and every push to
 `main`, and fails if `dist/` differs from what's committed.

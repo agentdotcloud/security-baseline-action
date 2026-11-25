@@ -1,6 +1,6 @@
 {
   "name": "@summationai/security-checks",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "private": true,
   "type": "module",
   "description": "Defensive Factory's shared security checks (DFBASE-3): pure, and importing nothing from packages/control",
